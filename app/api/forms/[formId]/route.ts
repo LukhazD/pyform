@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/libs/next-auth";
-import { authOptions } from "@/libs/next-auth";
+// import { authOptions } from "@/libs/next-auth"; // Unused
 import { formService } from "@/libs/services/formService";
 
 export async function GET(req: Request, { params }: { params: { formId: string } }) {

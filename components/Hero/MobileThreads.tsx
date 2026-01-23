@@ -1,6 +1,7 @@
 "use client";
 
-import { useLayoutEffect, useRef, forwardRef, useImperativeHandle, useState, useEffect } from "react";
+import { useLayoutEffect, useRef, forwardRef, useImperativeHandle, useState, useEffect, useCallback } from "react";
+import React from "react";
 import gsap from "gsap";
 
 export interface MobileThreadsHandle {
@@ -26,11 +27,18 @@ const MobileThreads = forwardRef<MobileThreadsHandle>((_, ref) => {
     // Dynamic threads state
     const [threads, setThreads] = useState<ThreadData[]>([]);
 
-    // Store physics state in ref to avoid re-renders during animation
+    // Store physics and animation state
     const threadStates = useRef<{
-        ambientCtrl: { x: number; y: number };
+        baseCtrl: { x: number; y: number }; // The original center
         physicsOffset: { x: number; y: number };
         isHovered: boolean;
+        // Params for sine wave animation
+        ambient: {
+            speed: number;
+            phase: number;
+            ampX: number;
+            ampY: number;
+        }
     }[]>([]);
 
     // 1. Generate Random Threads on Mount
@@ -65,15 +73,20 @@ const MobileThreads = forwardRef<MobileThreadsHandle>((_, ref) => {
 
         // Initialize the state refs for these new threads
         threadStates.current = generated.map((t) => ({
-            ambientCtrl: { x: t.basePath.ctrl[0], y: t.basePath.ctrl[1] },
+            baseCtrl: { x: t.basePath.ctrl[0], y: t.basePath.ctrl[1] },
             physicsOffset: { x: 0, y: 0 },
-            isHovered: false
+            isHovered: false,
+            ambient: {
+                speed: gsap.utils.random(0.3, 0.8),
+                phase: gsap.utils.random(0, Math.PI * 2),
+                ampX: gsap.utils.random(10, 25),
+                ampY: gsap.utils.random(8, 15)
+            }
         }));
 
         setThreads(generated);
     }, []);
 
-    // Expose handlers override
     useImperativeHandle(ref, () => ({
         handlePointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
             if (!containerRef.current) return;
@@ -81,21 +94,24 @@ const MobileThreads = forwardRef<MobileThreadsHandle>((_, ref) => {
             const relX = ((e.clientX - rect.left) / rect.width) * 100;
             const relY = ((e.clientY - rect.top) / rect.height) * 100;
 
+            const time = gsap.ticker.time;
+
             threads.forEach((_, i) => {
                 const state = threadStates.current[i];
-                if (!state) return; // Safety check
+                if (!state) return;
 
-                const currentX = state.ambientCtrl.x; // + state.physicsOffset.x; <- Use ambient center for detection stability?
-                // Actually collision usually feels better against the visual center (ambient)
+                // Calculate current position for collision detection (Approximate)
+                // We use baseCtrl + physics because ambient is just visual drift
+                const currentX = state.baseCtrl.x + Math.sin(time * state.ambient.speed + state.ambient.phase) * state.ambient.ampX;
+                const currentY = state.baseCtrl.y + Math.cos(time * state.ambient.speed + state.ambient.phase) * state.ambient.ampY;
 
                 const distX = relX - currentX;
-                const distY = relY - state.ambientCtrl.y;
+                const distY = relY - currentY;
                 const dist = Math.sqrt(distX * distX + distY * distY);
-                const radius = 25; // Slightly larger hitbox
+                const radius = 25;
 
                 if (dist < radius) {
                     state.isHovered = true;
-                    // Physics: Repulsion
                     // Lower force and smoother ease
                     const pushForce = 5;
                     const strength = Math.pow(1 - dist / radius, 2);
@@ -108,7 +124,7 @@ const MobileThreads = forwardRef<MobileThreadsHandle>((_, ref) => {
 
                     gsap.to(state.physicsOffset, {
                         x: tx, y: ty,
-                        duration: 0.5, // Slower duration for less abruptness
+                        duration: 0.5,
                         ease: "power2.out",
                         overwrite: "auto"
                     });
@@ -117,7 +133,7 @@ const MobileThreads = forwardRef<MobileThreadsHandle>((_, ref) => {
                     gsap.to(state.physicsOffset, {
                         x: 0, y: 0,
                         duration: 1.2,
-                        ease: "elastic.out(1, 0.5)", // softer elastic return
+                        ease: "elastic.out(1, 0.5)",
                         overwrite: "auto"
                     });
                 }
@@ -139,33 +155,45 @@ const MobileThreads = forwardRef<MobileThreadsHandle>((_, ref) => {
         }
     }));
 
+    const renderThread = useCallback((index: number) => {
+        const el = threadRefs.current[index];
+        const state = threadStates.current[index];
+        const thread = threads[index];
+
+        if (!el || !state || !thread) return;
+
+        const time = gsap.ticker.time;
+
+        // Math-based smooth sine wave for ambient motion
+        const ambientX = Math.sin(time * state.ambient.speed + state.ambient.phase) * state.ambient.ampX;
+        const ambientY = Math.cos(time * state.ambient.speed + state.ambient.phase) * state.ambient.ampY;
+
+        const x = state.baseCtrl.x + ambientX + state.physicsOffset.x;
+        const y = state.baseCtrl.y + ambientY + state.physicsOffset.y;
+
+        const d = `M ${thread.basePath.start[0]} ${thread.basePath.start[1]} Q ${x} ${y} ${thread.basePath.end[0]} ${thread.basePath.end[1]}`;
+        el.setAttribute("d", d);
+    }, [threads]);
+
+    const renderAllThreads = useCallback(() => {
+        // Batch update DOM
+        threads.forEach((_, i) => {
+            renderThread(i);
+        });
+    }, [renderThread, threads]);
+
     useLayoutEffect(() => {
         if (threads.length === 0) return; // Wait for hydration
 
         const ctx = gsap.context(() => {
-            // Draw-in
             gsap.fromTo(".mobile-thread",
                 { strokeDasharray: 1200, strokeDashoffset: 1200, opacity: 0 },
                 { strokeDashoffset: 0, opacity: 1, duration: 2.5, ease: "power3.out", stagger: 0.1 }
             );
 
-            // Ambient Loop (Data update only, no rendering here)
-            threads.forEach((_, i) => {
-                const state = threadStates.current[i];
-                if (!state) return;
+            // No GSAP Tweens for ambient loop anymore
+            // Purely handled in ticker -> renderThread
 
-                gsap.to(state.ambientCtrl, {
-                    x: `+=${gsap.utils.random(-20, 20)}`,
-                    y: `+=${gsap.utils.random(-15, 15)}`,
-                    duration: "random(4, 9)",
-                    repeat: -1,
-                    yoyo: true,
-                    ease: "sine.inOut"
-                    // Removed onUpdate from here
-                });
-            });
-
-            // Single Render Loop
             gsap.ticker.add(renderAllThreads);
 
         }, containerRef);
@@ -174,28 +202,7 @@ const MobileThreads = forwardRef<MobileThreadsHandle>((_, ref) => {
             gsap.ticker.remove(renderAllThreads);
             ctx.revert();
         }
-    }, [threads]); // Re-run when threads are generated
-
-    const renderAllThreads = () => {
-        // Batch update DOM
-        threads.forEach((_, i) => {
-            renderThread(i);
-        });
-    };
-
-    const renderThread = (index: number) => {
-        const el = threadRefs.current[index];
-        const state = threadStates.current[index];
-        const thread = threads[index];
-
-        if (!el || !state || !thread) return;
-
-        const x = state.ambientCtrl.x + state.physicsOffset.x;
-        const y = state.ambientCtrl.y + state.physicsOffset.y;
-
-        const d = `M ${thread.basePath.start[0]} ${thread.basePath.start[1]} Q ${x} ${y} ${thread.basePath.end[0]} ${thread.basePath.end[1]}`;
-        el.setAttribute("d", d);
-    };
+    }, [threads, renderAllThreads]); // Re-run when threads are generated
 
     return (
         <div

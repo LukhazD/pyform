@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/libs/next-auth";
-import { authOptions } from "@/libs/next-auth";
+// import { authOptions } from "@/libs/next-auth";
 import { submissionService } from "@/libs/services/submissionService";
 
 export async function GET(req: Request, { params }: { params: { formId: string } }) {

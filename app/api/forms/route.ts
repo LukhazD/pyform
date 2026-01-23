@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/libs/next-auth";
-import { authOptions } from "@/libs/next-auth";
+// import { authOptions } from "@/libs/next-auth";
 import { formService } from "@/libs/services/formService";
 
 export async function POST(req: Request) {
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     }
 }
 
-export async function GET(req: Request) {
+export async function GET() { // Removed unused req
     const session = await auth();
 
     if (!session) {

@@ -1,9 +1,8 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
-import Image from "next/image";
+import React from "react";
 import gsap from "gsap";
-import HeroImage from "@/public/assets/images/HeroImage.jpg";
 import { Button } from "@heroui/react";
 import MobileThreads, { MobileThreadsHandle } from "./MobileThreads";
 
@@ -67,19 +66,6 @@ export default function Hero() {
 
     const handlePointerLeave = () => {
         threadsRef.current?.handlePointerLeave();
-    };
-
-    // Helper to split text into characters
-    const SplitText = ({ text, className = "" }: { text: string, className?: string }) => {
-        return (
-            <span className={`inline-block whitespace-nowrap ${className}`}>
-                {text.split("").map((char, i) => (
-                    <span key={i} className={`inline-block ${className.includes('desc-char') ? 'desc-char' : 'char'}`} style={{ display: 'inline-block', transformStyle: 'preserve-3d' }}>
-                        {char === " " ? "\u00A0" : char}
-                    </span>
-                ))}
-            </span>
-        );
     };
 
     // Helper for sentences to ensure word wrapping

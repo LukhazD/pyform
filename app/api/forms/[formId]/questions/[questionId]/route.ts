@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/libs/next-auth";
-import { authOptions } from "@/libs/next-auth";
+// import { authOptions } from "@/libs/next-auth";
 import Question from "@/models/Question";
 import connectMongo from "@/libs/mongoose";
 
