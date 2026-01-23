@@ -1,6 +1,26 @@
 import mongoose from "mongoose";
 import toJSON from "./plugins/toJSON";
 
+// IUser Interface
+export interface IUser extends mongoose.Document {
+  name: string;
+  email: string;
+  image?: string;
+  googleId: string;
+  role: "user" | "admin" | "superadmin";
+  subscriptionTier: "free" | "pro";
+  stripeCustomerId?: string;
+  stripeSubscriptionId?: string;
+  subscriptionStatus?: "active" | "canceled" | "past_due" | "trialing";
+  formLimit: number;
+  createdAt: Date;
+  updatedAt: Date;
+
+  // Methods
+  canCreateForm(): boolean;
+  getActiveFormsCount(): Promise<number>;
+}
+
 // USER SCHEMA
 const userSchema = new mongoose.Schema(
   {
@@ -13,28 +33,42 @@ const userSchema = new mongoose.Schema(
       trim: true,
       lowercase: true,
       private: true,
+      unique: true,
     },
     image: {
       type: String,
     },
-    // Used in the Stripe webhook to identify the user in Stripe and later create Customer Portal or prefill user credit card details
-    customerId: {
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    role: {
+      type: String,
+      enum: ["user", "admin", "superadmin"],
+      default: "user",
+    },
+    subscriptionTier: {
+      type: String,
+      enum: ["free", "pro"],
+      default: "free",
+    },
+    stripeCustomerId: {
       type: String,
       validate(value: string) {
         return value.includes("cus_");
       },
     },
-    // Used in the Stripe webhook. should match a plan in config.js file.
-    priceId: {
+    stripeSubscriptionId: {
       type: String,
-      validate(value: string) {
-        return value.includes("price_");
-      },
     },
-    // Used to determine if the user has access to the product—it's turn on/off by the Stripe webhook
-    hasAccess: {
-      type: Boolean,
-      default: false,
+    subscriptionStatus: {
+      type: String,
+      enum: ["active", "canceled", "past_due", "trialing"],
+    },
+    formLimit: {
+      type: Number,
+      default: 3, // Default for free tier
     },
   },
   {
@@ -46,4 +80,21 @@ const userSchema = new mongoose.Schema(
 // add plugin that converts mongoose to json
 userSchema.plugin(toJSON);
 
-export default (mongoose.models.User || mongoose.model("User", userSchema)) as mongoose.Model<any>;
+// Methods
+userSchema.methods.canCreateForm = function (): boolean {
+  // Logic to be implemented or simply return true if unlimited for pro
+  if (this.subscriptionTier === 'pro') return true;
+  // Need to check active forms count, but that requires async db call which is tricky in sync method context usually
+  // For now, simple check or rely on service layer
+  return true;
+};
+
+userSchema.methods.getActiveFormsCount = async function (): Promise<number> {
+  // This would likely require circular dependency if importing Form model here.
+  // Better to handle in Service layer, but defining method signature as per UML.
+  const Form = mongoose.models.Form;
+  if (!Form) return 0;
+  return await Form.countDocuments({ userId: this._id, status: { $ne: 'closed' } });
+};
+
+export default (mongoose.models.User || mongoose.model<IUser>("User", userSchema)) as mongoose.Model<IUser>;

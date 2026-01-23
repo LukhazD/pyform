@@ -5,6 +5,10 @@ import { getSEOTags } from "@/libs/seo";
 import ClientLayout from "@/components/LayoutClient";
 import config from "@/config";
 import "./globals.css";
+import * as React from "react";
+
+// 1. import `HeroUIProvider` component
+import { HeroUIProvider } from "@heroui/react";
 
 const font = Inter({ subsets: ["latin"] });
 
@@ -21,15 +25,18 @@ export const metadata = getSEOTags();
 
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
-		<html
-			lang="en"
-			data-theme={config.colors.theme}
-			className={font.className}
-		>
-			<body>
-				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
-				<ClientLayout>{children}</ClientLayout>
-			</body>
-		</html>
+		<HeroUIProvider>
+			<html
+				lang="en"
+				data-theme={config.colors.theme}
+				className={font.className}
+			>
+				<body>
+					{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
+					<ClientLayout>{children}</ClientLayout>
+				</body>
+			</html>
+		</HeroUIProvider>
+
 	);
 }
