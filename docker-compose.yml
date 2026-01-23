@@ -1,0 +1,15 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pyform-app
+    restart: always
+    ports:
+      - "3450:4050"
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - .env

@@ -3,16 +3,15 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 
-import React from "react";
-
 interface ModalProps {
   isModalOpen: boolean;
   setIsModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  children: React.ReactNode;
+  title?: React.ReactNode;
+  isFullScreen?: boolean;
 }
 
-// A simple modal component which can be shown/hidden with a boolean and a function
-// Because of the setIsModalOpen function, you can't use it in a server component.
-const Modal = ({ isModalOpen, setIsModalOpen }: ModalProps) => {
+const Modal = ({ isModalOpen, setIsModalOpen, children, title, isFullScreen = false }: ModalProps) => {
   return (
     <Transition appear show={isModalOpen} as={Fragment}>
       <Dialog
@@ -29,11 +28,11 @@ const Modal = ({ isModalOpen, setIsModalOpen }: ModalProps) => {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-neutral-focus bg-opacity-50" />
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
-          <div className="flex min-h-full overflow-hidden items-start md:items-center justify-center p-2">
+          <div className={`flex min-h-full items-center justify-center text-center ${isFullScreen ? 'p-0' : 'p-4'}`}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -43,27 +42,32 @@ const Modal = ({ isModalOpen, setIsModalOpen }: ModalProps) => {
               leaveFrom="opacity-100 scale-100"
               leaveTo="opacity-0 scale-95"
             >
-              <Dialog.Panel className="relative w-full max-w-3xl h-full overflow-visible transform text-left align-middle shadow-xl transition-all rounded-xl bg-base-100 p-6 md:p-8">
-                <div className="flex justify-between items-center mb-4">
-                  <Dialog.Title as="h2" className="font-semibold">
-                    I&apos;m a modal
-                  </Dialog.Title>
+              <Dialog.Panel
+                className={`transform overflow-hidden bg-white text-left align-middle shadow-xl transition-all 
+                  ${isFullScreen
+                    ? 'w-full h-screen rounded-none p-6 md:p-8 flex flex-col'
+                    : 'w-full max-w-md rounded-2xl p-6'
+                  }`}
+              >
+                <div className={`flex justify-between items-center ${isFullScreen ? 'mb-8' : 'mb-4'}`}>
+                  {title && (
+                    <Dialog.Title as="h3" className="text-xl font-bold leading-6 text-gray-900">
+                      {title}
+                    </Dialog.Title>
+                  )}
                   <button
-                    className="btn btn-square btn-ghost btn-sm"
+                    className="btn btn-sm btn-circle btn-ghost absolute right-4 top-4"
                     onClick={() => setIsModalOpen(false)}
                   >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      className="w-5 h-5"
-                    >
-                      <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
 
-                <section>And here is my content</section>
+                <div className="mt-2 text-gray-800 flex-1">
+                  {children}
+                </div>
               </Dialog.Panel>
             </Transition.Child>
           </div>

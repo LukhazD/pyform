@@ -1,3 +1,4 @@
+
 import { ReactNode } from "react";
 import { Inter } from "next/font/google";
 import { Viewport } from "next";
@@ -25,18 +26,22 @@ export const metadata = getSEOTags();
 
 export default function RootLayout({ children }: { children: ReactNode }) {
 	return (
-		<HeroUIProvider>
-			<html
-				lang="en"
-				data-theme={config.colors.theme}
-				className={font.className}
-			>
-				<body>
+
+		<html
+			lang="en"
+			data-theme={config.colors.theme}
+			className={font.className}
+		>
+
+			<body>
+				<HeroUIProvider>
 					{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, etc.) */}
 					<ClientLayout>{children}</ClientLayout>
-				</body>
-			</html>
-		</HeroUIProvider>
+				</HeroUIProvider>
+
+			</body>
+
+		</html>
 
 	);
 }
