@@ -3,7 +3,8 @@ import { auth } from "@/libs/next-auth";
 // import { authOptions } from "@/libs/next-auth";
 import { submissionService } from "@/libs/services/submissionService";
 
-export async function GET(req: Request, { params }: { params: { formId: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ formId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

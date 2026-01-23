@@ -13,22 +13,21 @@ interface FAQItemProps {
 
 const faqList: FAQItemProps[] = [
   {
-    question: "What do I get exactly?",
-    answer: <div className="space-y-2 leading-relaxed">Loreum Ipseum</div>,
+    question: "¿Qué obtengo exactamente?",
+    answer: <div className="space-y-2 leading-relaxed">Lorem Ipsum</div>,
   },
   {
-    question: "Can I get a refund?",
+    question: "¿Puedo obtener un reembolso?",
     answer: (
       <p>
-        Yes! You can request a refund within 7 days of your purchase. Reach out
-        by email.
+        ¡Sí! Puedes solicitar un reembolso dentro de los 7 días de tu compra. Contáctanos por correo.
       </p>
     ),
   },
   {
-    question: "I have another question",
+    question: "Tengo otra pregunta",
     answer: (
-      <div className="space-y-2 leading-relaxed">Cool, contact us by email</div>
+      <div className="space-y-2 leading-relaxed">Genial, contáctanos por correo</div>
     ),
   },
 ];
@@ -62,18 +61,16 @@ const FaqItem = ({ item }: { item: FAQItemProps }) => {
             width="16"
             height="2"
             rx="1"
-            className={`transform origin-center transition duration-200 ease-out ${
-              isOpen && "rotate-180"
-            }`}
+            className={`transform origin-center transition duration-200 ease-out ${isOpen && "rotate-180"
+              }`}
           />
           <rect
             y="7"
             width="16"
             height="2"
             rx="1"
-            className={`transform origin-center rotate-90 transition duration-200 ease-out ${
-              isOpen && "rotate-180 hidden"
-            }`}
+            className={`transform origin-center rotate-90 transition duration-200 ease-out ${isOpen && "rotate-180 hidden"
+              }`}
           />
         </svg>
       </button>
@@ -100,7 +97,7 @@ const FAQ = () => {
         <div className="flex flex-col text-left basis-1/2">
           <p className="inline-block font-semibold text-primary mb-4">FAQ</p>
           <p className="sm:text-4xl text-3xl font-extrabold text-base-content">
-            Frequently Asked Questions
+            Preguntas Frecuentes
           </p>
         </div>
 

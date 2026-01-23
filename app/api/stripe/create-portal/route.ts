@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
       const user = id ? await User.findById(String(id)) : null;
 
-      if (!user?.customerId) {
+      if (!user?.stripeCustomerId) {
         return NextResponse.json(
           {
             error:
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
       }
 
       const stripePortalUrl = await createCustomerPortal({
-        customerId: user.customerId,
+        customerId: user.stripeCustomerId,
         returnUrl: body.returnUrl,
       });
 

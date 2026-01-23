@@ -78,10 +78,12 @@ export async function POST(req: NextRequest) {
           throw new Error("No user found");
         }
 
-        // Update user data + Grant user access to your product. It's a boolean in the database, but could be a number of credits, etc...
-        user.priceId = priceId;
-        user.customerId = customerId;
-        user.hasAccess = true;
+        // Update user data + Grant user access to your product.
+        user.stripePriceId = priceId;
+        user.stripeCustomerId = customerId as string;
+        user.stripeSubscriptionId = stripeObject.subscription as string;
+        user.subscriptionStatus = "active";
+        user.subscriptionTier = "pro";
         await user.save();
 
         // Extra: send email with user link, product page, etc...
@@ -116,11 +118,14 @@ export async function POST(req: NextRequest) {
         const subscription = await stripe.subscriptions.retrieve(
           stripeObject.id
         );
-        const user = await User.findOne({ customerId: subscription.customer });
+        const user = await User.findOne({ stripeCustomerId: subscription.customer });
 
         // Revoke access to your product
-        user.hasAccess = false;
-        await user.save();
+        if (user) {
+          user.subscriptionStatus = "canceled";
+          user.subscriptionTier = "free";
+          await user.save();
+        }
 
         break;
       }
@@ -135,13 +140,13 @@ export async function POST(req: NextRequest) {
         const priceId = stripeObject.lines.data[0].price.id;
         const customerId = stripeObject.customer;
 
-        const user = await User.findOne({ customerId });
+        const user = await User.findOne({ stripeCustomerId: customerId });
 
         // Make sure the invoice is for the same plan (priceId) the user subscribed to
-        if (user.priceId !== priceId) break;
+        if (user?.stripePriceId !== priceId) break;
 
-        // Grant user access to your product. It's a boolean in the database, but could be a number of credits, etc...
-        user.hasAccess = true;
+        // Grant user access to your product.
+        user.subscriptionStatus = "active";
         await user.save();
 
         break;

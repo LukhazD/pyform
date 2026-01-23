@@ -13,14 +13,14 @@ const features: {
   svg: JSX.Element;
 }[] = [
     {
-      name: "Emails",
+      name: "Correos",
       description: (
         <>
           <ul className="space-y-1">
             {[
-              "Send transactional emails",
-              "DNS setup to avoid spam folder (DKIM, DMARC, SPF in subdomain)",
-              "Webhook to receive & forward emails",
+              "Enviar correos transaccionales",
+              "Configuración DNS para evitar spam (DKIM, DMARC, SPF)",
+              "Webhook para recibir y reenviar correos",
             ].map((item) => (
               <li key={item} className="flex items-center gap-3">
                 <svg
@@ -52,7 +52,7 @@ const features: {
                   clipRule="evenodd"
                 />
               </svg>
-              Time saved: 2 hours
+              Tiempo ahorrado: 2 horas
             </li>
           </ul>
         </>
@@ -74,14 +74,14 @@ const features: {
       ),
     },
     {
-      name: "Payments",
+      name: "Pagos",
       description: (
         <>
           <ul className="space-y-2">
             {[
-              "Create checkout sessions",
-              "Handle webhooks to update user's account",
-              "Tips to setup your account & reduce chargebacks",
+              "Crear sesiones de pago",
+              "Manejar webhooks para actualizar cuenta",
+              "Tips para evitar contracargos",
             ].map((item) => (
               <li key={item} className="flex items-center gap-3">
                 <svg
@@ -113,7 +113,7 @@ const features: {
                   clipRule="evenodd"
                 />
               </svg>
-              Time saved: 2 hours
+              Tiempo ahorrado: 2 horas
             </li>
           </ul>
         </>
@@ -443,13 +443,11 @@ const FeaturesListicle = () => {
 
           <h2 className="font-extrabold text-3xl lg:text-5xl tracking-tight mb-8">
             {/* 💡 COPY TIP: Remind visitors about the value of your product. Why do they need it? */}
-            Supercharge your app instantly, launch faster, make $
+            Supercarga tu app al instante, lanza más rápido, gana $
           </h2>
           <div className="text-base-content/80 leading-relaxed mb-8 lg:text-lg">
             {/* 💡 COPY TIP: Explain how your product delivers what you promise in the headline. */}
-            Login users, process payments and send emails at lightspeed. Spend
-            your time building your startup, not integrating APIs. ShipFast
-            provides you with the boilerplate code you need to launch, FAST.
+            Inicia sesión de usuarios, procesa pagos y envía correos a la velocidad de la luz. Pasa tu tiempo construyendo tu startup, no integrando APIs. PyForm te da el código base que necesitas para lanzar, RÁPIDO.
           </div>
         </div>
       </div>

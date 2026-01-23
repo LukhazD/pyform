@@ -7,10 +7,14 @@ import FAQ from "@/components/FAQ";
 import Problem from "@/components/Problem";
 import Footer from "@/components/Footer";
 
+import { Suspense } from "react";
+
 export default function Page() {
   return (
     <main>
-      <Header />
+      <Suspense fallback={<div></div>}>
+        <Header />
+      </Suspense>
 
 
       <Hero />

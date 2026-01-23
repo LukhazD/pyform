@@ -4,7 +4,8 @@ import { auth } from "@/libs/next-auth";
 import Question from "@/models/Question";
 import connectMongo from "@/libs/mongoose";
 
-export async function PATCH(req: Request, { params }: { params: { formId: string, questionId: string } }) {
+export async function PATCH(req: Request, props: { params: Promise<{ formId: string, questionId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -25,7 +26,8 @@ export async function PATCH(req: Request, { params }: { params: { formId: string
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { formId: string, questionId: string } }) {
+export async function DELETE(req: Request, props: { params: Promise<{ formId: string, questionId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 

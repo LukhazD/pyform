@@ -101,14 +101,14 @@ export default function Hero() {
                 <div className="max-w-xl md:max-w-2xl text-left text-black drop-shadow-none space-y-6 pointer-events-auto">
                     <div ref={textRef} className="opacity-100 perspective-500">
                         <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight text-gray-900 perspective-500">
-                            <SplitSentence text="Build Forms" className="char origin-bottom" />
+                            <SplitSentence text="Crea Formularios" className="char origin-bottom" />
                             <br />
                             <span className="">
-                                <SplitSentence text="Like Magic" className="char origin-bottom" />
+                                <SplitSentence text="Como Magia" className="char origin-bottom" />
                             </span>
                         </h1>
                         <div className="mt-6 text-lg md:text-xl text-gray-700 leading-relaxed font-medium max-w-lg">
-                            <SplitSentence text="Create conversational, logic-driven forms in minutes. The most powerful open-source form builder for modern developers." className="desc-char" />
+                            <SplitSentence text="Crea formularios conversacionales y lógicos en minutos. El constructor de formularios de código abierto más potente para desarrolladores modernos." className="desc-char" />
                         </div>
                     </div>
 
@@ -118,14 +118,14 @@ export default function Hero() {
                             className="font-semibold text-lg px-8 text-white bg-gray-900 shadow-lg"
                         // onClick={() => ...}
                         >
-                            Get Started
+                            Empezar
                         </Button>
                         <Button
                             size="lg"
                             variant="ghost"
                             className="font-semibold text-lg px-8 border-2 hover:bg-[#9929EA]/5"
                         >
-                            Learn More
+                            Saber Más
                         </Button>
                     </div>
                 </div>

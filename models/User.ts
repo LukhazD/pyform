@@ -11,6 +11,7 @@ export interface IUser extends mongoose.Document {
   subscriptionTier: "free" | "pro";
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
+  stripePriceId?: string;
   subscriptionStatus?: "active" | "canceled" | "past_due" | "trialing";
   formLimit: number;
   createdAt: Date;
@@ -60,6 +61,9 @@ const userSchema = new mongoose.Schema(
       },
     },
     stripeSubscriptionId: {
+      type: String,
+    },
+    stripePriceId: {
       type: String,
     },
     subscriptionStatus: {

@@ -4,7 +4,8 @@ import { auth } from "@/libs/next-auth";
 import Question from "@/models/Question";
 import connectMongo from "@/libs/mongoose";
 
-export async function POST(req: Request, { params }: { params: { formId: string } }) {
+export async function POST(req: Request, props: { params: Promise<{ formId: string }> }) {
+    const params = await props.params;
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -24,7 +25,8 @@ export async function POST(req: Request, { params }: { params: { formId: string 
     }
 }
 
-export async function GET(req: Request, { params }: { params: { formId: string } }) {
+export async function GET(req: Request, props: { params: Promise<{ formId: string }> }) {
+    const params = await props.params;
     // Public access might be needed for rendering, or protected?
     // Usually questions are fetched with form publically.
     // But this endpoint might be for editor.
