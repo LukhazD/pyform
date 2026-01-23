@@ -4,7 +4,14 @@ import { useLayoutEffect, useRef } from "react";
 import React from "react";
 import gsap from "gsap";
 import { Button } from "@heroui/react";
-import MobileThreads, { MobileThreadsHandle } from "./MobileThreads";
+import dynamic from "next/dynamic";
+import type { MobileThreadsHandle } from "./MobileThreads";
+
+// Dynamic import with SSR disabled to prevent hydration mismatch
+const MobileThreads = dynamic(() => import("./MobileThreads"), {
+    ssr: false,
+    loading: () => <div className="absolute inset-0 bg-white" />
+});
 
 export default function Hero() {
     const containerRef = useRef<HTMLDivElement>(null);
@@ -108,7 +115,7 @@ export default function Hero() {
                             </span>
                         </h1>
                         <div className="mt-6 text-lg md:text-xl text-gray-700 leading-relaxed font-medium max-w-lg">
-                            <SplitSentence text="Crea formularios conversacionales y lógicos en minutos. El constructor de formularios de código abierto más potente para desarrolladores modernos." className="desc-char" />
+                            <SplitSentence text="Crea formularios conversacionales con lógica avanzada en minutos. El constructor de formularios open-source más potente para desarrolladores modernos." className="desc-char" />
                         </div>
                     </div>
 
