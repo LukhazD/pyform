@@ -6,7 +6,6 @@ export interface ISubscription extends mongoose.Document {
     stripeSubscriptionId: string;
     stripePriceId: string;
     status: "active" | "canceled" | "past_due" | "trialing";
-    billingCycle: "monthly" | "yearly";
     currentPeriodStart: Date;
     currentPeriodEnd: Date;
     cancelAtPeriodEnd: boolean;
@@ -35,11 +34,6 @@ const subscriptionSchema = new Schema(
         status: {
             type: String,
             enum: ["active", "canceled", "past_due", "trialing"],
-            required: true,
-        },
-        billingCycle: {
-            type: String,
-            enum: ["monthly", "yearly"],
             required: true,
         },
         currentPeriodStart: {

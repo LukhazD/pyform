@@ -14,6 +14,7 @@ export interface IUser extends mongoose.Document {
   stripePriceId?: string;
   subscriptionStatus?: "active" | "canceled" | "past_due" | "trialing";
   formLimit: number;
+  onboardingCompleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 
@@ -73,6 +74,10 @@ const userSchema = new mongoose.Schema(
     formLimit: {
       type: Number,
       default: 3, // Default for free tier
+    },
+    onboardingCompleted: {
+      type: Boolean,
+      default: false,
     },
   },
   {

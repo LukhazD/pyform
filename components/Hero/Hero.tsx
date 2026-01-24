@@ -165,14 +165,17 @@ export default function Hero() {
                     <div ref={buttonRef} className="flex flex-wrap gap-4 pt-2">
                         <Button
                             size="lg"
+                            radius="full"
+                            color="default"
                             className="font-semibold text-lg px-8 text-white bg-gray-900 shadow-lg hover:bg-gray-800"
                         >
                             Empezar
                         </Button>
                         <Button
                             size="lg"
-                            variant="ghost"
-                            className="font-semibold text-lg px-8 border-2 hover:bg-purple-500/5"
+                            radius="full"
+                            variant="bordered"
+                            className="font-semibold text-lg px-8"
                         >
                             Más información
                         </Button>

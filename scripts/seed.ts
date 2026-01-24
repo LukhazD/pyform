@@ -1,29 +1,46 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import User from "../models/User";
-import Form from "../models/Form";
-import Question, { questionTypes } from "../models/Question";
-import Submission from "../models/Submission";
-import FormAnalytics from "../models/FormAnalytics";
-import Subscription from "../models/Subscription";
-import connectMongo from "../libs/mongoose";
 
-// Load environment variables
+// Load environment variables immediately
 dotenv.config({ path: ".env.local" });
 dotenv.config({ path: ".env" });
 
 const seedDatabase = async () => {
     try {
         console.log("🌱 Connecting to MongoDB...");
+        // Dynamic imports to ensure env vars are loaded before modules are accessed
+        // This prevents the 'MONGODB_URI missing' error from hoisting
+        const connectMongo = (await import("../libs/mongoose")).default;
+        const User = (await import("../models/User")).default;
+        const Form = (await import("../models/Form")).default;
+        const Question = (await import("../models/Question")).default;
+        const Submission = (await import("../models/Submission")).default;
+        const FormAnalytics = (await import("../models/FormAnalytics")).default;
+        const Subscription = (await import("../models/Subscription")).default;
+
         await connectMongo();
 
-        console.log("🧹 Clearing existing data...");
-        await User.deleteMany({});
-        await Form.deleteMany({});
-        await Question.deleteMany({});
-        await Submission.deleteMany({});
-        await FormAnalytics.deleteMany({});
-        await Subscription.deleteMany({});
+        // DYNAMICALLY CLEAR ALL COLLECTIONS
+        if (mongoose.connection.db) {
+            const collections = await mongoose.connection.db.collections();
+            console.log("🧹 Collections found:", collections.map(c => c.collectionName).join(", "));
+
+            for (const collection of collections) {
+                const name = collection.collectionName;
+                // Skip system collections if any, though usually hidden
+                await collection.deleteMany({});
+                console.log(`   - Cleared: ${name}`);
+            }
+        } else {
+            // Fallback if db instance is somehow missing (unlikely)
+            console.log("🧹 Clearing manually (fallback)...");
+            await User.deleteMany({});
+            await Form.deleteMany({});
+            await Question.deleteMany({});
+            await Submission.deleteMany({});
+            await FormAnalytics.deleteMany({});
+            await Subscription.deleteMany({});
+        }
 
         console.log("👥 Creating Users...");
         const users = await User.insertMany([
@@ -61,7 +78,6 @@ const seedDatabase = async () => {
             stripeSubscriptionId: "sub_1234567890",
             stripePriceId: "price_1234567890",
             status: "active",
-            billingCycle: "monthly",
             currentPeriodStart: new Date(),
             currentPeriodEnd: new Date(new Date().setMonth(new Date().getMonth() + 1)),
             cancelAtPeriodEnd: false,

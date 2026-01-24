@@ -1,14 +1,15 @@
 import { ReactNode } from "react";
-import { Inter } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import { Viewport } from "next";
 import { getSEOTags } from "@/libs/seo";
 import ClientLayout from "@/components/LayoutClient";
 import config from "@/config";
 import "./globals.css";
 
-const font = Inter({
+const font = Plus_Jakarta_Sans({
 	subsets: ["latin"],
-	display: "swap", // Ensure text is visible during font load
+	weight: ["400", "500", "700"],
+	display: "swap",
 	preload: true,
 });
 
