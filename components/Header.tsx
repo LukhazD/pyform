@@ -73,8 +73,8 @@ const Header = () => {
               className="w-8"
               placeholder="blur"
               priority={true}
-              width={32}
-              height={32}
+              width={48}
+              height={48}
             />
             <span className={`font-extrabold text-lg ${isScrolled ? "text-gray-900" : "text-gray-900"}`}>
               {config.appName}

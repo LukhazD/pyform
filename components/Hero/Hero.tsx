@@ -77,10 +77,11 @@ export default function Hero() {
 
     // Helper for sentences to ensure word wrapping
     const SplitSentence = ({ text, className = "" }: { text: string, className?: string }) => {
+        const words = text.split(" ");
         return (
             <span className="inline-block">
-                {text.split(" ").map((word, i) => (
-                    <span key={i} className="inline-block whitespace-nowrap mr-1">
+                {words.map((word, i) => (
+                    <span key={i} className="inline-block whitespace-nowrap" style={{ marginRight: i < words.length - 1 ? '0.3em' : 0 }}>
                         {word.split("").map((char, j) => (
                             <span key={j} className={`inline-block ${className}`} style={{ transformStyle: 'preserve-3d' }}>
                                 {char}

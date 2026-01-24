@@ -31,20 +31,21 @@ const config = {
             ? "price_1Niyy5AxyNprDp7iZIqEyD2h"
             : "price_456",
         //  REQUIRED - Name of the plan, displayed on the pricing page
-        name: "Starter",
+        name: "Pro Mensual",
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
-        description: "Perfect for small projects",
+        description: "Todo lo que necesitas para crear formularios profesionales",
         // The price you want to display, the one user will be charged on Stripe.
-        price: 99,
+        price: 9.99,
         // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
-        priceAnchor: 149,
+        priceAnchor: 19,
         features: [
-          {
-            name: "NextJS boilerplate",
-          },
-          { name: "User oauth" },
-          { name: "Database" },
-          { name: "Emails" },
+          { name: "5 formularios activos" },
+          { name: "500 respuestas/mes" },
+          { name: "13 tipos de preguntas" },
+          { name: "Editor Live en tiempo real" },
+          { name: "Analíticas de abandono" },
+          { name: "Exportación CSV" },
+          { name: "Inicio de sesión con Google" },
         ],
       },
       {
@@ -54,19 +55,19 @@ const config = {
             : "price_456",
         // This plan will look different on the pricing page, it will be highlighted. You can only have one plan with isFeatured: true
         isFeatured: true,
-        name: "Advanced",
-        description: "You need more power",
-        price: 149,
-        priceAnchor: 299,
+        name: "Pro Anual",
+        description: "Ahorra 40% con el plan anual — mejor valor",
+        price: 71.88,
+        priceAnchor: 119.88,
         features: [
-          {
-            name: "NextJS boilerplate",
-          },
-          { name: "User oauth" },
-          { name: "Database" },
-          { name: "Emails" },
-          { name: "1 year of updates" },
-          { name: "24/7 support" },
+          { name: "5 formularios activos" },
+          { name: "Respuestas ilimitadas" },
+          { name: "13 tipos de preguntas" },
+          { name: "Editor Live en tiempo real" },
+          { name: "Analíticas avanzadas de fricción" },
+          { name: "Exportación CSV ilimitada" },
+          { name: "Inicio de sesión con Google" },
+          { name: "Soporte prioritario por email" },
         ],
       },
     ],

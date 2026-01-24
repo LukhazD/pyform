@@ -8,6 +8,7 @@ import { SessionProvider } from "next-auth/react";
 import NextTopLoader from "nextjs-toploader";
 import { Toaster } from "react-hot-toast";
 import { Tooltip } from "react-tooltip";
+import { HeroUIProvider } from "@heroui/react";
 import config from "@/config";
 
 // Crisp customer chat support:
@@ -51,9 +52,10 @@ const CrispChat = (): null => {
 // 3. Toaster: Show Success/Error messages anywhere from the app with toast()
 // 4. Tooltip: Show a tooltip if any JSX element has these 2 attributes: data-tooltip-id="tooltip" data-tooltip-content=""
 // 5. CrispChat: Set Crisp customer chat support (see above)
+// 6. HeroUIProvider: Provides HeroUI context (moved from layout.tsx to fix hydration)
 const ClientLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <>
+    <HeroUIProvider>
       <SessionProvider>
         {/* Show a progress bar at the top when navigating between pages */}
         <NextTopLoader color={config.colors.main} showSpinner={false} />
@@ -77,7 +79,7 @@ const ClientLayout = ({ children }: { children: ReactNode }) => {
         {/* Set Crisp customer chat support */}
         <CrispChat />
       </SessionProvider>
-    </>
+    </HeroUIProvider>
   );
 };
 

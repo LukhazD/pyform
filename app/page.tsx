@@ -8,6 +8,7 @@ import Problem from "@/components/Problem";
 import Footer from "@/components/Footer";
 
 import { Suspense } from "react";
+import Pricing from "@/components/Pricing";
 
 export default function Page() {
   return (
@@ -15,12 +16,10 @@ export default function Page() {
       <Suspense fallback={<div></div>}>
         <Header />
       </Suspense>
-
-
       <Hero />
       <Problem />
       <Features />
-
+      <Pricing />
       <FAQ />
       <CTA />
       <Footer />

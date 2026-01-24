@@ -1,65 +1,155 @@
-const Arrow = ({ extraStyle }: { extraStyle: string }) => {
-  return (
-    <svg
-      className={`shrink-0 w-12 fill-neutral-content opacity-70 ${extraStyle}`}
-      viewBox="0 0 138 138"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <g>
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M72.9644 5.31431C98.8774 43.8211 83.3812 88.048 54.9567 120.735C54.4696 121.298 54.5274 122.151 55.0896 122.639C55.6518 123.126 56.5051 123.068 56.9922 122.506C86.2147 88.9044 101.84 43.3918 75.2003 3.80657C74.7866 3.18904 73.9486 3.02602 73.3287 3.44222C72.7113 3.85613 72.5484 4.69426 72.9644 5.31431Z"
-        />
-        <path
-          fillRule="evenodd"
-          clipRule="evenodd"
-          d="M56.5084 121.007C56.9835 118.685 57.6119 115.777 57.6736 115.445C59.3456 106.446 59.5323 97.67 58.4433 88.5628C58.3558 87.8236 57.6824 87.2948 56.9433 87.3824C56.2042 87.4699 55.6756 88.1435 55.7631 88.8828C56.8219 97.7138 56.6432 106.225 55.0203 114.954C54.926 115.463 53.5093 121.999 53.3221 123.342C53.2427 123.893 53.3688 124.229 53.4061 124.305C53.5887 124.719 53.8782 124.911 54.1287 125.015C54.4123 125.13 54.9267 125.205 55.5376 124.926C56.1758 124.631 57.3434 123.699 57.6571 123.487C62.3995 120.309 67.4155 116.348 72.791 113.634C77.9171 111.045 83.3769 109.588 89.255 111.269C89.9704 111.475 90.7181 111.057 90.9235 110.342C91.1288 109.626 90.7117 108.878 89.9963 108.673C83.424 106.794 77.3049 108.33 71.5763 111.223C66.2328 113.922 61.2322 117.814 56.5084 121.007Z"
-        />
-      </g>
-    </svg>
-  );
-};
-const Step = ({ emoji, text }: { emoji: string; text: string }) => {
-  return (
-    <div className="w-full md:w-48 flex flex-col gap-2 items-center justify-center">
-      <span className="text-4xl">{emoji}</span>
-      <h3 className="font-bold">{text}</h3>
-    </div>
-  );
-};
+"use client";
 
-// Problem Agitation: A crucial, yet overlooked, component for a landing page that sells.
-// It goes under your Hero section, and above your Features section.
-// Your Hero section makes a promise to the customer: "Our product will help you achieve XYZ".
-// Your Problem section explains what happens to the customer if its problem isn't solved.
-// The copy should NEVER mention your product. Instead, it should dig the emotional outcome of not fixing a problem.
-// For instance:
-// - Hero: "ShipFast helps developers launch startups fast"
-// - Problem Agitation: "Developers spend too much time adding features, get overwhelmed, and quit." (not about ShipFast at all)
-// - Features: "ShipFast has user auth, Stripe, emails all set up for you"
+import { useLayoutEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+interface ProblemCardProps {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+const ProblemCard = ({ icon, title, description }: ProblemCardProps) => (
+  <div className="problem-card bg-white/5 backdrop-blur-sm rounded-2xl p-6 md:p-8 border border-white/10 hover:border-white/20 transition-colors">
+    <div className="text-4xl mb-4">{icon}</div>
+    <h3 className="text-xl font-bold mb-2 text-white">{title}</h3>
+    <p className="text-gray-400 leading-relaxed">{description}</p>
+  </div>
+);
+
 const Problem = () => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
+  const solutionRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    gsap.registerPlugin(ScrollTrigger);
+
+    const ctx = gsap.context(() => {
+      // Animate title
+      gsap.fromTo(
+        titleRef.current,
+        { opacity: 0, y: 50 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: titleRef.current,
+            start: "top 85%",
+            toggleActions: "play none none reverse",
+          },
+        }
+      );
+
+      // Animate cards with stagger
+      gsap.fromTo(
+        ".problem-card",
+        { opacity: 0, y: 60, scale: 0.95 },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
+          duration: 0.6,
+          stagger: 0.15,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: cardsRef.current,
+            start: "top 80%",
+            toggleActions: "play none none reverse",
+          },
+        }
+      );
+
+      // Animate solution section
+      gsap.fromTo(
+        solutionRef.current,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.8,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: solutionRef.current,
+            start: "top 85%",
+            toggleActions: "play none none reverse",
+          },
+        }
+      );
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  const problems: ProblemCardProps[] = [
+    {
+      icon: "💸",
+      title: "Precios impredecibles",
+      description: "Cuantas más respuestas recibes, más pagas. Tus costos se disparan justo cuando más éxito tienes.",
+    },
+    {
+      icon: "🔄",
+      title: "Vista previa separada",
+      description: "Editas en un lugar, previsualizas en otro. Y cuando publicas... nunca se ve igual.",
+    },
+    {
+      icon: "🧩",
+      title: "Complejidad innecesaria",
+      description: "100 funciones que jamás usarás. Interfaces sobrecargadas que ralentizan tu trabajo.",
+    },
+  ];
+
   return (
-    <section className="bg-neutral text-neutral-content">
-      <div className="max-w-7xl mx-auto px-8 py-16 md:py-32 text-center">
-        <h2 className="max-w-3xl mx-auto font-extrabold text-4xl md:text-5xl tracking-tight mb-6 md:mb-8">
-          El 80% de las startups fallan porque los fundadores nunca lanzan
-        </h2>
-        <p className="max-w-xl mx-auto text-lg opacity-90 leading-relaxed mb-12 md:mb-20">
-          Correos, registros DNS, autenticación de usuarios... Hay demasiado por hacer.
-        </p>
+    <section
+      ref={sectionRef}
+      className="bg-gradient-to-b from-gray-900 to-black text-white py-20 md:py-32 overflow-hidden"
+    >
+      <div className="max-w-6xl mx-auto px-6 md:px-8">
+        {/* Header */}
+        <div ref={titleRef} className="text-center mb-16 md:mb-20">
+          <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium bg-purple-500/10 text-purple-400 rounded-full border border-purple-500/20">
+            El problema
+          </span>
+          <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 max-w-3xl mx-auto leading-tight">
+            ¿Cansado de herramientas{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+              complicadas
+            </span>
+            ?
+          </h2>
+          <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            Los constructores de formularios actuales te obligan a elegir entre calidad y precio.
+            Nosotros creemos que mereces ambos.
+          </p>
+        </div>
 
-        <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-6">
-          <Step emoji="🧑‍💻" text="8 hrs para añadir Stripe" />
+        {/* Problem Cards */}
+        <div
+          ref={cardsRef}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-16 md:mb-20"
+        >
+          {problems.map((problem, index) => (
+            <ProblemCard key={index} {...problem} />
+          ))}
+        </div>
 
-          <Arrow extraStyle="max-md:-scale-x-100 md:-rotate-90" />
-
-          <Step emoji="😮‍💨" text="Luchar por tiempo" />
-
-          <Arrow extraStyle="md:-scale-x-100 md:-rotate-90" />
-
-          <Step emoji="😔" text="Renunciar al proyecto" />
+        {/* Solution */}
+        <div
+          ref={solutionRef}
+          className="text-center bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-3xl p-8 md:p-12 border border-purple-500/20"
+        >
+          <div className="text-4xl mb-4">✨</div>
+          <h3 className="text-2xl md:text-3xl font-bold mb-4">
+            Con Pyform, todo es diferente
+          </h3>
+          <p className="text-gray-400 text-lg max-w-xl mx-auto leading-relaxed">
+            Edición en tiempo real. Precio plano y predecible.
+            Crea formularios profesionales en minutos, sin sorpresas.
+          </p>
         </div>
       </div>
     </section>

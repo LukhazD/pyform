@@ -90,10 +90,6 @@ const Pricing = () => {
                 )}
                 <div className="space-y-2">
                   <ButtonCheckout priceId={plan.priceId} />
-
-                  <p className="flex items-center justify-center gap-2 text-sm text-center text-base-content/80 font-medium relative">
-                    Pay once. Access forever.
-                  </p>
                 </div>
               </div>
             </div>
