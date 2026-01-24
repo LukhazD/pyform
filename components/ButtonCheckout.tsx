@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import apiClient from "@/libs/api";
-import config from "@/config";
+
 import { Button } from "@heroui/button";
 
 // This component is used to create Stripe Checkout Sessions

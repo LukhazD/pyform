@@ -5,7 +5,7 @@ import React from "react";
 import gsap from "gsap";
 
 export interface MobileThreadsHandle {
-    handlePointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
+    handlePointerMove: (_e: React.PointerEvent<HTMLDivElement>) => void;
     handlePointerLeave: () => void;
 }
 
