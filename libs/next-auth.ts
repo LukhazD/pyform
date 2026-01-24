@@ -8,6 +8,8 @@ import connectMongo from "./mongo";
 export const authOptions = {
   // Set any random key in .env.local
   secret: process.env.NEXTAUTH_SECRET,
+  // Trust the host in production (required for custom domains)
+  trustHost: true,
   providers: [
     GoogleProvider({
       // Follow the "Login with Google" tutorial to get your credentials
@@ -27,18 +29,18 @@ export const authOptions = {
     // Requires a MongoDB database. Set MONOGODB_URI env variable.
     ...(connectMongo
       ? [
-          EmailProvider({
-            server: {
-              host: "smtp.resend.com",
-              port: 465,
-              auth: {
-                user: "resend",
-                pass: process.env.RESEND_API_KEY,
-              },
+        EmailProvider({
+          server: {
+            host: "smtp.resend.com",
+            port: 465,
+            auth: {
+              user: "resend",
+              pass: process.env.RESEND_API_KEY,
             },
-            from: config.resend.fromNoReply,
-          }),
-        ]
+          },
+          from: config.resend.fromNoReply,
+        }),
+      ]
       : []),
   ],
   // New users will be saved in Database (MongoDB Atlas). Each user (model) has some fields like name, email, image, etc..
