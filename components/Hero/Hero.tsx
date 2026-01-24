@@ -1,70 +1,128 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import React from "react";
-import gsap from "gsap";
 import { Button } from "@heroui/react";
 import dynamic from "next/dynamic";
 import type { MobileThreadsHandle } from "./MobileThreads";
 
-// Dynamic import with SSR disabled to prevent hydration mismatch
+// Lazy load GSAP - only when needed for animations
+const loadGsap = () => import("gsap").then(mod => mod.default);
+
+// Dynamic import with SSR disabled - load after main content
 const MobileThreads = dynamic(() => import("./MobileThreads"), {
     ssr: false,
     loading: () => <div className="absolute inset-0 bg-white" />
 });
 
+// Profesiones que rotan en el hero
+const professions = [
+    "Desarrolladores",
+    "Marketers",
+    "Diseñadores",
+    "Startups",
+    "Emprendedores",
+    "Freelancers",
+];
+
 export default function Hero() {
     const containerRef = useRef<HTMLDivElement>(null);
-    const textRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null);
+    const professionRef = useRef<HTMLSpanElement>(null);
     const threadsRef = useRef<MobileThreadsHandle>(null);
 
-    useLayoutEffect(() => {
-        const ctx = gsap.context(() => {
-            const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+    const [currentProfession, setCurrentProfession] = useState(0);
+    const [isAnimating, setIsAnimating] = useState(false);
+    const [isLoaded, setIsLoaded] = useState(false);
 
-            // Animate Characters (Title & Highlight)
-            tl.fromTo(
-                ".char",
-                {
-                    opacity: 0,
-                    rotateY: 90,
-                    y: 20
-                },
-                {
-                    opacity: 1,
-                    rotateY: 0,
-                    y: 0,
-                    duration: 0.8,
-                    stagger: 0.03,
-                    ease: "back.out(1.7)"
-                }
-            )
-                // Animate Description (Typewriter fade in)
-                .fromTo(
-                    ".desc-char",
-                    {
-                        opacity: 0
-                    },
-                    {
-                        opacity: 1,
-                        duration: 0.5, // Faster fade per char
-                        stagger: 0.01,
-                        ease: "power1.inOut"
-                    },
-                    "-=0.4"
+    // Load GSAP and start animations after initial render
+    useEffect(() => {
+        let gsap: typeof import("gsap").default;
+
+        const init = async () => {
+            gsap = await loadGsap();
+            setIsLoaded(true);
+
+            // Initial entrance animation
+            const ctx = gsap.context(() => {
+                const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
+
+                tl.fromTo(
+                    ".hero-title",
+                    { opacity: 0.5, y: 10 },
+                    { opacity: 1, y: 0, duration: 0.4 }
                 )
-                // Buttons
-                .fromTo(
-                    buttonRef.current,
-                    { opacity: 0, y: 20 },
-                    { opacity: 1, y: 0, duration: 0.8 },
-                    "-=0.2"
-                );
-        }, containerRef);
+                    .fromTo(
+                        ".hero-profession",
+                        { opacity: 0.5, y: 10 },
+                        { opacity: 1, y: 0, duration: 0.3 },
+                        "-=0.2"
+                    )
+                    .fromTo(
+                        ".hero-description",
+                        { opacity: 0.5 },
+                        { opacity: 1, duration: 0.3 },
+                        "-=0.2"
+                    )
+                    .fromTo(
+                        buttonRef.current,
+                        { opacity: 0.5 },
+                        { opacity: 1, duration: 0.3 },
+                        "-=0.1"
+                    );
+            }, containerRef);
 
-        return () => ctx.revert();
+            return () => ctx.revert();
+        };
+
+        init();
     }, []);
+
+    // Rotación automática de profesiones after load
+    useEffect(() => {
+        if (!isLoaded) return;
+
+        let gsap: typeof import("gsap").default;
+        let intervalId: ReturnType<typeof setInterval>;
+
+        const startRotation = async () => {
+            gsap = await loadGsap();
+
+            intervalId = setInterval(() => {
+                if (isAnimating) return;
+
+                setIsAnimating(true);
+
+                gsap.to(professionRef.current, {
+                    y: -15,
+                    opacity: 0,
+                    duration: 0.25,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        setCurrentProfession((prev) => (prev + 1) % professions.length);
+
+                        gsap.fromTo(
+                            professionRef.current,
+                            { y: 15, opacity: 0 },
+                            {
+                                y: 0,
+                                opacity: 1,
+                                duration: 0.25,
+                                ease: "power2.out",
+                                onComplete: () => setIsAnimating(false)
+                            }
+                        );
+                    }
+                });
+            }, 2500);
+        };
+
+        startRotation();
+
+        return () => {
+            if (intervalId) clearInterval(intervalId);
+        };
+    }, [isLoaded, isAnimating]);
 
     // Bridge events to MobileThreads
     const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
@@ -75,25 +133,6 @@ export default function Hero() {
         threadsRef.current?.handlePointerLeave();
     };
 
-    // Helper for sentences to ensure word wrapping
-    const SplitSentence = ({ text, className = "" }: { text: string, className?: string }) => {
-        const words = text.split(" ");
-        return (
-            <span className="inline-block">
-                {words.map((word, i) => (
-                    <span key={i} className="inline-block whitespace-nowrap" style={{ marginRight: i < words.length - 1 ? '0.3em' : 0 }}>
-                        {word.split("").map((char, j) => (
-                            <span key={j} className={`inline-block ${className}`} style={{ transformStyle: 'preserve-3d' }}>
-                                {char}
-                            </span>
-                        ))}
-                    </span>
-                ))}
-            </span>
-        )
-    }
-
-
     return (
         <div
             ref={containerRef}
@@ -101,39 +140,41 @@ export default function Hero() {
             onPointerMove={handlePointerMove}
             onPointerLeave={handlePointerLeave}
         >
-            {/* Animated Background - Modularized (Now used for both Mobile and Desktop) */}
+            {/* Animated Background - loads after content */}
             <MobileThreads ref={threadsRef} />
 
-            {/* Content Container */}
+            {/* Content Container - visible immediately */}
             <div className="relative w-full max-w-7xl mx-auto px-6 sm:px-8 flex flex-col justify-center h-full pointer-events-auto">
                 <div className="max-w-xl md:max-w-2xl text-left text-black drop-shadow-none space-y-6 pointer-events-auto">
-                    <div ref={textRef} className="opacity-100 perspective-500">
-                        <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight text-gray-900 perspective-500">
-                            <SplitSentence text="Crea Formularios" className="char origin-bottom" />
-                            <br />
-                            <span className="">
-                                <SplitSentence text="Como Magia" className="char origin-bottom" />
+                    <div className="opacity-100">
+                        <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight text-gray-900">
+                            <span className="hero-title block">Formularios para</span>
+                            <span
+                                ref={professionRef}
+                                className="hero-profession block text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500"
+                            >
+                                {professions[currentProfession]}
                             </span>
                         </h1>
-                        <div className="mt-6 text-lg md:text-xl text-gray-700 leading-relaxed font-medium max-w-lg">
-                            <SplitSentence text="Crea formularios conversacionales con lógica avanzada en minutos. El constructor de formularios open-source más potente para desarrolladores modernos." className="desc-char" />
-                        </div>
+                        <p className="hero-description mt-6 text-lg md:text-xl text-gray-600 leading-relaxed max-w-lg">
+                            Crea formularios premium en minutos.
+                            Simple, rápido y a una fracción del costo.
+                        </p>
                     </div>
 
-                    <div ref={buttonRef} className="flex flex-wrap gap-4 opacity-0 pt-2">
+                    <div ref={buttonRef} className="flex flex-wrap gap-4 pt-2">
                         <Button
                             size="lg"
-                            className="font-semibold text-lg px-8 text-white bg-gray-900 shadow-lg"
-                        // onClick={() => ...}
+                            className="font-semibold text-lg px-8 text-white bg-gray-900 shadow-lg hover:bg-gray-800"
                         >
                             Empezar
                         </Button>
                         <Button
                             size="lg"
                             variant="ghost"
-                            className="font-semibold text-lg px-8 border-2 hover:bg-[#9929EA]/5"
+                            className="font-semibold text-lg px-8 border-2 hover:bg-purple-500/5"
                         >
-                            Saber Más
+                            Más información
                         </Button>
                     </div>
                 </div>

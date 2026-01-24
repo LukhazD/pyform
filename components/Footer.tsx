@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import config from "@/config";
 import logo from "@/app/icon.png";
-
+import RaodSystemLogo from "@/public/assets/icons/RaodSystemLogo.png";
 // Add the Footer to the bottom of your landing page and more.
 // The support link is connected to the config.js file. If there's no config.resend.supportEmail, the link won't be displayed.
 
@@ -33,10 +33,18 @@ const Footer = () => {
             <p className="mt-3 text-sm text-base-content/80">
               {config.appDescription}
             </p>
-            <p className="mt-3 text-sm text-base-content/60">
-              Copyright © {new Date().getFullYear()} - Todos los derechos reservados
-            </p>
 
+            <p className="mt-3 text-sm text-base-content/80">Un producto de:</p>
+            <Image
+              src={RaodSystemLogo}
+              alt="RaodSystem Logo"
+              priority={true}
+              width={86}
+              height={24}
+            />
+            <p className="mt-3 text-sm text-base-content/60">
+              2021 - {new Date().getFullYear()} © Raod System
+            </p>
 
           </div>
           <div className="flex-grow flex flex-wrap justify-center -mb-10 md:mt-0 mt-10 text-center">
@@ -48,7 +56,7 @@ const Footer = () => {
               <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
                 {config.resend.supportEmail && (
                   <a
-                    href={`mailto:${config.resend.supportEmail}`}
+                    href={`https://wa.me/34642789051`}
                     target="_blank"
                     className="link link-hover"
                     aria-label="Contact Support"
@@ -62,9 +70,6 @@ const Footer = () => {
                 <Link href="/blog" className="link link-hover">
                   Blog
                 </Link>
-                <a href="/#" target="_blank" className="link link-hover">
-                  Afiliados
-                </a>
               </div>
             </div>
 
@@ -79,6 +84,9 @@ const Footer = () => {
                 </Link>
                 <Link href="/privacy-policy" className="link link-hover">
                   Política de privacidad
+                </Link>
+                <Link href="/about" className="link link-hover">
+                  Sobre nosotros
                 </Link>
               </div>
             </div>

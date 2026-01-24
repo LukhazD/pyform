@@ -12,7 +12,7 @@ const config = {
   appName: "Pyform",
   // REQUIRED: a short description of your app for SEO tags (can be overwritten)
   appDescription:
-    "The NextJS boilerplate with all you need to build your SaaS, AI tool, or any other web app.",
+    "El editor visual que necesitas para transformar datos en acción.",
   // REQUIRED (no https://, not trailing slash at the end, just the naked domain)
   domainName: "pyform.luidiaz.com",
   crisp: {

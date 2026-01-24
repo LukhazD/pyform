@@ -2,6 +2,19 @@
 const nextConfig = {
   output: "standalone",
   reactStrictMode: true,
+
+  // Experimental optimizations
+  experimental: {
+    // Optimize imports for commonly used packages
+    optimizePackageImports: ['@heroui/react', 'gsap', 'react-icons'],
+  },
+
+  // Compiler optimizations
+  compiler: {
+    // Remove console.log in production
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+
   images: {
     remotePatterns: [
       // NextJS <Image> component needs to whitelist domains for src={}
@@ -38,3 +51,4 @@ const nextConfig = {
 };
 
 module.exports = nextConfig;
+
