@@ -157,7 +157,7 @@ export default function Hero() {
                             </span>
                         </h1>
                         <p className="hero-description mt-6 text-lg md:text-xl text-gray-600 leading-relaxed max-w-lg">
-                            Crea formularios premium en minutos.
+                            Crea formularios de lujo en minutos.
                             Simple, rápido y a una fracción del costo.
                         </p>
                     </div>

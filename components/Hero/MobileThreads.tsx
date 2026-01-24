@@ -5,7 +5,8 @@ import React from "react";
 import gsap from "gsap";
 
 export interface MobileThreadsHandle {
-    handlePointerMove: (_e: React.PointerEvent<HTMLDivElement>) => void;
+    // eslint-disable-next-line no-unused-vars
+    handlePointerMove: (e: React.PointerEvent<HTMLDivElement>) => void;
     handlePointerLeave: () => void;
 }
 

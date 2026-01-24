@@ -31,11 +31,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
 			className={font.className}
 			suppressHydrationWarning
 		>
-			<head>
-				{/* Preconnect to critical origins */}
-				<link rel="preconnect" href="https://fonts.googleapis.com" />
-				<link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-			</head>
 			<body>
 				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, HeroUI, etc.) */}
 				<ClientLayout>{children}</ClientLayout>
