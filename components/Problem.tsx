@@ -138,7 +138,7 @@ const Problem = () => {
       <div className="max-w-6xl mx-auto px-6 md:px-8">
         {/* Header */}
         <div ref={titleRef} className="text-center mb-16 md:mb-20">
-          <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium bg-purple-500/10 text-purple-400 rounded-full border border-purple-500/20">
+          <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium bg-gray-100 text-gray-600 rounded-full border border-gray-200">
             El problema
           </span>
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 max-w-3xl mx-auto leading-tight">
@@ -167,7 +167,7 @@ const Problem = () => {
         {/* Solution */}
         <div
           ref={solutionRef}
-          className="text-center bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-3xl p-8 md:p-12 border border-purple-500/20"
+          className="text-center bg-gray-50 rounded-3xl p-8 md:p-12 border border-gray-200"
         >
           <div className="text-4xl mb-4">✨</div>
           <h3 className="text-2xl md:text-3xl font-bold mb-4">

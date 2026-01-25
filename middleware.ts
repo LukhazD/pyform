@@ -8,9 +8,12 @@ export default auth((req) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
     const isOnboardingCompleted = req.auth?.user?.onboardingCompleted;
+    const subscriptionStatus = req.auth?.user?.subscriptionStatus;
+    const hasActiveSubscription = subscriptionStatus === "active";
 
     const isDashboard = nextUrl.pathname.startsWith("/dashboard");
     const isOnboarding = nextUrl.pathname === "/onboarding";
+    const isSubscribe = nextUrl.pathname === "/subscribe";
     const isApi = nextUrl.pathname.startsWith("/api");
 
     // Allow API routes to pass through (auth check handled in route)
@@ -20,31 +23,40 @@ export default auth((req) => {
 
     // If user is logged in
     if (isLoggedIn) {
-        // If onboarding is NOT completed, but user is trying to access dashboard
-        // Redirect to onboarding
-        if (!isOnboardingCompleted && !isOnboarding) {
-            // Only redirect if trying to access protected pages (like dashboard or account)
-            // We might want to be more aggressive and redirect ANY page except home/public
-            // For now, let's protect dashboard
-            if (isDashboard) {
-                return Response.redirect(new URL("/onboarding", nextUrl));
+        // Step 1: Check onboarding first
+        if (!isOnboardingCompleted) {
+            // User hasn't completed onboarding
+            if (!isOnboarding) {
+                // Redirect to onboarding if trying to access protected pages
+                if (isDashboard || isSubscribe) {
+                    return Response.redirect(new URL("/onboarding", nextUrl));
+                }
             }
+            return NextResponse.next();
         }
 
-        // If onboarding IS completed, but user is on onboarding page
-        // Redirect to dashboard
-        if (isOnboardingCompleted && isOnboarding) {
+        // Step 2: Onboarding is done, check subscription
+        if (!hasActiveSubscription) {
+            // User hasn't subscribed yet
+            if (isOnboarding) {
+                // User completed onboarding, redirect to subscribe
+                return Response.redirect(new URL("/subscribe", nextUrl));
+            }
+            if (isDashboard) {
+                // Block dashboard access, redirect to subscribe
+                return Response.redirect(new URL("/subscribe", nextUrl));
+            }
+            return NextResponse.next();
+        }
+
+        // Step 3: User has active subscription - full access
+        if (isOnboarding || isSubscribe) {
+            // Don't let subscribed users go back to onboarding/subscribe
             return Response.redirect(new URL("/dashboard", nextUrl));
         }
     } else {
-        // If not logged in and trying to access dashboard/onboarding
-        if (isDashboard || isOnboarding) {
-            // Redirect to login (or let NextAuth handle it via pages config if set, but explicit is good)
-            // Usually NextAuth handles protection via matcher, but here we do custom logic
-            // For now, let's just redirect to home or signin
-            // return Response.redirect(new URL("/api/auth/signin", nextUrl));
-            // Actually, let's just let them be redirected by the page protection or layout if we had one
-            // But since we are in middleware:
+        // If not logged in and trying to access protected pages
+        if (isDashboard || isOnboarding || isSubscribe) {
             return Response.redirect(new URL("/api/auth/signin", nextUrl));
         }
     }

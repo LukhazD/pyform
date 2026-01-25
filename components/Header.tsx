@@ -29,7 +29,7 @@ const links: {
     },
   ];
 
-const cta: JSX.Element = <ButtonSignin extraStyle="btn-primary bg-purple-[#5B23FF] border-none hover:bg-purple-700" text="Iniciar Sesión" />;
+const cta: JSX.Element = <ButtonSignin extraStyle="btn-primary bg-primary border-none hover:bg-gray-700" text="Iniciar Sesión" />
 
 const Header = () => {
   const searchParams = useSearchParams();
@@ -113,7 +113,7 @@ const Header = () => {
             <Link
               href={link.href}
               key={link.href}
-              className={`text-sm font-medium transition-colors hover:text-purple-600 ${isScrolled ? "text-gray-600" : "text-gray-800"
+              className={`text-sm font-medium transition-colors hover:text-primary ${isScrolled ? "text-gray-600" : "text-gray-800"
                 }`}
               title={link.label}
             >
@@ -133,7 +133,7 @@ const Header = () => {
             <Link
               href={link.href}
               key={link.href}
-              className="text-xl font-medium text-gray-900 hover:text-purple-600 transition-colors"
+              className="text-xl font-medium text-gray-900 hover:text-primary transition-colors"
               onClick={() => setIsOpen(false)}
             >
               {link.label}
@@ -141,7 +141,7 @@ const Header = () => {
           ))}
           <div className="w-full h-px bg-gray-100 my-2" />
           <div className="w-full">
-            <ButtonSignin extraStyle="btn-primary w-full bg-purple-[#5B23FF] border-none hover:bg-purple-700" text="Iniciar Sesión" />
+            <ButtonSignin extraStyle="btn-primary w-full bg-primary border-none hover:bg-gray-700" text="Iniciar Sesión" />
           </div>
         </div>
       </Modal>

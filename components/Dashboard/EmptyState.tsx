@@ -31,7 +31,7 @@ export default function EmptyState({
                     href={actionHref}
                     size="lg"
                     radius="full"
-                    className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-8"
+                    className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-8"
                     startContent={<Plus size={20} />}
                 >
                     {actionLabel}

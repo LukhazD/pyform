@@ -20,6 +20,7 @@ export const authConfig = {
                 token.id = user.id || user._id?.toString() || token.sub;
                 token.role = user.role;
                 token.subscriptionTier = user.subscriptionTier;
+                token.subscriptionStatus = user.subscriptionStatus;
                 token.onboardingCompleted = user.onboardingCompleted;
             }
             if (trigger === "update" && session) {
@@ -33,6 +34,7 @@ export const authConfig = {
                     session.user.id = token.id;
                     session.user.role = token.role;
                     session.user.subscriptionTier = token.subscriptionTier;
+                    session.user.subscriptionStatus = token.subscriptionStatus;
                     session.user.onboardingCompleted = token.onboardingCompleted;
                 }
             }

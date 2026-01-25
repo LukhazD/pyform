@@ -21,18 +21,18 @@ export default function StatsCard({
     variant = "default"
 }: StatsCardProps) {
     const bgStyles = {
-        purple: "bg-gradient-to-br from-purple-50 to-purple-100/50",
-        green: "bg-gradient-to-br from-green-50 to-green-100/50",
+        purple: "bg-gray-50",
+        green: "bg-gray-100",
         default: "bg-white",
     };
 
     const iconBgStyles = {
-        purple: "bg-purple-500",
-        green: "bg-green-500",
+        purple: "bg-gray-500",
+        green: "bg-primary",
         default: "bg-gray-900",
     };
 
-    const trendColor = trend?.isPositive ? "text-green-600" : "text-red-500";
+    const trendColor = trend?.isPositive ? "text-gray-600" : "text-gray-500";
 
     return (
         <Card

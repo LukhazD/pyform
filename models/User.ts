@@ -8,7 +8,7 @@ export interface IUser extends mongoose.Document {
   image?: string;
   googleId: string;
   role: "user" | "admin" | "superadmin";
-  subscriptionTier: "free" | "pro";
+  subscriptionTier?: "pro";
   stripeCustomerId?: string;
   stripeSubscriptionId?: string;
   stripePriceId?: string;
@@ -52,8 +52,8 @@ const userSchema = new mongoose.Schema(
     },
     subscriptionTier: {
       type: String,
-      enum: ["free", "pro"],
-      default: "free",
+      enum: ["pro"],
+      // No default - users must subscribe to get a tier
     },
     stripeCustomerId: {
       type: String,

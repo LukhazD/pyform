@@ -66,7 +66,7 @@ export default async function FormDetailPage({
                     </Button>
                     <Button
                         as={Link}
-                        href={`/editor/${form.shortId || form._id}`}
+                        href={`/dashboard/forms/${form.shortId || form._id}/edit`}
                         color="secondary"
                         radius="full"
                         startContent={<LayoutDashboard size={18} />}

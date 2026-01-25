@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
         // Revoke access to your product
         if (user) {
           user.subscriptionStatus = "canceled";
-          user.subscriptionTier = "free";
+          user.subscriptionTier = undefined; // No tier when canceled
           await user.save();
         }
 

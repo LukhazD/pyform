@@ -11,6 +11,7 @@
 }
 
 @theme {
+  --color-primary: #808080;
   --font-display: "Satoshi", "sans-serif";
 
   --animate-shimmer: shimmer 3s ease-out infinite alternate;

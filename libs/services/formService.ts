@@ -29,18 +29,29 @@ class FormService implements IFormService {
 
     async getForm(formId: string): Promise<IForm | null> {
         await connectMongo();
-        return await Form.findById(formId);
+        if (mongoose.Types.ObjectId.isValid(formId)) {
+            return await Form.findById(formId);
+        }
+        return await Form.findOne({ shortId: formId });
     }
 
     async updateForm(formId: string, data: Partial<IForm>): Promise<IForm | null> {
         await connectMongo();
-        const form = await Form.findByIdAndUpdate(formId, data, { new: true });
+        const query = mongoose.Types.ObjectId.isValid(formId)
+            ? { _id: formId }
+            : { shortId: formId };
+
+        const form = await Form.findOneAndUpdate(query, data, { new: true });
         return form;
     }
 
     async deleteForm(formId: string): Promise<boolean> {
         await connectMongo();
-        const result = await Form.findByIdAndDelete(formId);
+        const query = mongoose.Types.ObjectId.isValid(formId)
+            ? { _id: formId }
+            : { shortId: formId };
+
+        const result = await Form.findOneAndDelete(query);
         return !!result;
     }
 

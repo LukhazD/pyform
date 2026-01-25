@@ -12,7 +12,7 @@ export default function CreateFormButton() {
             <Button
                 onPress={onOpen}
                 radius="full"
-                className="bg-purple-500 hover:bg-purple-600 text-white font-semibold px-6"
+                className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-6"
                 startContent={<Plus size={20} />}
             >
                 Nuevo formulario

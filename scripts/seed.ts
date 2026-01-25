@@ -50,6 +50,8 @@ const seedDatabase = async () => {
                 googleId: "google_123",
                 role: "admin",
                 subscriptionTier: "pro",
+                subscriptionStatus: "active",
+                onboardingCompleted: true,
                 formLimit: 100,
             },
             {
@@ -57,7 +59,8 @@ const seedDatabase = async () => {
                 email: "bob@example.com",
                 googleId: "google_456",
                 role: "user",
-                subscriptionTier: "free",
+                // No subscriptionTier - user needs to subscribe
+                onboardingCompleted: true,
                 formLimit: 3,
             },
             {
@@ -66,6 +69,8 @@ const seedDatabase = async () => {
                 googleId: "google_789",
                 role: "superadmin",
                 subscriptionTier: "pro",
+                subscriptionStatus: "active",
+                onboardingCompleted: true,
                 formLimit: -1, // Unlimited
             },
         ]);

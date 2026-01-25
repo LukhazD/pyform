@@ -151,7 +151,7 @@ export default function Hero() {
                             <span className="hero-title block">Formularios para</span>
                             <span
                                 ref={professionRef}
-                                className="hero-profession block text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-pink-500"
+                                className="hero-profession block text-gray-600"
                             >
                                 {professions[currentProfession]}
                             </span>

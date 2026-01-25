@@ -13,9 +13,8 @@ const ButtonPopover = () => {
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
               fill="currentColor"
-              className={`w-5 h-5 duration-200 ${
-                open ? "transform rotate-180 " : ""
-              }`}
+              className={`w-5 h-5 duration-200 ${open ? "transform rotate-180 " : ""
+                }`}
             >
               <path
                 fillRule="evenodd"
@@ -89,14 +88,14 @@ const ButtonPopover = () => {
                     </div>
                   </div>
                   <div className="text-sm flex items-center gap-3 p-2 cursor-pointer hover:bg-base-200 rounded-lg duration-200">
-                    <span className="flex items-center justify-center w-12 h-12 shrink-0 rounded-lg bg-green-500/20">
+                    <span className="flex items-center justify-center w-12 h-12 shrink-0 rounded-lg bg-gray-100">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         fill="none"
                         viewBox="0 0 24 24"
                         strokeWidth={1.5}
                         stroke="currentColor"
-                        className="w-6 h-6 stroke-green-600"
+                        className="w-6 h-6 stroke-gray-600"
                       >
                         <path
                           strokeLinecap="round"

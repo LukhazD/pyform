@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 "use client";
 
 import React, { useState } from "react";
@@ -42,7 +43,7 @@ export default function CreateFormModal({ isOpen, onOpenChange }: CreateFormModa
         onSuccess: (data) => {
             toast.success("Formulario creado correctamente");
             onOpenChange(false);
-            router.push(`/editor/${data._id || data.shortId}`);
+            router.push(`/dashboard/forms/${data._id || data.shortId}/edit`);
             setTitle("");
         },
         onError: () => {
@@ -82,7 +83,7 @@ export default function CreateFormModal({ isOpen, onOpenChange }: CreateFormModa
                                 onValueChange={setTitle}
                                 isDisabled={mutation.isPending}
                                 classNames={{
-                                    inputWrapper: "border-gray-300 data-[hover=true]:border-gray-400 group-data-[focus=true]:border-purple-500",
+                                    inputWrapper: "border-gray-300 data-[hover=true]:border-gray-400 group-data-[focus=true]:border-gray-900",
                                 }}
                             />
                         </ModalBody>
@@ -99,7 +100,7 @@ export default function CreateFormModal({ isOpen, onOpenChange }: CreateFormModa
                                 color="secondary"
                                 type="submit"
                                 radius="full"
-                                className="bg-purple-500 text-white font-medium"
+                                className="bg-primary text-white font-medium shadow-lg hover:bg-gray-700"
                                 isLoading={mutation.isPending}
                             >
                                 Crear formulario

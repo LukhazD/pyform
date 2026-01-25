@@ -12,8 +12,8 @@ export default async function AnalyticsPage() {
 
     return (
         <div className="max-w-7xl mx-auto text-center py-20">
-            <div className="w-20 h-20 rounded-full bg-purple-100 flex items-center justify-center mx-auto mb-6">
-                <BarChart3 size={40} className="text-purple-500" />
+            <div className="w-20 h-20 rounded-full bg-gray-900 flex items-center justify-center mx-auto mb-6">
+                <BarChart3 size={40} className="text-white" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 mb-2">Analíticas Globales</h1>
             <p className="text-gray-500 max-w-md mx-auto">

@@ -13,8 +13,8 @@ export default async function SettingsPage() {
     return (
         <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-3 mb-8">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                    <SettingsIcon className="text-purple-600" size={24} />
+                <div className="p-2 bg-gray-900 rounded-lg">
+                    <SettingsIcon className="text-white" size={24} />
                 </div>
                 <h1 className="text-2xl font-bold text-gray-900">Ajustes</h1>
             </div>

@@ -13,6 +13,9 @@ export const questionTypes = [
     "DROPDOWN",
     "DATE",
     "FILE_UPLOAD",
+    "WELCOME",
+    "QUOTE",
+    "GOODBYE",
 ] as const;
 
 export type QuestionType = (typeof questionTypes)[number];

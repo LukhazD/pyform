@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 "use client";
 
 import { Card, Chip, Button } from "@heroui/react";
@@ -19,7 +20,7 @@ interface FormCardProps {
 
 const statusConfig = {
     draft: { label: "Borrador", color: "default" as const },
-    published: { label: "Publicado", color: "success" as const },
+    published: { label: "Publicado", color: "default" as const },
     closed: { label: "Cerrado", color: "warning" as const },
 };
 
@@ -93,7 +94,7 @@ export default function FormCard({
                         <DropdownItem
                             key="edit"
                             startContent={<Edit size={16} />}
-                            href={`/editor/${id}`}
+                            href={`/dashboard/forms/${id}/edit`}
                             as={Link}
                         >
                             Editar
@@ -134,7 +135,7 @@ export default function FormCard({
                 <div className="flex gap-2">
                     <Button
                         as={Link}
-                        href={`/editor/${id}`}
+                        href={`/dashboard/forms/${id}/edit`}
                         size="sm"
                         variant="light"
                         radius="full"
@@ -147,7 +148,7 @@ export default function FormCard({
                         href={`/dashboard/forms/${id}`}
                         size="sm"
                         radius="full"
-                        className="bg-purple-500 hover:bg-purple-600 text-white"
+                        className="bg-primary hover:bg-gray-700 text-white"
                     >
                         Ver respuestas
                     </Button>

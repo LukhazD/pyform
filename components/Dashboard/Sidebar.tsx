@@ -55,7 +55,7 @@ export default function Sidebar() {
                 {/* Logo */}
                 <div className="p-6 border-b border-gray-100">
                     <Link href="/dashboard" className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                             <span className="text-white font-bold text-lg">P</span>
                         </div>
                         <span className="text-xl font-bold text-gray-900">Pyform</span>
@@ -75,11 +75,11 @@ export default function Sidebar() {
                                 onClick={() => setIsOpen(false)}
                                 className={
                                     isActive
-                                        ? "flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-50 text-purple-700 font-medium transition-all duration-150"
+                                        ? "flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-100 text-gray-900 font-medium transition-all duration-150"
                                         : "flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-150"
                                 }
                             >
-                                <span className={isActive ? "text-purple-600" : "text-gray-400"}>
+                                <span className={isActive ? "text-gray-900" : "text-gray-400"}>
                                     {item.icon}
                                 </span>
                                 {item.label}
@@ -100,7 +100,7 @@ export default function Sidebar() {
                     {/* Logo */}
                     <div className="p-6 border-b border-gray-100">
                         <Link href="/dashboard" className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
+                            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                                 <span className="text-white font-bold text-lg">P</span>
                             </div>
                             <span className="text-xl font-bold text-gray-900">Pyform</span>
@@ -120,11 +120,11 @@ export default function Sidebar() {
                                     onClick={() => setIsOpen(false)}
                                     className={
                                         isActive
-                                            ? "flex items-center gap-3 px-4 py-3 rounded-xl bg-purple-50 text-purple-700 font-medium transition-all duration-150"
+                                            ? "flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-100 text-gray-900 font-medium transition-all duration-150"
                                             : "flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-150"
                                     }
                                 >
-                                    <span className={isActive ? "text-purple-600" : "text-gray-400"}>
+                                    <span className={isActive ? "text-gray-900" : "text-gray-400"}>
                                         {item.icon}
                                     </span>
                                     {item.label}

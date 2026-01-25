@@ -74,13 +74,11 @@ export default async function Dashboard() {
           label="Total Formularios"
           value={stats.totalForms}
           icon={<FileText size={24} />}
-          variant="green"
         />
         <StatsCard
           label="Publicados"
           value={stats.publishedForms}
           icon={<BarChart3 size={24} />}
-          variant="purple"
         />
         <StatsCard
           label="Total Respuestas"
@@ -104,7 +102,7 @@ export default async function Dashboard() {
           {forms.length > 0 && (
             <Link
               href="/dashboard/forms"
-              className="text-sm text-green-600 hover:text-green-700 font-medium"
+              className="text-sm text-gray-900 hover:text-gray-700 font-medium"
             >
               Ver todos →
             </Link>

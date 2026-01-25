@@ -4,7 +4,7 @@ import { signIn as nextAuthSignIn, signOut as nextAuthSignOut, getSession as nex
 import { Session } from "next-auth";
 
 export interface IAuthService {
-    signInWithGoogle(): Promise<void>; // signIn typically redirects or returns void/undefined in client flow
+    signInWithGoogle(): Promise<any>; // signIn typically redirects or returns void/undefined in client flow
     signOut(): Promise<void>;
     getSession(): Promise<Session | null>;
 }
