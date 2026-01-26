@@ -42,9 +42,9 @@ export default function CreateFormModal({ isOpen, onOpenChange }: CreateFormModa
         mutationFn: createForm,
         onSuccess: (data) => {
             toast.success("Formulario creado correctamente");
-            onOpenChange(false);
+            // Navigate first, then close modal (keeps loading visible during navigation)
             router.push(`/dashboard/forms/${data._id || data.shortId}/edit`);
-            setTitle("");
+            // Modal will close automatically when page navigates away
         },
         onError: () => {
             toast.error("Error al crear el formulario");

@@ -43,7 +43,7 @@ const Footer = () => {
               height={24}
             />
             <p className="mt-3 text-sm text-base-content/60">
-              2021 - {new Date().getFullYear()} © Raod System
+              2021 - {new Date().getFullYear()} © RAOD System LLC
             </p>
 
           </div>

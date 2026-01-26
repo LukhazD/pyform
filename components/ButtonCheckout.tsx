@@ -11,7 +11,7 @@ import { Button } from "@heroui/button";
 // You can also change the mode to "subscription" if you want to create a subscription instead of a one-time payment
 const ButtonCheckout = ({
   priceId,
-  mode = "payment",
+  mode = "subscription",
 }: {
   priceId: string;
   mode?: "payment" | "subscription";
@@ -26,7 +26,7 @@ const ButtonCheckout = ({
         "/stripe/create-checkout",
         {
           priceId,
-          successUrl: window.location.href,
+          successUrl: `${window.location.origin}/payment-success`,
           cancelUrl: window.location.href,
           mode,
         }

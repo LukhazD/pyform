@@ -167,7 +167,7 @@ const Problem = () => {
         {/* Solution */}
         <div
           ref={solutionRef}
-          className="text-center bg-gray-50 rounded-3xl p-8 md:p-12 border border-gray-200"
+          className="text-center bg-white/5 backdrop-blur-sm rounded-3xl p-8 md:p-12 border border-white/10"
         >
           <div className="text-4xl mb-4">✨</div>
           <h3 className="text-2xl md:text-3xl font-bold mb-4">

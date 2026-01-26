@@ -15,17 +15,32 @@ export const authConfig = {
     },
     callbacks: {
         jwt: async ({ token, user, trigger, session }: any) => {
+            // Initial sign-in: populate token from user object
             if (user) {
-                // Handle different possible ID fields from different providers/adapters
                 token.id = user.id || user._id?.toString() || token.sub;
                 token.role = user.role;
                 token.subscriptionTier = user.subscriptionTier;
                 token.subscriptionStatus = user.subscriptionStatus;
                 token.onboardingCompleted = user.onboardingCompleted;
             }
+
+            // Session update triggered with fresh data from API
             if (trigger === "update" && session) {
-                token = { ...token, ...session };
+                // Merge the fresh data passed from client
+                if (session.subscriptionTier !== undefined) {
+                    token.subscriptionTier = session.subscriptionTier;
+                }
+                if (session.subscriptionStatus !== undefined) {
+                    token.subscriptionStatus = session.subscriptionStatus;
+                }
+                if (session.onboardingCompleted !== undefined) {
+                    token.onboardingCompleted = session.onboardingCompleted;
+                }
+                if (session.role !== undefined) {
+                    token.role = session.role;
+                }
             }
+
             return token;
         },
         session: async ({ session, token }: any) => {
@@ -44,5 +59,8 @@ export const authConfig = {
     theme: {
         brandColor: config.colors.main,
         logo: `https://${config.domainName}/logoAndName.png`,
+    },
+    pages: {
+        signIn: "/auth/signin",
     },
 } satisfies NextAuthConfig;

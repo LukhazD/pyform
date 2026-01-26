@@ -40,7 +40,23 @@ export async function POST(req: NextRequest) {
                     const priceId = stripeSubscription.items.data[0]?.price.id;
 
                     // Find user by email
-                    const user = await User.findOne({ email: session.customer_email });
+                    let user = await User.findOne({ email: session.customer_email });
+
+                    if (!user) {
+                        try {
+                            // Create new user from Stripe email
+                            user = await User.create({
+                                email: session.customer_email,
+                                name: session.customer_details?.name || session.customer_email?.split("@")[0],
+                                image: `https://ui-avatars.com/api/?name=${session.customer_details?.name || "User"}&background=random`,
+                            });
+                            console.log(`[WEBHOOK] Created new user for email: ${session.customer_email}`);
+                        } catch (err) {
+                            console.error(`[WEBHOOK] Error creating user: ${err}`);
+                            // If user creation fails, we can't continue syncing
+                            return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
+                        }
+                    }
 
                     if (user) {
                         // 1. Create/Update Subscription document (source of truth)
@@ -66,11 +82,11 @@ export async function POST(req: NextRequest) {
                             stripePriceId: priceId,
                             subscriptionTier: "pro",
                             subscriptionStatus: "active",
+                            // Ensure onboarding is false so they go through flow when they first login
+                            onboardingCompleted: user.onboardingCompleted ?? false
                         });
 
                         console.log(`[WEBHOOK] User ${user.email} subscribed - Subscription & User synced`);
-                    } else {
-                        console.error(`[WEBHOOK] User not found for email: ${session.customer_email}`);
                     }
                 }
                 break;
@@ -91,7 +107,7 @@ export async function POST(req: NextRequest) {
                         { stripeSubscriptionId: subscriptionId },
                         { subscriptionStatus: "active" }
                     );
-                    console.log(`[WEBHOOK] Invoice paid - synced: ${subscriptionId}`);
+                    console.log(`[WEBHOOK] Invoice paid (${event.type}) - synced: ${subscriptionId}`);
                 }
                 break;
             }
@@ -149,16 +165,24 @@ export async function POST(req: NextRequest) {
                     mappedStatus = "canceled";
                 }
 
+                // Build update object with null checks for dates
+                const updateData: Record<string, unknown> = {
+                    status: mappedStatus,
+                    stripePriceId: subscription.items.data[0]?.price.id,
+                    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+                };
+
+                if (subscription.current_period_start) {
+                    updateData.currentPeriodStart = new Date(subscription.current_period_start * 1000);
+                }
+                if (subscription.current_period_end) {
+                    updateData.currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+                }
+
                 // Update Subscription
                 await Subscription.findOneAndUpdate(
                     { stripeSubscriptionId: subscription.id },
-                    {
-                        status: mappedStatus,
-                        stripePriceId: subscription.items.data[0]?.price.id,
-                        currentPeriodStart: new Date(subscription.current_period_start * 1000),
-                        currentPeriodEnd: new Date(subscription.current_period_end * 1000),
-                        cancelAtPeriodEnd: subscription.cancel_at_period_end,
-                    }
+                    updateData
                 );
                 // Sync to User
                 await User.findOneAndUpdate(
