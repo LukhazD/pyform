@@ -18,8 +18,8 @@ interface WelcomeModuleProps {
 
 export default function WelcomeModule({ module }: WelcomeModuleProps) {
     return (
-        <div className="min-h-[500px] flex items-center justify-center bg-gray-50 rounded-2xl p-8">
-            <Card shadow="lg" radius="lg" className="max-w-2xl w-full p-12 text-center bg-white">
+        <div className="min-h-[300px] md:min-h-[500px] flex items-center justify-center bg-gray-50 rounded-2xl p-4 md:p-8">
+            <Card shadow="lg" radius="lg" className="max-w-2xl w-full p-6 md:p-12 text-center bg-white">
                 {module.image && (
                     <div className="mb-8">
                         <img
@@ -29,7 +29,7 @@ export default function WelcomeModule({ module }: WelcomeModuleProps) {
                         />
                     </div>
                 )}
-                <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 md:mb-6">
                     {module.title || "Bienvenido"}
                 </h1>
                 <p className="text-lg text-gray-600 mb-10 leading-relaxed max-w-xl mx-auto">

@@ -4,9 +4,6 @@ import connectMongo from "@/libs/mongoose";
 import Form from "@/models/Form";
 import FormCard from "@/components/Dashboard/FormCard";
 import EmptyState from "@/components/Dashboard/EmptyState";
-import { Button } from "@heroui/react";
-import { Plus } from "lucide-react";
-import Link from "next/link";
 import CreateFormButton from "@/components/Dashboard/CreateFormButton";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +26,7 @@ export default async function FormsPage() {
     const forms = await getUserForms(session.user.id);
 
     return (
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto p-4">
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">

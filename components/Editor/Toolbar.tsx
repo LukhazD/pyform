@@ -22,6 +22,7 @@ import {
 
 interface ToolbarProps {
     onAddModule: (type: string, position?: number) => void;
+    isMobile?: boolean;
 }
 
 // Module definitions
@@ -45,9 +46,9 @@ const questionModules = [
     { type: "FILE_UPLOAD", label: "Archivo", icon: Upload },
 ];
 
-export default function Toolbar({ onAddModule }: ToolbarProps) {
+export default function Toolbar({ onAddModule, isMobile }: ToolbarProps) {
     return (
-        <div className="w-64 bg-white border-r border-gray-200 p-4 overflow-y-auto flex-shrink-0">
+        <div className={`bg-white ${isMobile ? 'w-full' : 'w-64 border-r border-gray-200'} p-4 overflow-y-auto flex-shrink-0`}>
             {/* Informational Modules */}
             <div className="mb-6">
                 <h3 className="text-sm font-medium text-gray-700 mb-3">

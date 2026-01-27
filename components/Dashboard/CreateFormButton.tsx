@@ -13,8 +13,8 @@ export default function CreateFormButton() {
                 onPress={onOpen}
                 radius="full"
                 className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-6"
-                startContent={<Plus size={20} />}
             >
+                <Plus size={20} />
                 Nuevo formulario
             </Button>
 

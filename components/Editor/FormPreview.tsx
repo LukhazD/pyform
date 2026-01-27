@@ -26,6 +26,8 @@ interface FormPreviewProps {
     onAddModule: (type: string, position?: number) => void;
     onReorderModules?: (fromIndex: number, toIndex: number) => void;
     onDeleteModule?: (id: string) => void;
+    isMobile?: boolean;
+    onEditModule?: () => void;
 }
 
 const moduleTypeLabels: Record<string, string> = {
@@ -52,6 +54,8 @@ export default function FormPreview({
     onAddModule,
     onReorderModules,
     onDeleteModule,
+    isMobile,
+    onEditModule,
 }: FormPreviewProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -155,119 +159,134 @@ export default function FormPreview({
         );
     }
 
-    const currentModule = modules[currentIndex];
+    // Safe access to module
+    const currentModule = modules.find(m => m.id === selectedModuleId) || modules[currentIndex] || modules[0];
+
+    // If no module exists (empty state handled above, but just in case of weird state)
+    if (!currentModule) return null;
 
     return (
-        <div className="flex-1 flex">
-            {/* Miniature Sidebar - Module List */}
-            <div className="w-20 bg-white border-r border-gray-200 flex flex-col py-4 overflow-y-auto">
-                <div className="px-2 space-y-2">
-                    {modules.map((module, index) => (
+        <div className="flex-1 flex h-full">
+            {/* Miniature Sidebar - Module List (hidden on mobile) */}
+            {!isMobile && (
+                <div className="w-20 bg-white border-r border-gray-200 flex flex-col py-4 overflow-y-auto">
+                    <div className="px-2 space-y-2">
+                        {modules.map((module, index) => (
+                            <div
+                                key={module.id || `module-${index}`}
+                                draggable
+                                onDragStart={() => handleSidebarDragStart(index)}
+                                onDragOver={(e) => handleSidebarDragOver(e, index)}
+                                onDragEnd={handleSidebarDragEnd}
+                                onClick={() => {
+                                    setCurrentIndex(index);
+                                    onSelectModule(module.id);
+                                }}
+                                className={`relative group cursor-pointer rounded-lg p-2 transition-all ${currentIndex === index
+                                    ? "bg-gray-100 ring-2 ring-gray-900"
+                                    : "bg-gray-50 hover:bg-gray-100"
+                                    } ${draggedIndex === index ? "opacity-50" : ""}`}
+                            >
+                                {/* Module number */}
+                                <div className="text-xs font-bold text-center mb-1 text-gray-700">
+                                    {index + 1}
+                                </div>
+
+                                {/* Module type label */}
+                                <div className="text-[10px] text-center text-gray-500 truncate">
+                                    {moduleTypeLabels[module.type] || module.type}
+                                </div>
+
+                                {/* Delete button on hover */}
+                                {onDeleteModule && (
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDeleteModule(module.id);
+                                        }}
+                                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                    >
+                                        <Trash2 size={10} />
+                                    </button>
+                                )}
+
+                                {/* Drag indicator */}
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 opacity-0 group-hover:opacity-50 cursor-grab">
+                                    <GripVertical size={12} className="text-gray-400" />
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* Add button */}
                         <div
-                            key={module.id}
-                            draggable
-                            onDragStart={() => handleSidebarDragStart(index)}
-                            onDragOver={(e) => handleSidebarDragOver(e, index)}
-                            onDragEnd={handleSidebarDragEnd}
-                            onClick={() => {
-                                setCurrentIndex(index);
-                                onSelectModule(module.id);
-                            }}
-                            className={`relative group cursor-pointer rounded-lg p-2 transition-all ${currentIndex === index
-                                ? "bg-gray-100 ring-2 ring-gray-900"
-                                : "bg-gray-50 hover:bg-gray-100"
-                                } ${draggedIndex === index ? "opacity-50" : ""}`}
+                            className="rounded-lg p-2 bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-300 hover:border-gray-400 cursor-pointer transition-all"
+                            onDrop={handleDrop}
+                            onDragOver={handleDragOver}
                         >
-                            {/* Module number */}
-                            <div className="text-xs font-bold text-center mb-1 text-gray-700">
-                                {index + 1}
-                            </div>
-
-                            {/* Module type label */}
-                            <div className="text-[10px] text-center text-gray-500 truncate">
-                                {moduleTypeLabels[module.type] || module.type}
-                            </div>
-
-                            {/* Delete button on hover */}
-                            {onDeleteModule && (
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        onDeleteModule(module.id);
-                                    }}
-                                    className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                                >
-                                    <Trash2 size={10} />
-                                </button>
-                            )}
-
-                            {/* Drag indicator */}
-                            <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 opacity-0 group-hover:opacity-50 cursor-grab">
-                                <GripVertical size={12} className="text-gray-400" />
-                            </div>
+                            <Plus size={16} className="mx-auto text-gray-400" />
                         </div>
-                    ))}
-
-                    {/* Add button */}
-                    <div
-                        className="rounded-lg p-2 bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-300 hover:border-gray-400 cursor-pointer transition-all"
-                        onDrop={handleDrop}
-                        onDragOver={handleDragOver}
-                    >
-                        <Plus size={16} className="mx-auto text-gray-400" />
                     </div>
                 </div>
-            </div>
+            )}
 
             {/* Main Preview Area - Full Screen Module */}
             <div
                 ref={previewRef}
-                className="flex-1 relative bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden"
+                className="flex-1 h-full relative bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden"
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
             >
                 {/* Current module - Full Screen */}
-                <div className="h-full w-full flex items-center justify-center p-8">
-                    <div className="w-full max-w-3xl">
+                <div
+                    className={`h-full w-full flex items-center justify-center ${isMobile ? "p-4 cursor-pointer" : "p-8"}`}
+                    onClick={() => isMobile && onEditModule?.()}
+                >
+                    <div className="w-full max-w-3xl pointer-events-none">
                         <ModuleRenderer module={currentModule} isPreview />
                     </div>
                 </div>
 
                 {/* Navigation Arrows */}
-                <div className="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2">
+                <div className={`absolute z-10 flex gap-2 ${isMobile
+                    ? "bottom-24 right-4 flex-col"
+                    : "right-6 top-1/2 -translate-y-1/2 flex-col"
+                    }`}>
                     <Button
                         isIconOnly
-                        size="lg"
+                        size={isMobile ? "md" : "lg"}
                         variant="flat"
                         radius="full"
                         isDisabled={currentIndex === 0}
                         onPress={navigatePrev}
-                        className="bg-white/80 backdrop-blur shadow-lg"
+                        className="bg-white/90 backdrop-blur shadow-lg border border-gray-100"
                     >
-                        <ChevronUp size={24} />
+                        <ChevronUp size={isMobile ? 20 : 24} />
                     </Button>
                     <Button
                         isIconOnly
-                        size="lg"
+                        size={isMobile ? "md" : "lg"}
                         variant="flat"
                         radius="full"
                         isDisabled={currentIndex === modules.length - 1}
                         onPress={navigateNext}
-                        className="bg-white/80 backdrop-blur shadow-lg"
+                        className="bg-white/90 backdrop-blur shadow-lg border border-gray-100"
                     >
-                        <ChevronDown size={24} />
+                        <ChevronDown size={isMobile ? 20 : 24} />
                     </Button>
                 </div>
 
                 {/* Progress indicator */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-4">
-                    <span className="text-sm text-gray-500">
-                        {currentIndex + 1} / {modules.length}
-                    </span>
+                <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-4 ${isMobile ? "bottom-20" : "bottom-6"
+                    }`}>
+                    {!isMobile && (
+                        <span className="text-sm text-gray-500">
+                            {currentIndex + 1} / {modules.length}
+                        </span>
+                    )}
                     <div className="flex gap-1">
-                        {modules.map((_, i) => (
+                        {modules.map((module, i) => (
                             <div
-                                key={i}
+                                key={module.id || `progress-${i}`}
                                 className={`w-2 h-2 rounded-full transition-all cursor-pointer ${i === currentIndex
                                     ? "bg-gray-900 w-6"
                                     : "bg-gray-300 hover:bg-gray-400"
@@ -281,10 +300,12 @@ export default function FormPreview({
                     </div>
                 </div>
 
-                {/* Keyboard hint */}
-                <div className="absolute bottom-6 right-6 text-xs text-gray-400">
-                    ↑↓ para navegar
-                </div>
+                {/* Keyboard hint (Desktop only) */}
+                {!isMobile && (
+                    <div className="absolute bottom-6 right-6 text-xs text-gray-400">
+                        ↑↓ para navegar
+                    </div>
+                )}
             </div>
         </div>
     );

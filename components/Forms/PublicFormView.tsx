@@ -34,9 +34,10 @@ interface Form {
 interface PublicFormViewProps {
     form: Form;
     questions: Question[];
+    isPreview?: boolean;
 }
 
-export default function PublicFormView({ form, questions }: PublicFormViewProps) {
+export default function PublicFormView({ form, questions, isPreview = false }: PublicFormViewProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [responses, setResponses] = useState<Record<string, any>>({});
     const [direction, setDirection] = useState(1); // 1 for next, -1 for prev
@@ -175,6 +176,13 @@ export default function PublicFormView({ form, questions }: PublicFormViewProps)
 
     return (
         <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex flex-col overflow-hidden">
+            {/* Preview mode banner */}
+            {isPreview && (
+                <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-amber-500 text-white px-6 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium">
+                    <span className="text-lg">👁️</span>
+                    Vista previa — Las respuestas no se guardarán
+                </div>
+            )}
             {/* Progress bar */}
             {form.settings?.showProgressBar !== false && currentIndex > 0 && currentIndex < modules.length - 1 && (
                 <div className="fixed top-0 left-0 right-0 z-50">

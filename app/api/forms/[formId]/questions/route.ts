@@ -76,7 +76,8 @@ export async function PUT(req: Request, props: { params: Promise<{ formId: strin
             return {
                 ...rest,
                 formId: form._id,
-                _id: validId
+                _id: validId,
+                id: q.id // Preserve the frontend ID
             };
         });
 

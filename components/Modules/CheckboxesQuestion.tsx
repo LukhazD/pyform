@@ -26,11 +26,11 @@ export default function CheckboxesQuestion({ module }: CheckboxesQuestionProps) 
     const options = module.options || defaultOptions;
 
     return (
-        <div className="min-h-[400px] flex items-center justify-center p-8">
-            <Card shadow="sm" radius="lg" className="max-w-2xl w-full p-10 bg-white">
+        <div className="min-h-[300px] md:min-h-[400px] flex items-center justify-center p-4 md:p-8">
+            <Card shadow="sm" radius="lg" className="max-w-2xl w-full p-6 md:p-10 bg-white">
                 <div className="space-y-6">
                     <div>
-                        <label className="text-2xl font-semibold text-gray-900 block mb-2">
+                        <label className="text-xl md:text-2xl font-semibold text-gray-900 block mb-2">
                             {module.title || "Casillas de verificación"}
                             {module.isRequired && <span className="text-primary ml-1">*</span>}
                         </label>

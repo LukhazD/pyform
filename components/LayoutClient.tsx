@@ -59,7 +59,7 @@ const ClientLayout = ({ children }: { children: ReactNode }) => {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <HeroUIProvider>
+    <HeroUIProvider className="h-full">
       <QueryClientProvider client={queryClient}>
         <SessionProvider>
           {/* Show a progress bar at the top when navigating between pages */}

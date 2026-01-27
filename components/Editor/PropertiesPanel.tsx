@@ -31,6 +31,7 @@ interface PropertiesPanelProps {
     onUpdateModule: (id: string, updates: Partial<Module>) => void;
     onDeleteModule: (id: string) => void;
     onDuplicateModule?: (id: string) => void;
+    isMobile?: boolean;
 }
 
 const moduleLabels: Record<string, string> = {
@@ -55,10 +56,11 @@ export default function PropertiesPanel({
     onUpdateModule,
     onDeleteModule,
     onDuplicateModule,
+    isMobile,
 }: PropertiesPanelProps) {
     if (!selectedModule) {
         return (
-            <div className="w-80 bg-white border-l border-gray-200 p-6 overflow-y-auto flex-shrink-0">
+            <div className={`bg-white ${isMobile ? 'w-full' : 'w-80 border-l border-gray-200'} p-6 overflow-y-auto flex-shrink-0`}>
                 <div className="h-full flex items-center justify-center">
                     <div className="text-center py-12">
                         <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
@@ -113,7 +115,7 @@ export default function PropertiesPanel({
     };
 
     return (
-        <div className="w-80 bg-white border-l border-gray-200 p-6 overflow-y-auto flex-shrink-0">
+        <div className={`bg-white ${isMobile ? 'w-full' : 'w-80 border-l border-gray-200'} p-6 overflow-y-auto flex-shrink-0`}>
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-medium text-gray-900">

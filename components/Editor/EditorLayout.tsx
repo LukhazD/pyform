@@ -1,9 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Button } from "@heroui/react";
+import { Plus, Settings, Eye, X } from "lucide-react";
 import Toolbar from "@/components/Editor/Toolbar";
 import PropertiesPanel from "@/components/Editor/PropertiesPanel";
 import FormPreview from "@/components/Editor/FormPreview";
+import MobileModuleNav from "@/components/Editor/MobileModuleNav";
+import GeneralSettingsPanel from "@/components/Editor/GeneralSettingsPanel";
 
 interface Module {
     id: string;
@@ -22,13 +26,18 @@ interface Module {
 interface EditorLayoutProps {
     modules: Module[];
     selectedModuleId: string | null;
-    onSelectModule: (id: string) => void;
+    onSelectModule: (id: string | null) => void;
     onUpdateModule: (id: string, updates: Partial<Module>) => void;
     onDeleteModule: (id: string) => void;
     onAddModule: (type: string, position?: number) => void;
     onReorderModules: (fromIndex: number, toIndex: number) => void;
     onDuplicateModule: (id: string) => void;
+    onModulesChange?: (modules: Module[]) => void;
+    formStyling?: any;
+    onUpdateFormStyling?: (updates: any) => void;
 }
+
+type MobilePanel = "preview" | "toolbar" | "properties" | "settings";
 
 export default function EditorLayout({
     modules,
@@ -39,30 +48,171 @@ export default function EditorLayout({
     onAddModule,
     onReorderModules,
     onDuplicateModule,
+    onModulesChange,
+    formStyling,
+    onUpdateFormStyling,
 }: EditorLayoutProps) {
     const selectedModule = modules.find((m) => m.id === selectedModuleId);
+    const [isMobile, setIsMobile] = useState(false);
+    const [activePanel, setActivePanel] = useState<MobilePanel>("preview");
 
+    // Detect mobile on mount and resize
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth < 768);
+        };
+        checkMobile();
+        window.addEventListener("resize", checkMobile);
+        return () => window.removeEventListener("resize", checkMobile);
+    }, []);
+
+    // Auto-switch removed to favor explicit interaction
+    // useEffect(() => {
+    //     if (isMobile && selectedModuleId) {
+    //         setActivePanel("properties");
+    //     }
+    // }, [selectedModuleId, isMobile]);
+
+    // Desktop Layout
+    if (!isMobile) {
+        return (
+            <div className="flex-1 flex overflow-hidden">
+                {/* Left Sidebar - Toolbar */}
+                <Toolbar onAddModule={onAddModule} />
+
+                {/* Center - Form Preview (WYSIWYG) */}
+                <FormPreview
+                    modules={modules}
+                    selectedModuleId={selectedModuleId}
+                    onSelectModule={onSelectModule}
+                    onAddModule={onAddModule}
+                    onReorderModules={onReorderModules}
+                    onDeleteModule={onDeleteModule}
+                />
+
+                {/* Right Sidebar - Properties Panel */}
+                <PropertiesPanel
+                    selectedModule={selectedModule}
+                    onUpdateModule={onUpdateModule}
+                    onDeleteModule={onDeleteModule}
+                    onDuplicateModule={onDuplicateModule}
+                />
+            </div>
+        );
+    }
+
+    // Mobile Layout
     return (
-        <div className="flex-1 flex overflow-hidden">
-            {/* Left Sidebar - Toolbar */}
-            <Toolbar onAddModule={onAddModule} />
+        <div className="h-full flex justify-between flex-col">
+            {/* Main Content Area */}
+            <div className="h-full relative">
+                {/* Preview is always rendered but may be hidden */}
+                <div className={`absolute inset-0 ${activePanel === "preview" ? "z-10 h-full" : "z-0 h-0 overflow-hidden"}`}>
+                    <FormPreview
+                        modules={modules}
+                        selectedModuleId={selectedModuleId}
+                        onSelectModule={onSelectModule}
+                        onAddModule={onAddModule}
+                        onReorderModules={onReorderModules}
+                        onDeleteModule={onDeleteModule}
+                        isMobile
+                        onEditModule={() => setActivePanel("properties")}
+                    />
+                </div>
 
-            {/* Center - Form Preview (WYSIWYG) */}
-            <FormPreview
+                {/* Toolbar Sheet */}
+                {activePanel === "toolbar" && (
+                    <div className="absolute inset-0 z-20 bg-white animate-in slide-in-from-bottom duration-200">
+                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                            <h2 className="font-semibold text-gray-900">Añadir Módulo</h2>
+                            <Button
+                                isIconOnly
+                                variant="light"
+                                radius="full"
+                                onPress={() => setActivePanel("preview")}
+                            >
+                                <X size={20} />
+                            </Button>
+                        </div>
+                        <div className="overflow-y-auto h-[calc(100%-60px)] pb-24">
+                            <Toolbar
+                                onAddModule={(type, position) => {
+                                    onAddModule(type, position);
+                                    setActivePanel("preview");
+                                }}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Properties Sheet */}
+                {activePanel === "properties" && (
+                    <div className="absolute inset-0 z-20 bg-white animate-in slide-in-from-bottom duration-200">
+                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                            <h2 className="font-semibold text-gray-900">Propiedades</h2>
+                            <Button
+                                isIconOnly
+                                variant="light"
+                                radius="full"
+                                onPress={() => setActivePanel("preview")}
+                            >
+                                <X size={20} />
+                            </Button>
+                        </div>
+                        <div className="overflow-y-auto h-[calc(100%-60px)] pb-24">
+                            <PropertiesPanel
+                                selectedModule={selectedModule}
+                                onUpdateModule={onUpdateModule}
+                                onDeleteModule={onDeleteModule}
+                                onDuplicateModule={onDuplicateModule}
+                                isMobile
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Settings Sheet */}
+                {activePanel === "settings" && (
+                    <div className="absolute inset-0 z-20 bg-white animate-in slide-in-from-bottom duration-200">
+                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                            <h2 className="font-semibold text-gray-900">Configuración General</h2>
+                            <Button
+                                isIconOnly
+                                variant="light"
+                                radius="full"
+                                onClick={() => setActivePanel("preview")}
+                            >
+                                <X size={20} />
+                            </Button>
+                        </div>
+                        <div className="overflow-y-auto h-[calc(100%-60px)] pb-24">
+                            <GeneralSettingsPanel
+                                styling={formStyling || {}}
+                                onUpdateStyling={onUpdateFormStyling || (() => { })}
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            {/* Bottom Navigation Bar */}
+            {/* Bottom Navigation Strip */}
+            <MobileModuleNav
                 modules={modules}
                 selectedModuleId={selectedModuleId}
-                onSelectModule={onSelectModule}
-                onAddModule={onAddModule}
+                onSelectModule={(id) => {
+                    if (id === selectedModuleId) {
+                        onSelectModule(null); // Deselect if already selected
+                        if (activePanel === "properties") setActivePanel("preview");
+                    } else {
+                        onSelectModule(id);
+                        if (activePanel === "toolbar") setActivePanel("preview");
+                    }
+                }}
+                onAddModule={() => setActivePanel("toolbar")}
+                onModulesChange={onModulesChange}
                 onReorderModules={onReorderModules}
-                onDeleteModule={onDeleteModule}
-            />
-
-            {/* Right Sidebar - Properties Panel */}
-            <PropertiesPanel
-                selectedModule={selectedModule}
-                onUpdateModule={onUpdateModule}
-                onDeleteModule={onDeleteModule}
-                onDuplicateModule={onDuplicateModule}
+                onOpenSettings={() => setActivePanel("settings")}
             />
         </div>
     );
