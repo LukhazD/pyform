@@ -4,13 +4,14 @@ import { FileText, MessageSquare, BarChart3, Plus } from "lucide-react";
 import { Button } from "@heroui/react";
 import Link from "next/link";
 import StatsCard from "@/components/Dashboard/StatsCard";
-import FormCard from "@/components/Dashboard/FormCard";
-import EmptyState from "@/components/Dashboard/EmptyState";
+import FormList from "@/components/Dashboard/FormList";
 import connectMongo from "@/libs/mongoose";
 import Form from "@/models/Form";
 import CreateFormButton from "@/components/Dashboard/CreateFormButton";
 
 export const dynamic = "force-dynamic";
+
+import Question from "@/models/Question";
 
 async function getUserForms(userId: string) {
   await connectMongo();
@@ -18,7 +19,15 @@ async function getUserForms(userId: string) {
     .sort({ updatedAt: -1 })
     .limit(10)
     .lean();
-  return forms;
+
+  const formsWithCounts = await Promise.all(
+    forms.map(async (form) => {
+      const questionCount = await Question.countDocuments({ formId: form._id });
+      return { ...form, questionCount };
+    })
+  );
+
+  return formsWithCounts;
 }
 
 async function getStats(userId: string) {
@@ -109,24 +118,8 @@ export default async function Dashboard() {
           )}
         </div>
 
-        {forms.length === 0 ? (
-          <EmptyState />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            {forms.map((form: any) => (
-              <FormCard
-                key={form._id.toString()}
-                id={form.shortId || form._id.toString()}
-                title={form.title}
-                description={form.description}
-                status={form.status}
-                responseCount={0}
-                questionCount={0}
-                updatedAt={form.updatedAt}
-              />
-            ))}
-          </div>
-        )}
+        {/* Forms List Component (Handles Client State) */}
+        <FormList initialForms={JSON.parse(JSON.stringify(forms))} />
       </div>
     </div>
   );

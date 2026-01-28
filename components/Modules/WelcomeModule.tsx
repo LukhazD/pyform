@@ -14,9 +14,10 @@ interface Module {
 
 interface WelcomeModuleProps {
     module: Module;
+    onNext?: () => void;
 }
 
-export default function WelcomeModule({ module }: WelcomeModuleProps) {
+export default function WelcomeModule({ module, onNext }: WelcomeModuleProps) {
     return (
         <div className="min-h-[300px] md:min-h-[500px] flex items-center justify-center bg-gray-50 rounded-2xl p-4 md:p-8">
             <Card shadow="lg" radius="lg" className="max-w-2xl w-full p-6 md:p-12 text-center bg-white">
@@ -39,6 +40,7 @@ export default function WelcomeModule({ module }: WelcomeModuleProps) {
                     size="lg"
                     radius="full"
                     className="bg-gray-900 hover:bg-gray-800 text-white px-12 py-6 text-lg font-medium"
+                    onPress={onNext}
                 >
                     {module.buttonText || "Comenzar"}
                 </Button>

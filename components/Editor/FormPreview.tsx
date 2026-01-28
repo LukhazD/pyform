@@ -247,33 +247,32 @@ export default function FormPreview({
                 </div>
 
                 {/* Navigation Arrows */}
-                <div className={`absolute z-10 flex gap-2 ${isMobile
-                    ? "bottom-24 right-4 flex-col"
-                    : "right-6 top-1/2 -translate-y-1/2 flex-col"
-                    }`}>
-                    <Button
-                        isIconOnly
-                        size={isMobile ? "md" : "lg"}
-                        variant="flat"
-                        radius="full"
-                        isDisabled={currentIndex === 0}
-                        onPress={navigatePrev}
-                        className="bg-white/90 backdrop-blur shadow-lg border border-gray-100"
-                    >
-                        <ChevronUp size={isMobile ? 20 : 24} />
-                    </Button>
-                    <Button
-                        isIconOnly
-                        size={isMobile ? "md" : "lg"}
-                        variant="flat"
-                        radius="full"
-                        isDisabled={currentIndex === modules.length - 1}
-                        onPress={navigateNext}
-                        className="bg-white/90 backdrop-blur shadow-lg border border-gray-100"
-                    >
-                        <ChevronDown size={isMobile ? 20 : 24} />
-                    </Button>
-                </div>
+                {!isMobile && (
+                    <div className={`absolute z-10 flex gap-2 right-6 top-1/2 -translate-y-1/2 flex-col`}>
+                        <Button
+                            isIconOnly
+                            size={isMobile ? "md" : "lg"}
+                            variant="flat"
+                            radius="full"
+                            isDisabled={currentIndex === 0}
+                            onPress={navigatePrev}
+                            className="bg-white/90 backdrop-blur shadow-lg border border-gray-100"
+                        >
+                            <ChevronUp size={isMobile ? 20 : 24} />
+                        </Button>
+                        <Button
+                            isIconOnly
+                            size={isMobile ? "md" : "lg"}
+                            variant="flat"
+                            radius="full"
+                            isDisabled={currentIndex === modules.length - 1}
+                            onPress={navigateNext}
+                            className="bg-white/90 backdrop-blur shadow-lg border border-gray-100"
+                        >
+                            <ChevronDown size={isMobile ? 20 : 24} />
+                        </Button>
+                    </div>
+                )}
 
                 {/* Progress indicator */}
                 <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-4 ${isMobile ? "bottom-20" : "bottom-6"

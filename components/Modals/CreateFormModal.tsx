@@ -9,7 +9,8 @@ import {
     ModalBody,
     ModalFooter,
     Button,
-    Input
+    Input,
+    Textarea
 } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
@@ -20,15 +21,17 @@ interface CreateFormModalProps {
     onOpenChange: (isOpen: boolean) => void;
 }
 
-export default function CreateFormModal({ isOpen, onOpenChange }: CreateFormModalProps) {
+export default function
+    CreateFormModal({ isOpen, onOpenChange }: CreateFormModalProps) {
     const router = useRouter();
     const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
 
     const createForm = async () => {
         const response = await fetch("/api/forms", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ title }),
+            body: JSON.stringify({ title, description }),
         });
 
         if (!response.ok) {
@@ -81,6 +84,18 @@ export default function CreateFormModal({ isOpen, onOpenChange }: CreateFormModa
                                 radius="full"
                                 value={title}
                                 onValueChange={setTitle}
+                                isDisabled={mutation.isPending}
+                                classNames={{
+                                    inputWrapper: "border-gray-300 data-[hover=true]:border-gray-400 group-data-[focus=true]:border-gray-900",
+                                }}
+                            />
+                            <Textarea
+                                label="Descripción (opcional)"
+                                placeholder="Breve descripción del propósito del formulario"
+                                variant="bordered"
+                                radius="lg"
+                                value={description}
+                                onValueChange={setDescription}
                                 isDisabled={mutation.isPending}
                                 classNames={{
                                     inputWrapper: "border-gray-300 data-[hover=true]:border-gray-400 group-data-[focus=true]:border-gray-900",

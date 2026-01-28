@@ -5,6 +5,7 @@ import { Card, Chip, Button } from "@heroui/react";
 import { MoreVertical, Edit, Eye, Copy, Trash2 } from "lucide-react";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 interface FormCardProps {
     id: string;
@@ -15,7 +16,6 @@ interface FormCardProps {
     questionCount: number;
     updatedAt: Date;
     onDelete?: (id: string) => void;
-    onDuplicate?: (id: string) => void;
 }
 
 const statusConfig = {
@@ -45,9 +45,52 @@ export default function FormCard({
     questionCount,
     updatedAt,
     onDelete,
-    onDuplicate,
 }: FormCardProps) {
     const statusInfo = statusConfig[status];
+
+    const handleCopyLink = async () => {
+        const url = `${window.location.origin}/f/${id}`;
+
+        // Try modern API first
+        if (navigator.clipboard && window.isSecureContext) {
+            try {
+                await navigator.clipboard.writeText(url);
+                toast.success("¡Enlace copiado al portapapeles!");
+                return;
+            } catch (err) {
+                console.warn("Modern clipboard API failed, trying fallback...", err);
+            }
+        }
+
+        // Fallback for non-secure contexts or failures
+        try {
+            const textArea = document.createElement("textarea");
+            textArea.value = url;
+
+            // Ensure element is visible-ish but hidden from user
+            textArea.style.position = "fixed";
+            textArea.style.left = "0";
+            textArea.style.top = "0";
+            textArea.style.opacity = "0";
+            textArea.style.pointerEvents = "none";
+
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            if (successful) {
+                toast.success("¡Enlace copiado al portapapeles!");
+            } else {
+                throw new Error("execCommand returned false");
+            }
+        } catch (err) {
+            console.error('Failed to copy', err);
+            toast.error("No se pudo copiar el enlace. Por favor cópialo manualmente.");
+        }
+    };
 
     return (
         <Card
@@ -108,11 +151,11 @@ export default function FormCard({
                             Ver formulario
                         </DropdownItem>
                         <DropdownItem
-                            key="duplicate"
+                            key="copy"
                             startContent={<Copy size={16} />}
-                            onPress={() => onDuplicate?.(id)}
+                            onPress={handleCopyLink}
                         >
-                            Duplicar
+                            Copiar enlace
                         </DropdownItem>
                         <DropdownItem
                             key="delete"

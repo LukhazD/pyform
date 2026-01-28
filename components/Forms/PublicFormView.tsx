@@ -6,6 +6,7 @@ import { ChevronUp, ChevronDown } from "lucide-react";
 import ModuleRenderer from "@/components/Modules/ModuleRenderer";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
+import { useNavigationStore } from "@/hooks/useNavigationStore";
 
 gsap.registerPlugin(useGSAP);
 
@@ -45,38 +46,22 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
     const contentRef = useRef<HTMLDivElement>(null);
 
     // Build modules array
-    const modules = [
-        {
-            id: "welcome",
-            type: "WELCOME",
-            title: form.title,
-            description: form.description || form.settings?.welcomeMessage || "Gracias por participar",
-            buttonText: "Comenzar",
-        },
-        ...questions.map((q) => ({
-            id: q._id,
-            type: q.type,
-            title: q.title,
-            description: q.description,
-            placeholder: q.placeholder,
-            isRequired: q.isRequired,
-            options: q.options,
-        })),
-        {
-            id: "goodbye",
-            type: "GOODBYE",
-            title: "¡Gracias por tu tiempo!",
-            message: form.settings?.thankYouMessage || "Tu respuesta ha sido registrada.",
-            showConfetti: true,
-        },
-    ];
+    const modules = questions.map((q) => ({
+        id: q._id,
+        type: q.type,
+        title: q.title,
+        description: q.description,
+        placeholder: q.placeholder,
+        isRequired: q.isRequired,
+        options: q.options,
+    }));
 
     const currentModule = modules[currentIndex];
     // Calculate progress purely based on questions answered (excluding welcome/goodbye)
-    const questionIndex = currentIndex - 1;
-    const totalQuestions = modules.length - 2;
+    // Calculate progress
+    const totalQuestions = modules.length;
     const progress = totalQuestions > 0
-        ? Math.max(0, Math.min(100, ((questionIndex) / totalQuestions) * 100))
+        ? Math.max(0, Math.min(100, ((currentIndex + 1) / totalQuestions) * 100))
         : 0;
 
     // GSAP Transition
@@ -174,6 +159,53 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [currentIndex, responses]); // Add responses dependency so validation sees latest
 
+    // Scroll navigation with Zustand
+    const { isNavigating, setNavigating, lastActionTime, setLastActionTime } = useNavigationStore();
+
+    useEffect(() => {
+        const scrollThreshold = 40; // Sensitivity threshold
+        const cooldown = 1000; // 1s cooldown to ensure animation finishes and prevents double-skip
+
+        const handleWheel = (e: WheelEvent) => {
+            const now = Date.now();
+
+            // Check if global lock is active or cooldown hasn't passed
+            if (isNavigating || (now - lastActionTime < cooldown)) return;
+
+            // Only handle vertical scroll with sufficient magnitude
+            if (Math.abs(e.deltaY) < scrollThreshold) return;
+
+            if (e.deltaY > 0) {
+                // Scroll down -> Next
+                if (currentIndex < modules.length - 1) {
+                    setNavigating(true);
+                    setLastActionTime(now);
+                    navigateNext();
+
+                    // Unlock after cooldown
+                    setTimeout(() => {
+                        setNavigating(false);
+                    }, cooldown);
+                }
+            } else {
+                // Scroll up -> Prev
+                if (currentIndex > 0) {
+                    setNavigating(true);
+                    setLastActionTime(now);
+                    navigatePrev();
+
+                    // Unlock after cooldown
+                    setTimeout(() => {
+                        setNavigating(false);
+                    }, cooldown);
+                }
+            }
+        };
+
+        window.addEventListener("wheel", handleWheel, { passive: true });
+        return () => window.removeEventListener("wheel", handleWheel);
+    }, [currentIndex, responses, modules.length, isNavigating, lastActionTime, setNavigating, setLastActionTime]);
+
     return (
         <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex flex-col overflow-hidden">
             {/* Preview mode banner */}
@@ -206,6 +238,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                         isPreview={false}
                         value={responses[currentModule.id] || ""}
                         onChange={handleAnswer}
+                        onNext={navigateNext}
                     />
 
                     {/* Internal Navigation (for questions) */}
@@ -227,13 +260,14 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                 className="bg-gray-900 hover:bg-gray-800 text-white px-8"
                                 endContent={<ChevronDown size={18} />}
                             >
-                                {currentIndex === modules.length - 2 ? "Enviar" : "Siguiente"}
+
+                                {currentIndex === modules.length - 1 ? "Enviar" : "Siguiente"}
                             </Button>
                         </div>
                     )}
 
                     {/* Welcome Screen Button override */}
-                    {currentModule.type === "WELCOME" && (
+                    {/* {currentModule.type === "WELCOME" && (
                         <div className="text-center mt-8">
                             <Button
                                 size="lg"
@@ -244,7 +278,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                 {(currentModule as any).buttonText || "Comenzar"}
                             </Button>
                         </div>
-                    )}
+                    )} */}
                 </div>
             </div>
 

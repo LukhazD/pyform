@@ -36,9 +36,10 @@ interface ModuleRendererProps {
     isPreview?: boolean;
     value?: any;
     onChange?: (_val: any) => void;
+    onNext?: () => void;
 }
 
-export default function ModuleRenderer({ module, isPreview, value, onChange }: ModuleRendererProps) {
+export default function ModuleRenderer({ module, isPreview, value, onChange, onNext }: ModuleRendererProps) {
     const commonProps = {
         module,
         value,
@@ -48,7 +49,7 @@ export default function ModuleRenderer({ module, isPreview, value, onChange }: M
 
     switch (module.type) {
         case "WELCOME":
-            return <WelcomeModule module={module} />;
+            return <WelcomeModule module={module} onNext={onNext} />;
         case "QUOTE":
             return <QuoteModule module={module} />;
         case "GOODBYE":

@@ -107,12 +107,32 @@ export function useFormEditor(formId: string | null) {
         }
     };
 
+    const getDefaultTitle = (type: string) => {
+        switch (type) {
+            case "WELCOME": return "¡Te damos la bienvenida!";
+            case "QUOTE": return "Una frase para inspirar";
+            case "GOODBYE": return "¡Gracias por tus respuestas!";
+            case "TEXT": return "¿Cómo te llamas?";
+            case "EMAIL": return "¿Cuál es tu correo electrónico?";
+            case "NUMBER": return "Ingresa una cantidad";
+            case "PHONE": return "¿A qué número podemos llamarte?";
+            case "URL": return "¿Cuál es tu página web?";
+            case "TEXTAREA": return "Cuéntanos más sobre ti";
+            case "MULTIPLE_CHOICE": return "Selecciona una opción";
+            case "CHECKBOXES": return "Elige todas las opciones que apliquen";
+            case "DROPDOWN": return "Selecciona de la lista";
+            case "DATE": return "¿Cuándo sucedió?";
+            case "FILE_UPLOAD": return "Sube tu archivo aquí";
+            default: return `Nueva pregunta ${type}`;
+        }
+    };
+
     const handleAddModule = (type: string, position?: number) => {
         const newModule = {
             id: `${type.toLowerCase()}-${nanoid(6)}`,
             type: type as any,
             order: position ?? modules.length,
-            title: `Nueva pregunta ${type}`,
+            title: getDefaultTitle(type),
             isRequired: false,
         };
 

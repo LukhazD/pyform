@@ -13,7 +13,7 @@ export async function POST(req: Request) {
         }
 
         const body = await req.json();
-        const { title } = body;
+        const { title, description } = body;
 
         if (!title) {
             return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -26,6 +26,7 @@ export async function POST(req: Request) {
         const form = await Form.create({
             userId: session.user.id,
             title,
+            description,
             shortId,
             status: "draft",
             settings: {}, // Defaults from schema
