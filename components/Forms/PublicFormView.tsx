@@ -133,13 +133,20 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
             // Prepare submission data
             const submissionData = {
                 formId: form._id,
-                answers: Object.entries(responses).map(([questionId, value]) => ({
-                    questionId,
-                    value,
-                })),
+                answers: Object.entries(responses).map(([questionId, value]) => {
+                    const question = modules.find(m => m.id === questionId);
+                    return {
+                        questionId,
+                        questionType: question?.type || "unknown",
+                        value,
+                    };
+                }),
                 metadata: {
                     userAgent: navigator.userAgent,
                     language: navigator.language,
+                    // Basic client-side detection (will be refined on server or here)
+                    deviceType: /Mobile|Android|iP(hone|od)|IEMobile|BlackBerry|Kindle|Silk-Accelerated|(hpw|web)OS|Opera M(obi|ini)/.test(navigator.userAgent) ? "mobile" : "desktop",
+                    browser: "unknown" // Let server refine or just pass generic
                 }
             };
 

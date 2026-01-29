@@ -28,6 +28,78 @@ class SubmissionService implements ISubmissionService {
             submittedAt: new Date(),
         });
 
+        // Update Analytics (Fire and forget, or await?)
+        // Better to await to ensure consistency, or use background job. Await for now.
+        try {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // 1. Upsert Analytics Document
+            // We use simple increment operations where possible
+            // For averageCompletionTimeMs, we need a weighted average math: 
+            // NewAvg = ((OldAvg * OldCount) + NewTime) / (OldCount + 1)
+            // This is hard to do atomically without aggregation pipeline or read-update.
+            // Let's do a transactional approach (or just simple read-modify-write since traffic is low)
+
+            let analytics = await FormAnalytics.findOne({ formId });
+
+            if (!analytics) {
+                analytics = new FormAnalytics({
+                    formId,
+                    totalSubmissions: 0,
+                    completedSubmissions: 0,
+                    partialSubmissions: 0,
+                    completionRate: 0,
+                    averageCompletionTimeMs: 0,
+                    dropOffByQuestion: [],
+                    submissionTimeline: []
+                });
+            }
+
+            // Update stats
+            const oldTotal = analytics.completedSubmissions || 0;
+            const oldAvg = analytics.averageCompletionTimeMs || 0;
+
+            analytics.totalSubmissions = (analytics.totalSubmissions || 0) + 1; // Assuming every submission viewed it? Or just submitted? 
+            // Ideally 'totalSubmissions' usually means 'Views' or 'Starts' in many systems, 
+            // but here schema says 'totalSubmissions'. Let's assume it means 'Total Attempts' (Starts). 
+            // But we only track 'completed' submissions here.
+            // We should increment totalSubmissions maybe when they START the form?
+            // For now, let's assume totalSubmissions = completed + partial.
+            // Since we only receive completed ones here:
+            analytics.totalSubmissions += 1;
+            analytics.completedSubmissions += 1;
+
+            // Recalculate average time
+            analytics.averageCompletionTimeMs = ((oldAvg * oldTotal) + completionTimeMs) / (oldTotal + 1);
+
+            // Completion rate
+            // If totalSubmissions is tracking starts, we need to know starts. 
+            // If we don't track starts, completion rate is always 100% of reported submissions.
+            // Assuming this API is only called on completion.
+            // To properly track completion rate, we need a separate event for "Form Opened".
+            // For now, calculating based on known data.
+            analytics.completionRate = (analytics.completedSubmissions / analytics.totalSubmissions) * 100;
+
+            // Update Timeline
+            const timelineEntry = analytics.submissionTimeline.find(t => new Date(t.date).getTime() === today.getTime());
+            if (timelineEntry) {
+                timelineEntry.count += 1;
+            } else {
+                analytics.submissionTimeline.push({ date: today, count: 1 });
+            }
+
+            // Drop-off rates requires tracking step-by-step limits.
+            // We can't easily calculate exact drop-off without "view" events for each question.
+            // We will skip drop-off update for now or just init it.
+
+            await analytics.save();
+
+        } catch (err) {
+            console.error("Failed to update analytics:", err);
+            // Don't fail the submission request just because analytics failed
+        }
+
         return submission;
     }
 

@@ -19,7 +19,7 @@ export default function SubscribePage() {
                 body: JSON.stringify({
                     priceId,
                     mode: "subscription",
-                    successUrl: `${window.location.origin}/payment-success`,
+                    successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
                     cancelUrl: `${window.location.origin}/subscribe`,
                 }),
             });
