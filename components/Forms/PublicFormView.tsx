@@ -123,8 +123,59 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
         return true;
     };
 
+    const [submitting, setSubmitting] = useState(false);
+
+    const submitForm = async () => {
+        if (!validateCurrent()) return;
+        setSubmitting(true);
+
+        try {
+            // Prepare submission data
+            const submissionData = {
+                formId: form._id,
+                answers: Object.entries(responses).map(([questionId, value]) => ({
+                    questionId,
+                    value,
+                })),
+                metadata: {
+                    userAgent: navigator.userAgent,
+                    language: navigator.language,
+                }
+            };
+
+            const res = await fetch("/api/submissions", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(submissionData),
+            });
+
+            if (!res.ok) throw new Error("Submission failed");
+
+            // Look for goodbye module
+            const goodbyeIndex = modules.findIndex(m => m.type === "GOODBYE");
+            if (goodbyeIndex !== -1) {
+                setDirection(1);
+                setCurrentIndex(goodbyeIndex);
+            } else {
+                alert("Thank you! Your response has been recorded.");
+                // Optional: window.location.reload() or redirect
+            }
+        } catch (error) {
+            console.error("Submission error:", error);
+            alert("Failed to submit form. Please try again.");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
     const navigateNext = () => {
         if (!validateCurrent()) return;
+
+        // Check if current module is the last before Goodbye
+        const nextModule = modules[currentIndex + 1];
+
+        // If next is Goodbye or end of list, DO NOT auto-advance. 
+        // Submission must be triggered explicitly by the "Enviar" button.
 
         if (currentIndex < modules.length - 1) {
             setDirection(1);
@@ -141,6 +192,8 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
     // Handle keyboard navigation
     useEffect(() => {
+        console.log("Current index:", currentIndex);
+        console.log("Modules length:", modules.length - 2);
         const handleKeyDown = (e: KeyboardEvent) => {
             // Prevent navigation on text inputs/textareas unless empty (optional refinement, skip for now)
             // Actually, Enter should only work if not in textarea, but let's keep it simple: Ctrl+Enter or just Enter if not textarea
@@ -243,47 +296,63 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
                     {/* Internal Navigation (for questions) */}
                     {currentModule.type !== "WELCOME" && currentModule.type !== "GOODBYE" && (
-                        <div className="flex justify-between items-center mt-8 max-w-2xl mx-auto opacity-0 animate-fadeIn" style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
-                            <Button
-                                variant="light"
-                                radius="full"
-                                onPress={navigatePrev}
-                                isDisabled={currentIndex === 0}
-                                startContent={<ChevronUp size={18} />}
-                            >
-                                Anterior
-                            </Button>
+                        <div className={`mt-8 max-w-2xl mx-auto animate-fadeIn ${(!modules[currentIndex + 1] || modules[currentIndex + 1].type === "GOODBYE")
+                            ? "flex flex-col items-center gap-4"
+                            : "flex justify-between items-center"
+                            }`} style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
 
-                            <Button
-                                radius="full"
-                                onPress={navigateNext}
-                                className="bg-gray-900 hover:bg-gray-800 text-white px-8"
-                                endContent={<ChevronDown size={18} />}
-                            >
+                            {modules.length - 2 == currentIndex ? (
+                                <>
+                                    <Button
+                                        radius="full"
+                                        size="lg"
+                                        onPress={submitForm}
+                                        isLoading={submitting}
+                                        className="bg-gray-900 hover:bg-gray-800 text-white px-12 font-medium shadow-lg"
+                                    >
+                                        Enviar respuestas
+                                    </Button>
 
-                                {currentIndex === modules.length - 1 ? "Enviar" : "Siguiente"}
-                            </Button>
+                                    <Button
+                                        variant="light"
+                                        size="sm"
+                                        radius="full"
+                                        onPress={navigatePrev}
+                                        isDisabled={currentIndex === 0 || submitting}
+                                        className="text-gray-400 hover:text-gray-600"
+                                    >
+                                        Volver
+                                    </Button>
+                                </>
+                            ) : (
+                                <>
+                                    <Button
+                                        variant="light"
+                                        radius="full"
+                                        onPress={navigatePrev}
+                                        isDisabled={currentIndex === 0}
+                                        startContent={<ChevronUp size={18} />}
+                                    >
+                                        Anterior
+                                    </Button>
+
+                                    <Button
+                                        radius="full"
+                                        onPress={navigateNext}
+                                        className="bg-gray-900 hover:bg-gray-800 text-white px-8"
+                                        endContent={<ChevronDown size={18} />}
+                                    >
+                                        Siguiente
+                                    </Button>
+                                </>
+                            )}
                         </div>
                     )}
-
-                    {/* Welcome Screen Button override */}
-                    {/* {currentModule.type === "WELCOME" && (
-                        <div className="text-center mt-8">
-                            <Button
-                                size="lg"
-                                radius="full"
-                                onPress={navigateNext}
-                                className="bg-gray-900 hover:bg-gray-800 text-white px-12 font-medium shadow-lg shadow-gray-500/30"
-                            >
-                                {(currentModule as any).buttonText || "Comenzar"}
-                            </Button>
-                        </div>
-                    )} */}
                 </div>
             </div>
 
             {/* Floating Navigation Arrows */}
-            <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-40 hidden md:flex">
+            {/* <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-40 hidden md:flex">
                 <Button
                     isIconOnly
                     size="lg"
@@ -306,7 +375,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                 >
                     <ChevronDown size={24} />
                 </Button>
-            </div>
+            </div> */}
         </div>
     );
 }

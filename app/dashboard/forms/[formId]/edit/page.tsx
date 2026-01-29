@@ -2,15 +2,10 @@
 
 import React, { useState } from "react";
 import { Button } from "@heroui/react";
-import { ArrowLeft, Save, Eye, MoreHorizontal } from "lucide-react";
+import { ArrowLeft, Save, Eye, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
+import toast from "react-hot-toast";
 import EditorLayout from "@/components/Editor/EditorLayout";
-import {
-    DropdownMenu,
-    DropdownTrigger,
-    DropdownItem,
-    Dropdown
-} from "@heroui/dropdown";
 import { useFormEditor } from "@/hooks/useFormEditor";
 
 interface Props {
@@ -40,17 +35,36 @@ export default function FormEditorPage({ params }: Props) {
         handleDuplicateModule,
         handlePublish,
         handleUpdateFormStyling,
-        setModules
+        setModules,
+        error
     } = useFormEditor(formParams?.formId || null);
+
+    const handleCopyLink = () => {
+        const url = `${window.location.origin}/f/${form?.shortId || form?._id}`;
+        navigator.clipboard.writeText(url)
+            .then(() => toast.success("Enlace copiado correctamente"))
+            .catch(() => toast.error("Error al copiar el enlace"));
+    };
 
     if (loading) {
         return <div className="h-screen flex items-center justify-center">Cargando editor...</div>;
     }
 
+    if (error) {
+        return (
+            <div className="h-screen flex flex-col items-center justify-center gap-4">
+                <div className="text-xl text-red-500 font-semibold">{error}</div>
+                <Link href="/dashboard/forms">
+                    <Button color="primary">Volver al Dashboard</Button>
+                </Link>
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col bg-gray-50 h-full">
             {/* Header */}
-            <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 flex-shrink-0">
+            <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 flex-shrink-0">
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard/forms">
                         <Button isIconOnly variant="light" radius="full" size="sm">
@@ -58,7 +72,7 @@ export default function FormEditorPage({ params }: Props) {
                         </Button>
                     </Link>
                     <div>
-                        <h1 className="text-lg font-medium text-gray-900">{form?.title || "Sin título"}</h1>
+                        <h1 className="text-lg font-medium text-gray-900 max-w-[150px] sm:max-w-xs truncate">{form?.title || "Sin título"}</h1>
                         <div className="flex items-center gap-2">
                             <span className="text-xs text-gray-500 capitalize">{form?.status || "draft"}</span>
                             {saving ? (
@@ -71,68 +85,46 @@ export default function FormEditorPage({ params }: Props) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <div className="hidden md:flex">
-                        <Button
-                            as={Link}
-                            href={`/f/${form?.shortId || form?._id}/preview`}
-                            target="_blank"
-                            variant="bordered"
-                            radius="full"
-                            size="sm"
-                            startContent={<Eye size={16} />}
-                        >
-                            Vista Previa
-                        </Button>
-                        <Button
-                            color={form?.status === "published" ? "default" : "primary"}
-                            radius="full"
-                            size="sm"
-                            startContent={<Save size={16} />}
-                            className={form?.status === "published" ? "bg-gray-200 text-gray-600" : "bg-green-500"}
-                            onPress={handlePublish}
-                            isDisabled={form?.status === "published"}
-                        >
-                            {form?.status === "published" ? "Publicado" : "Publicar"}
-                        </Button>
-                    </div>
+                    <Button
+                        isIconOnly
+                        variant="light"
+                        radius="full"
+                        size="sm"
+                        className="text-gray-500"
+                        onPress={handleCopyLink}
+                        title="Copiar enlace"
+                    >
+                        <LinkIcon size={20} />
+                    </Button>
 
-                    <Dropdown className="ml-2 md:hidden">
-                        <DropdownTrigger>
-                            <Button isIconOnly variant="light" radius="full" size="sm">
-                                <MoreHorizontal size={20} />
-                            </Button>
-                        </DropdownTrigger>
-                        <DropdownMenu>
-                            <DropdownItem key={"preview"}>
-                                <Button
-                                    as={Link}
-                                    href={`/f/${form?.shortId || form?._id}/preview`}
-                                    target="_blank"
-                                    variant="bordered"
-                                    radius="full"
-                                    size="sm"
-                                    startContent={<Eye size={16} />}
-                                    className="w-full"
-                                >
-                                    Vista Previa
-                                </Button>
-                            </DropdownItem>
-                            <DropdownItem key={"publish"}>
-                                <Button
-                                    color={form?.status === "published" ? "default" : "primary"}
-                                    radius="full"
-                                    size="sm"
-                                    startContent={<Save size={16} />}
-                                    className={form?.status === "published" ? "bg-gray-200 text-gray-600 w-full" : "bg-green-500 w-full"}
-                                    onPress={handlePublish}
-                                    isDisabled={form?.status === "published"}
+                    <Button
+                        as={Link}
+                        href={`/f/${form?.shortId || form?._id}/preview`}
+                        target="_blank"
+                        variant="light"
+                        radius="full"
+                        size="sm"
+                        isIconOnly
+                        className="text-gray-500"
+                        title="Vista previa"
+                    >
+                        <Eye size={20} />
+                    </Button>
 
-                                >
-                                    {form?.status === "published" ? "Publicado" : "Publicar"}
-                                </Button>
-                            </DropdownItem>
-                        </DropdownMenu>
-                    </Dropdown>
+                    <Button
+                        color={form?.status === "published" && (!lastSaved || !form?.publishedAt || new Date(lastSaved) <= new Date(form.publishedAt)) ? "default" : "primary"}
+                        radius="full"
+                        size="sm"
+                        startContent={form?.status !== "published" || (lastSaved && form?.publishedAt && new Date(lastSaved) > new Date(form.publishedAt)) ? <Save size={16} /> : undefined}
+                        className={form?.status === "published" && (!lastSaved || !form?.publishedAt || new Date(lastSaved) <= new Date(form.publishedAt)) ? "bg-gray-200 text-gray-600" : "bg-green-500 text-white"}
+                        onPress={handlePublish}
+                        isDisabled={form?.status === "published" && (!lastSaved || !form?.publishedAt || new Date(lastSaved) <= new Date(form.publishedAt))}
+                        isIconOnly={false}
+                    >
+                        {form?.status === "published"
+                            ? ((lastSaved && form?.publishedAt && new Date(lastSaved) > new Date(form.publishedAt)) ? "Publicar" : "Publicado")
+                            : "Publicar"}
+                    </Button>
                 </div>
             </header>
 

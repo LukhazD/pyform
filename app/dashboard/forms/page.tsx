@@ -8,12 +8,31 @@ import CreateFormButton from "@/components/Dashboard/CreateFormButton";
 
 export const dynamic = "force-dynamic";
 
+import Question from "@/models/Question";
+import Submission from "@/models/Submission";
+
 async function getUserForms(userId: string) {
     await connectMongo();
     const forms = await Form.find({ userId })
         .sort({ updatedAt: -1 })
         .lean();
-    return JSON.parse(JSON.stringify(forms));
+
+    const formsWithCounts = await Promise.all(
+        forms.map(async (form: any) => {
+            const [questionCount, responseCount] = await Promise.all([
+                Question.countDocuments({ formId: form._id }),
+                Submission.countDocuments({ formId: form._id })
+            ]);
+
+            return {
+                ...form,
+                questionCount,
+                responseCount
+            };
+        })
+    );
+
+    return JSON.parse(JSON.stringify(formsWithCounts));
 }
 
 export default async function FormsPage() {
@@ -51,8 +70,8 @@ export default async function FormsPage() {
                             title={form.title}
                             description={form.description}
                             status={form.status}
-                            responseCount={0} // TODO: Implement real count
-                            questionCount={0} // TODO: Implement real count
+                            responseCount={form.responseCount || 0}
+                            questionCount={form.questionCount || 0}
                             updatedAt={form.updatedAt}
                         />
                     ))}

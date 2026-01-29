@@ -25,6 +25,7 @@ export function useFormEditor(formId: string | null) {
     const [saving, setSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     // Fetch initial data
     useEffect(() => {
@@ -37,9 +38,16 @@ export function useFormEditor(formId: string | null) {
                     fetch(`/api/forms/${formId}/questions`)
                 ]);
 
+                if (formRes.status === 403 || formRes.status === 401) {
+                    setError("No tienes permiso para editar este formulario");
+                    return;
+                }
+
                 if (formRes.ok) {
                     const formData = await formRes.json();
                     setForm(formData);
+                } else {
+                    setError("Error al cargar el formulario");
                 }
 
                 if (questionsRes.ok) {
@@ -54,6 +62,7 @@ export function useFormEditor(formId: string | null) {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
+                setError("Ocurrió un error inesperado");
             } finally {
                 setLoading(false);
             }
@@ -188,7 +197,11 @@ export function useFormEditor(formId: string | null) {
                 }),
             });
             if (res.ok) {
-                setForm((prev: any) => ({ ...prev, status: "published" }));
+                setForm((prev: any) => ({
+                    ...prev,
+                    status: "published",
+                    publishedAt: new Date().toISOString()
+                }));
             }
         } catch (error) {
             console.error("Error publishing form:", error);
@@ -242,6 +255,7 @@ export function useFormEditor(formId: string | null) {
         handleDuplicateModule,
         handlePublish,
         handleUpdateFormStyling,
-        setModules // Exposed for any direct manipulation if needed
+        setModules, // Exposed for any direct manipulation if needed
+        error
     };
 }

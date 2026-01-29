@@ -8,7 +8,7 @@ import { formService } from "@/libs/services/formService";
 export async function POST(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
         await connectMongo();
@@ -16,6 +16,11 @@ export async function POST(req: Request, props: { params: Promise<{ formId: stri
 
         const form = await formService.getForm(formId);
         if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
+
+        // Security Check
+        if (form.userId.toString() !== session.user.id) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
 
         const data = await req.json();
 
@@ -33,13 +38,19 @@ export async function POST(req: Request, props: { params: Promise<{ formId: stri
 export async function GET(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
         await connectMongo();
 
         const form = await formService.getForm(params.formId);
         if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
+
+        // Security Check
+        if (form.userId.toString() !== session.user.id) {
+            console.log(`Forbidden access attempt: Form owner ${form.userId} vs Session user ${session.user.id}`);
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
 
         const questions = await Question.find({ formId: form._id }).sort({ order: 1 });
         return NextResponse.json(questions);
@@ -51,15 +62,21 @@ export async function GET(req: Request, props: { params: Promise<{ formId: strin
 export async function PUT(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
     const session = await auth();
-    if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     try {
         await connectMongo();
         const { formId } = params;
-        const questions = await req.json();
 
         const form = await formService.getForm(formId);
         if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
+
+        // Security Check
+        if (form.userId.toString() !== session.user.id) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        }
+
+        const questions = await req.json();
 
         // Transaction approach would be better but for now simple replacement
         // 1. Delete all existing questions for this form ObjectId
