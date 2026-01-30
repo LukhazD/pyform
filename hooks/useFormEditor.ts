@@ -240,6 +240,39 @@ export function useFormEditor(formId: string | null) {
         }
     };
 
+    const handleUpdateForm = async (updates: any) => {
+        if (!form) return;
+
+        // Optimistic update
+        // Check if updates are for root fields (title, description) or settings
+        const updatedForm = { ...form };
+
+        Object.keys(updates).forEach(key => {
+            if (key === 'settings') {
+                updatedForm.settings = { ...updatedForm.settings, ...updates.settings };
+            } else {
+                updatedForm[key] = updates[key];
+            }
+        });
+
+        setForm(updatedForm);
+
+        if (!formId) return;
+        setSaving(true);
+        try {
+            await fetch(`/api/forms/${formId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updates),
+            });
+            setLastSaved(new Date());
+        } catch (error) {
+            console.error("Error updating form:", error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
     return {
         form,
         modules,
@@ -255,6 +288,7 @@ export function useFormEditor(formId: string | null) {
         handleDuplicateModule,
         handlePublish,
         handleUpdateFormStyling,
+        handleUpdateForm,
         setModules, // Exposed for any direct manipulation if needed
         error
     };

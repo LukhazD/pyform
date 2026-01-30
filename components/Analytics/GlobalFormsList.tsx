@@ -5,15 +5,17 @@ import Link from "next/link";
 import { ExternalLink, BarChart3, ChevronRight } from "lucide-react";
 import { IFormAnalytics } from "@/models/FormAnalytics";
 
-interface FormAnalyticsItem {
+interface AnalyticsFormProps {
     formId: string;
     title: string;
     shortId: string;
-    totalSubmissions: number;
+    views: number;
+    submissions: number;
+    completedSubmissions: number;
     completionRate: number;
 }
 
-export default function GlobalFormsList({ forms }: { forms: FormAnalyticsItem[] }) {
+export default function GlobalFormsList({ forms }: { forms: AnalyticsFormProps[] }) {
     if (forms.length === 0) {
         return (
             <Card className="p-8 text-center mt-8">
@@ -35,8 +37,8 @@ export default function GlobalFormsList({ forms }: { forms: FormAnalyticsItem[] 
                             <div>
                                 <h4 className="font-semibold text-gray-900">{form.title}</h4>
                                 <div className="flex gap-4 text-sm text-gray-500 mt-1">
-                                    <span>{form.totalSubmissions} respuestas</span>
-                                    <span>{form.completionRate}% completado</span>
+                                    <span>{form.views} vistas</span>
+                                    <span>{form.completionRate}% completados</span>
                                 </div>
                             </div>
                         </div>

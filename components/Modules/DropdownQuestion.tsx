@@ -14,9 +14,12 @@ interface Module {
 
 interface DropdownQuestionProps {
     module: Module;
+    value?: string;
+    onChange?: (_val: string) => void;
+    isPreview?: boolean;
 }
 
-export default function DropdownQuestion({ module }: DropdownQuestionProps) {
+export default function DropdownQuestion({ module, value, onChange }: DropdownQuestionProps) {
     const defaultOptions = [
         { id: "1", label: "Opción 1", value: "option1", order: 0 },
         { id: "2", label: "Opción 2", value: "option2", order: 1 },
@@ -24,6 +27,12 @@ export default function DropdownQuestion({ module }: DropdownQuestionProps) {
     ];
 
     const options = module.options || defaultOptions;
+
+    // Handle selection change - Select returns a Set or comma separated string depending on mode
+    // For single selection, it's usually a Set with one item or a string key
+    const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        if (onChange) onChange(e.target.value);
+    };
 
     return (
         <div className="min-h-[300px] md:min-h-[400px] flex items-center justify-center p-4 md:p-8">
@@ -44,6 +53,8 @@ export default function DropdownQuestion({ module }: DropdownQuestionProps) {
                         radius="full"
                         variant="bordered"
                         size="lg"
+                        selectedKeys={value ? [value] : []}
+                        onChange={handleSelectionChange}
                         classNames={{
                             trigger: "py-6 border-2 border-gray-300 focus:border-primary h-14",
                             value: "text-lg",

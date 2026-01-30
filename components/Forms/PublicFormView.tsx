@@ -7,6 +7,7 @@ import ModuleRenderer from "@/components/Modules/ModuleRenderer";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useNavigationStore } from "@/hooks/useNavigationStore";
+import { incrementFormViews } from "@/actions/form";
 
 gsap.registerPlugin(useGSAP);
 
@@ -42,8 +43,59 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
     const [currentIndex, setCurrentIndex] = useState(0);
     const [responses, setResponses] = useState<Record<string, any>>({});
     const [direction, setDirection] = useState(1); // 1 for next, -1 for prev
+    const [isLoaded, setIsLoaded] = useState(false); // To prevent hydration mismatch
     const containerRef = useRef<HTMLDivElement>(null);
     const contentRef = useRef<HTMLDivElement>(null);
+
+    // Storage key
+    const STORAGE_KEY = `form_state_${form._id}`;
+
+    const [viewCounted, setViewCounted] = useState(false);
+
+    // Load state from localStorage on mount
+    useEffect(() => {
+        if (typeof window !== "undefined" && !isPreview) {
+            // View counting logic
+            const viewKey = `viewed_${form._id}`;
+            const hasViewed = sessionStorage.getItem(viewKey);
+
+            if (!hasViewed && !viewCounted) {
+                // Increment view count
+                incrementFormViews(form._id);
+                sessionStorage.setItem(viewKey, "true");
+                setViewCounted(true);
+            }
+
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    // Ensure we have valid data before setting
+                    if (parsed.responses) setResponses(parsed.responses);
+                    if (typeof parsed.currentIndex === 'number' && parsed.currentIndex >= 0 && parsed.currentIndex < questions.length) {
+                        setCurrentIndex(parsed.currentIndex);
+                    }
+                } catch (e) {
+                    console.error("Failed to parse saved form state", e);
+                }
+            }
+            setIsLoaded(true);
+        } else {
+            setIsLoaded(true);
+        }
+    }, [form._id, isPreview, questions.length, viewCounted]);
+
+    // Save state to localStorage whenever it changes
+    useEffect(() => {
+        if (isLoaded && !isPreview) {
+            const stateToSave = {
+                responses,
+                currentIndex,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
+        }
+    }, [responses, currentIndex, isLoaded, isPreview, STORAGE_KEY]);
 
     // Build modules array
     const modules = questions.map((q) => ({
@@ -55,6 +107,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
         isRequired: q.isRequired,
         options: q.options,
     }));
+
 
     const currentModule = modules[currentIndex];
     // Calculate progress purely based on questions answered (excluding welcome/goodbye)
@@ -158,6 +211,11 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
             if (!res.ok) throw new Error("Submission failed");
 
+            // Clear local storage on success
+            if (!isPreview) {
+                localStorage.removeItem(STORAGE_KEY);
+            }
+
             // Look for goodbye module
             const goodbyeIndex = modules.findIndex(m => m.type === "GOODBYE");
             if (goodbyeIndex !== -1) {
@@ -199,8 +257,6 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
     // Handle keyboard navigation
     useEffect(() => {
-        console.log("Current index:", currentIndex);
-        console.log("Modules length:", modules.length - 2);
         const handleKeyDown = (e: KeyboardEvent) => {
             // Prevent navigation on text inputs/textareas unless empty (optional refinement, skip for now)
             // Actually, Enter should only work if not in textarea, but let's keep it simple: Ctrl+Enter or just Enter if not textarea
@@ -264,7 +320,11 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
         window.addEventListener("wheel", handleWheel, { passive: true });
         return () => window.removeEventListener("wheel", handleWheel);
-    }, [currentIndex, responses, modules.length, isNavigating, lastActionTime, setNavigating, setLastActionTime]);
+    }, [currentIndex, responses, modules.length, isNavigating, lastActionTime, setNavigating, setLastActionTime, viewCounted]);
+
+    if (!isLoaded) {
+        return <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100" />;
+    }
 
     return (
         <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex flex-col overflow-hidden">
@@ -294,6 +354,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
             <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
                 <div ref={contentRef} className="w-full max-w-3xl">
                     <ModuleRenderer
+                        key={currentModule.id}
                         module={currentModule}
                         isPreview={false}
                         value={responses[currentModule.id] || ""}
@@ -357,32 +418,6 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                     )}
                 </div>
             </div>
-
-            {/* Floating Navigation Arrows */}
-            {/* <div className="fixed right-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-40 hidden md:flex">
-                <Button
-                    isIconOnly
-                    size="lg"
-                    variant="flat"
-                    radius="full"
-                    isDisabled={currentIndex === 0}
-                    onPress={navigatePrev}
-                    className="bg-white/80 backdrop-blur shadow-lg hover:bg-white transition-all"
-                >
-                    <ChevronUp size={24} />
-                </Button>
-                <Button
-                    isIconOnly
-                    size="lg"
-                    variant="flat"
-                    radius="full"
-                    isDisabled={currentIndex === modules.length - 1}
-                    onPress={navigateNext}
-                    className="bg-white/80 backdrop-blur shadow-lg hover:bg-white transition-all"
-                >
-                    <ChevronDown size={24} />
-                </Button>
-            </div> */}
         </div>
     );
 }

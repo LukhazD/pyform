@@ -14,9 +14,12 @@ interface Module {
 
 interface TextareaQuestionProps {
     module: Module;
+    value?: string;
+    onChange?: (_val: string) => void;
+    isPreview?: boolean;
 }
 
-export default function TextareaQuestion({ module }: TextareaQuestionProps) {
+export default function TextareaQuestion({ module, value, onChange }: TextareaQuestionProps) {
     return (
         <div className="min-h-[300px] md:min-h-[400px] flex items-center justify-center p-4 md:p-8">
             <Card shadow="sm" radius="lg" className="max-w-2xl w-full p-6 md:p-10 bg-white">
@@ -35,6 +38,8 @@ export default function TextareaQuestion({ module }: TextareaQuestionProps) {
                         radius="lg"
                         variant="bordered"
                         minRows={4}
+                        value={value || ""}
+                        onValueChange={onChange}
                         classNames={{
                             input: "text-base",
                             inputWrapper: "border-2 border-gray-300 focus-within:border-primary",

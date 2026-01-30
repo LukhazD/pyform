@@ -14,9 +14,12 @@ interface Module {
 
 interface CheckboxesQuestionProps {
     module: Module;
+    value?: string[];
+    onChange?: (_val: string[]) => void;
+    isPreview?: boolean;
 }
 
-export default function CheckboxesQuestion({ module }: CheckboxesQuestionProps) {
+export default function CheckboxesQuestion({ module, value, onChange }: CheckboxesQuestionProps) {
     const defaultOptions = [
         { id: "1", label: "Opción 1", value: "option1", order: 0 },
         { id: "2", label: "Opción 2", value: "option2", order: 1 },
@@ -38,7 +41,11 @@ export default function CheckboxesQuestion({ module }: CheckboxesQuestionProps) 
                             <p className="text-gray-600">{module.description}</p>
                         )}
                     </div>
-                    <CheckboxGroup classNames={{ wrapper: "gap-3" }}>
+                    <CheckboxGroup
+                        classNames={{ wrapper: "gap-3" }}
+                        value={Array.isArray(value) ? value : []}
+                        onValueChange={onChange}
+                    >
                         {options.map((option) => (
                             <Checkbox
                                 key={option.id}

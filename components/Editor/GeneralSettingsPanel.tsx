@@ -1,5 +1,5 @@
 import React from "react";
-import { Input, Select, SelectItem } from "@heroui/react";
+import { Input, Select, SelectItem, Textarea, Switch } from "@heroui/react";
 
 interface GeneralSettingsPanelProps {
     styling: {
@@ -10,15 +10,44 @@ interface GeneralSettingsPanelProps {
         customCSS?: string;
     };
     onUpdateStyling: (updates: any) => void;
+    formMetadata?: {
+        title?: string;
+        description?: string;
+        settings?: any;
+    };
+    onUpdateForm?: (updates: any) => void;
     isMobile?: boolean; // For future responsiveness tweaks if needed
 }
 
 export default function GeneralSettingsPanel({
     styling,
     onUpdateStyling,
+    formMetadata,
+    onUpdateForm,
 }: GeneralSettingsPanelProps) {
     return (
-        <div className="p-4 space-y-6">
+        <div className="p-4 space-y-8">
+            {/* Basic Info Section */}
+            {onUpdateForm && (
+                <div className="space-y-4">
+                    <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Información Básica</h3>
+                    <Input
+                        label="Título del Formulario"
+                        placeholder="Mi formulario increíble"
+                        value={formMetadata?.title || ""}
+                        onChange={(e) => onUpdateForm({ title: e.target.value })}
+                    />
+                    <Textarea
+                        label="Descripción (Interna)"
+                        placeholder="Descripción para tu panel de control"
+                        value={formMetadata?.description || ""}
+                        onChange={(e) => onUpdateForm({ description: e.target.value })}
+                        minRows={2}
+                    />
+                </div>
+            )}
+
+            {/* Styling Section */}
             <div className="space-y-4">
                 <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Estilos Globales</h3>
 
@@ -71,6 +100,33 @@ export default function GeneralSettingsPanel({
                     </Select>
                 </div>
             </div>
+
+            {/* Settings Section */}
+            {onUpdateForm && formMetadata?.settings && (
+                <div className="space-y-4">
+                    <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Configuración</h3>
+
+                    <Switch
+                        isSelected={formMetadata.settings.showProgressBar}
+                        onValueChange={(isSelected) => onUpdateForm({ settings: { ...formMetadata.settings, showProgressBar: isSelected } })}
+                    >
+                        <div className="flex flex-col gap-1">
+                            <span className="text-sm">Barra de Progreso</span>
+                            <span className="text-xs text-gray-400">Mostrar barra de progreso visual</span>
+                        </div>
+                    </Switch>
+
+                    <Switch
+                        isSelected={formMetadata.settings.allowMultipleSubmissions}
+                        onValueChange={(isSelected) => onUpdateForm({ settings: { ...formMetadata.settings, allowMultipleSubmissions: isSelected } })}
+                    >
+                        <div className="flex flex-col gap-1">
+                            <span className="text-sm">Múltiples Respuestas</span>
+                            <span className="text-xs text-gray-400">Permitir que un usuario responda varias veces</span>
+                        </div>
+                    </Switch>
+                </div>
+            )}
         </div>
     );
 }

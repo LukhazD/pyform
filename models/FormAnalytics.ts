@@ -47,6 +47,7 @@ export interface IFormAnalytics extends mongoose.Document {
     partialSubmissions: number;
     completionRate: number;
     averageCompletionTimeMs: number;
+    views: number;
     dropOffByQuestion: IStartDropOffData[];
     submissionTimeline: ITimelineData[];
     createdAt: Date;
@@ -71,6 +72,7 @@ const formAnalyticsSchema = new Schema(
         partialSubmissions: { type: Number, default: 0 },
         completionRate: { type: Number, default: 0 },
         averageCompletionTimeMs: { type: Number, default: 0 },
+        views: { type: Number, default: 0 },
         dropOffByQuestion: {
             type: [dropOffRateSchema],
             default: [],

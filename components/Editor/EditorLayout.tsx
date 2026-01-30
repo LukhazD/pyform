@@ -31,10 +31,12 @@ interface EditorLayoutProps {
     onDeleteModule: (id: string) => void;
     onAddModule: (type: string, position?: number) => void;
     onReorderModules: (fromIndex: number, toIndex: number) => void;
-    onDuplicateModule: (id: string) => void;
     onModulesChange?: (modules: Module[]) => void;
+    onDuplicateModule: (id: string) => void;
     formStyling?: any;
     onUpdateFormStyling?: (updates: any) => void;
+    formMetadata?: any;
+    onUpdateForm?: (updates: any) => void;
 }
 
 type MobilePanel = "preview" | "toolbar" | "properties" | "settings";
@@ -51,6 +53,8 @@ export default function EditorLayout({
     onModulesChange,
     formStyling,
     onUpdateFormStyling,
+    formMetadata,
+    onUpdateForm,
 }: EditorLayoutProps) {
     const selectedModule = modules.find((m) => m.id === selectedModuleId);
     const [isMobile, setIsMobile] = useState(false);
@@ -65,13 +69,6 @@ export default function EditorLayout({
         window.addEventListener("resize", checkMobile);
         return () => window.removeEventListener("resize", checkMobile);
     }, []);
-
-    // Auto-switch removed to favor explicit interaction
-    // useEffect(() => {
-    //     if (isMobile && selectedModuleId) {
-    //         setActivePanel("properties");
-    //     }
-    // }, [selectedModuleId, isMobile]);
 
     // Desktop Layout
     if (!isMobile) {
@@ -88,6 +85,8 @@ export default function EditorLayout({
                     onAddModule={onAddModule}
                     onReorderModules={onReorderModules}
                     onDeleteModule={onDeleteModule}
+                    styling={formStyling}
+                    formSettings={formMetadata}
                 />
 
                 {/* Right Sidebar - Properties Panel */}
@@ -117,6 +116,8 @@ export default function EditorLayout({
                         onDeleteModule={onDeleteModule}
                         isMobile
                         onEditModule={() => setActivePanel("properties")}
+                        styling={formStyling}
+                        formSettings={formMetadata}
                     />
                 </div>
 
@@ -180,7 +181,7 @@ export default function EditorLayout({
                                 isIconOnly
                                 variant="light"
                                 radius="full"
-                                onClick={() => setActivePanel("preview")}
+                                onPress={() => setActivePanel("preview")}
                             >
                                 <X size={20} />
                             </Button>
@@ -189,6 +190,8 @@ export default function EditorLayout({
                             <GeneralSettingsPanel
                                 styling={formStyling || {}}
                                 onUpdateStyling={onUpdateFormStyling || (() => { })}
+                                formMetadata={formMetadata}
+                                onUpdateForm={onUpdateForm || (() => { })}
                             />
                         </div>
                     </div>

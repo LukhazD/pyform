@@ -35,6 +35,7 @@ export default function FormEditorPage({ params }: Props) {
         handleDuplicateModule,
         handlePublish,
         handleUpdateFormStyling,
+        handleUpdateForm,
         setModules,
         error
     } = useFormEditor(formParams?.formId || null);
@@ -174,6 +175,12 @@ export default function FormEditorPage({ params }: Props) {
                 onModulesChange={setModules}
                 formStyling={form?.styling}
                 onUpdateFormStyling={handleUpdateFormStyling}
+                formMetadata={{
+                    title: form?.title,
+                    description: form?.description,
+                    settings: form?.settings
+                }}
+                onUpdateForm={handleUpdateForm}
             />
         </div>
     );

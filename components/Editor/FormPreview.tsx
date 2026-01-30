@@ -28,6 +28,8 @@ interface FormPreviewProps {
     onDeleteModule?: (id: string) => void;
     isMobile?: boolean;
     onEditModule?: () => void;
+    styling?: any;
+    formSettings?: any;
 }
 
 const moduleTypeLabels: Record<string, string> = {
@@ -56,6 +58,8 @@ export default function FormPreview({
     onDeleteModule,
     isMobile,
     onEditModule,
+    styling,
+    formSettings,
 }: FormPreviewProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -235,6 +239,11 @@ export default function FormPreview({
                 className="flex-1 h-full relative bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden"
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
+                style={{
+                    // @ts-ignore
+                    "--color-primary": styling?.primaryColor || "#3b82f6",
+                    fontFamily: styling?.fontFamily ? `"${styling.fontFamily}", sans-serif` : "Inter, sans-serif",
+                } as React.CSSProperties}
             >
                 {/* Current module - Full Screen */}
                 <div

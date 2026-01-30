@@ -28,14 +28,20 @@ async function getGlobalAnalytics(userId: string) {
     // Join form info with analytics for the list
     const formsWithStats = forms.map(f => {
         const stats = allAnalytics.find(a => a.formId.toString() === f._id.toString());
+        const views = stats?.views || 0;
+        const completions = stats?.completedSubmissions || 0;
+        const rate = views > 0 ? Math.round((completions / views) * 100) : 0;
+
         return {
             formId: f._id.toString(),
             title: f.title,
             shortId: f.shortId,
-            totalSubmissions: stats?.totalSubmissions || 0,
-            completionRate: stats?.completionRate || 0
+            views: views,
+            submissions: stats?.totalSubmissions || 0, // Keeps tracking starts if needed
+            completedSubmissions: completions,
+            completionRate: rate
         };
-    }).sort((a, b) => b.totalSubmissions - a.totalSubmissions);
+    }).sort((a, b) => b.completedSubmissions - a.completedSubmissions);
 
     return { aggregated, formsWithStats };
 }

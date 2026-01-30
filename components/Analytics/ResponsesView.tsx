@@ -41,7 +41,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
             const answer = submission.answers.find(a => String(a.questionId) === String(emailQuestion._id));
             if (answer && answer.value) return String(answer.value);
         }
-        return `Anon ${submission._id.toString().substring(0, 4)}`;
+        return `Anon ${submission._id.toString().slice(-4)}`;
     };
 
     // Derived state for the selected question analysis

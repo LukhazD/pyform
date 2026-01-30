@@ -27,7 +27,7 @@ export default function AnalyticsCards({ data }: AnalyticsCardsProps) {
             // Animate numbers
             if (data) {
                 const targets = [
-                    { val: data.totalSubmissions, selector: ".stat-total" },
+                    { val: data.views, selector: ".stat-total" },
                     { val: data.completedSubmissions, selector: ".stat-completed" },
                     { val: data.completionRate, selector: ".stat-rate", suffix: "%" },
                     { val: data.averageCompletionTimeMs / 1000, selector: ".stat-time", suffix: "s" },
@@ -59,7 +59,7 @@ export default function AnalyticsCards({ data }: AnalyticsCardsProps) {
     const stats = [
         {
             title: "Total Vistas",
-            value: data?.totalSubmissions || 0,
+            value: data?.views || 0,
             icon: MousePointerClick,
             className: "stat-total",
             color: "text-blue-500",
