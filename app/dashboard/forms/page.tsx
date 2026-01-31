@@ -1,39 +1,11 @@
 import { auth } from "@/libs/next-auth";
 import { redirect } from "next/navigation";
-import connectMongo from "@/libs/mongoose";
-import Form from "@/models/Form";
 import FormCard from "@/components/Dashboard/FormCard";
 import EmptyState from "@/components/Dashboard/EmptyState";
 import CreateFormButton from "@/components/Dashboard/CreateFormButton";
+import { FormService } from "@/services/FormService";
 
 export const dynamic = "force-dynamic";
-
-import Question from "@/models/Question";
-import Submission from "@/models/Submission";
-
-async function getUserForms(userId: string) {
-    await connectMongo();
-    const forms = await Form.find({ userId })
-        .sort({ updatedAt: -1 })
-        .lean();
-
-    const formsWithCounts = await Promise.all(
-        forms.map(async (form: any) => {
-            const [questionCount, responseCount] = await Promise.all([
-                Question.countDocuments({ formId: form._id }),
-                Submission.countDocuments({ formId: form._id })
-            ]);
-
-            return {
-                ...form,
-                questionCount,
-                responseCount
-            };
-        })
-    );
-
-    return JSON.parse(JSON.stringify(formsWithCounts));
-}
 
 export default async function FormsPage() {
     const session = await auth();
@@ -42,7 +14,7 @@ export default async function FormsPage() {
         redirect("/api/auth/signin");
     }
 
-    const forms = await getUserForms(session.user.id);
+    const forms = await FormService.getUserForms(session.user.id);
 
     return (
         <div className="max-w-7xl mx-auto p-4">
@@ -80,3 +52,4 @@ export default async function FormsPage() {
         </div>
     );
 }
+

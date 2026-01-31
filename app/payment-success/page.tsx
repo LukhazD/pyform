@@ -1,65 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState, Suspense } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { Button, Card, CardBody } from "@heroui/react";
 import { CheckCircle, Loader2 } from "lucide-react";
+import { usePaymentSuccessViewModel } from "@/hooks/usePaymentSuccessViewModel";
 
 function PaymentSuccessContent() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const sessionId = searchParams.get("session_id");
-    const { update, status } = useSession();
-    const [isRefreshing, setIsRefreshing] = useState(true);
-    const [refreshComplete, setRefreshComplete] = useState(false);
-    const hasAttemptedRefresh = useRef(false);
+    const { isRefreshing, refreshComplete, handleContinue, handleRetry } = usePaymentSuccessViewModel();
 
-    useEffect(() => {
-        // Only attempt refresh once
-        if (hasAttemptedRefresh.current) return;
-        if (status === "loading") return;
 
-        const refreshSession = async () => {
-            hasAttemptedRefresh.current = true;
 
-            if (status === "authenticated") {
-                try {
-                    // Fetch fresh user data from API
-                    const res = await fetch(`/api/user/refresh-session?session_id=${sessionId || ''}`);
-
-                    if (res.ok) {
-                        const freshData = await res.json();
-
-                        // Update the session with fresh data
-                        await update({
-                            subscriptionTier: freshData.subscriptionTier,
-                            subscriptionStatus: freshData.subscriptionStatus,
-                            onboardingCompleted: freshData.onboardingCompleted,
-                            role: freshData.role,
-                        });
-
-                        setRefreshComplete(true);
-                    } else {
-                        console.error("Failed to fetch fresh user data");
-                    }
-                } catch (error) {
-                    console.error("Error refreshing session:", error);
-                } finally {
-                    setIsRefreshing(false);
-                }
-            } else if (status === "unauthenticated") {
-                // If somehow user lands here without being logged in
-                router.push("/auth/signin");
-            }
-        };
-
-        refreshSession();
-    }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
-
-    const handleContinue = () => {
-        window.location.href = "/dashboard";
-    };
 
     return (
         <Card className="w-full max-w-md p-8 shadow-xl bg-white text-center">
@@ -116,7 +66,7 @@ function PaymentSuccessContent() {
                             size="lg"
                             variant="bordered"
                             className="w-full font-medium"
-                            onPress={() => router.push("/auth/signin")}
+                            onPress={handleRetry}
                         >
                             Iniciar sesión
                         </Button>

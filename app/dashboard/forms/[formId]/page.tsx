@@ -1,47 +1,14 @@
 import { auth } from "@/libs/next-auth";
 import { redirect } from "next/navigation";
-import connectMongo from "@/libs/mongoose";
-import Form from "@/models/Form";
-import FormAnalytics from "@/models/FormAnalytics";
 import { notFound } from "next/navigation";
 import { Button } from "@heroui/react";
 import { ExternalLink, LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import AnalyticsModal from "@/components/Analytics/AnalyticsModal";
 import FormDashboardClient from "@/components/Forms/FormDashboardClient";
+import { FormService } from "@/services/FormService";
 
 export const dynamic = "force-dynamic";
-
-async function getForm(formId: string, userId: string) {
-    await connectMongo();
-    // Try finding by _id first, then shortId
-    let form;
-    if (formId.match(/^[0-9a-fA-F]{24}$/)) {
-        form = await Form.findOne({ _id: formId, userId }).lean();
-    } else {
-        form = await Form.findOne({ shortId: formId, userId }).lean();
-    }
-    return form ? JSON.parse(JSON.stringify(form)) : null;
-}
-
-async function getFormAnalytics(formId: string) {
-    await connectMongo();
-    const analytics = await FormAnalytics.findOne({ formId }).lean();
-    return analytics ? JSON.parse(JSON.stringify(analytics)) : null;
-}
-
-// Helper functions for data fetching
-async function getFormQuestions(formId: string) {
-    await connectMongo();
-    const Question = (await import("@/models/Question")).default;
-    return await Question.find({ formId }).sort({ order: 1 }).lean();
-}
-
-async function getFormSubmissions(formId: string) {
-    await connectMongo();
-    const Submission = (await import("@/models/Submission")).default;
-    return await Submission.find({ formId }).sort({ submittedAt: -1 }).limit(100).lean(); // Limit to 100 for performance
-}
 
 export default async function FormDetailPage({
     params
@@ -55,15 +22,15 @@ export default async function FormDetailPage({
         redirect("/api/auth/signin");
     }
 
-    const form = await getForm(formId, session.user.id);
+    const form = await FormService.getForm(formId, session.user.id);
 
     if (!form) {
         notFound();
     }
 
-    const analytics = await getFormAnalytics(form._id);
-    const questions = await getFormQuestions(form._id);
-    const submissions = await getFormSubmissions(form._id);
+    const analytics = await FormService.getFormAnalytics(form._id);
+    const questions = await FormService.getFormQuestions(form._id);
+    const submissions = await FormService.getFormSubmissions(form._id);
 
     return (
         <div className="max-w-7xl mx-auto">

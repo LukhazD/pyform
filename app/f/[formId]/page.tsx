@@ -1,36 +1,8 @@
 import { notFound } from "next/navigation";
-import connectMongo from "@/libs/mongoose";
-import Form from "@/models/Form";
-import Question from "@/models/Question";
 import PublicFormView from "@/components/Forms/PublicFormView";
+import { FormService } from "@/services/FormService";
 
 export const dynamic = "force-dynamic";
-
-async function getFormWithQuestions(formId: string) {
-    await connectMongo();
-
-    // Try finding by shortId first, then by _id
-    let form;
-    if (formId.match(/^[0-9a-fA-F]{24}$/)) {
-        form = await Form.findById(formId).lean();
-    } else {
-        form = await Form.findOne({ shortId: formId }).lean();
-    }
-
-    if (!form) {
-        return null;
-    }
-
-    // Get questions for this form
-    const questions = await Question.find({ formId: form._id })
-        .sort({ order: 1 })
-        .lean();
-
-    return {
-        form: JSON.parse(JSON.stringify(form)),
-        questions: JSON.parse(JSON.stringify(questions)),
-    };
-}
 
 export default async function PublicFormPage({
     params,
@@ -38,7 +10,7 @@ export default async function PublicFormPage({
     params: Promise<{ formId: string }>;
 }) {
     const { formId } = await params;
-    const data = await getFormWithQuestions(formId);
+    const data = await FormService.getFormWithQuestions(formId);
 
     if (!data) {
         notFound();
@@ -62,3 +34,4 @@ export default async function PublicFormPage({
 
     return <PublicFormView form={data.form} questions={data.questions} />;
 }
+

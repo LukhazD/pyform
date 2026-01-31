@@ -1,51 +1,13 @@
 import { auth } from "@/libs/next-auth";
 import { redirect } from "next/navigation";
-import { FileText, MessageSquare, BarChart3, Plus } from "lucide-react";
-import { Button } from "@heroui/react";
+import { FileText, MessageSquare, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import StatsCard from "@/components/Dashboard/StatsCard";
 import FormList from "@/components/Dashboard/FormList";
-import connectMongo from "@/libs/mongoose";
-import Form from "@/models/Form";
 import CreateFormButton from "@/components/Dashboard/CreateFormButton";
+import { FormService } from "@/services/FormService";
 
 export const dynamic = "force-dynamic";
-
-import Question from "@/models/Question";
-
-async function getUserForms(userId: string) {
-  await connectMongo();
-  const forms = await Form.find({ userId })
-    .sort({ updatedAt: -1 })
-    .limit(10)
-    .lean();
-
-  const formsWithCounts = await Promise.all(
-    forms.map(async (form) => {
-      const questionCount = await Question.countDocuments({ formId: form._id });
-      return { ...form, questionCount };
-    })
-  );
-
-  return formsWithCounts;
-}
-
-async function getStats(userId: string) {
-  await connectMongo();
-  const totalForms = await Form.countDocuments({ userId });
-  const publishedForms = await Form.countDocuments({ userId, status: "published" });
-
-  // TODO: Get actual submission count from Submission model
-  const totalResponses = 0;
-  const completionRate = 0;
-
-  return {
-    totalForms,
-    publishedForms,
-    totalResponses,
-    completionRate,
-  };
-}
 
 export default async function Dashboard() {
   const session = await auth();
@@ -55,8 +17,8 @@ export default async function Dashboard() {
   }
 
   const [forms, stats] = await Promise.all([
-    getUserForms(session.user.id),
-    getStats(session.user.id),
+    FormService.getUserForms(session.user.id, 10),
+    FormService.getDashboardStats(session.user.id),
   ]);
 
   const userName = session.user.name?.split(" ")[0] || "Usuario";

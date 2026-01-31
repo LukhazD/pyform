@@ -1,43 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Card, CardBody, CardHeader, Button, Chip } from "@heroui/react";
-import { Check, Loader2 } from "lucide-react";
+import { Check } from "lucide-react";
 import config from "@/config";
+import { useSubscriptionViewModel } from "@/hooks/useSubscriptionViewModel";
 
 export default function SubscribePage() {
-    const [loadingPriceId, setLoadingPriceId] = useState<string | null>(null);
-
-    const handleSubscribe = async (priceId: string) => {
-        // Immediately set loading state
-        setLoadingPriceId(priceId);
-
-        try {
-            const res = await fetch("/api/stripe/create-checkout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    priceId,
-                    mode: "subscription",
-                    successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-                    cancelUrl: `${window.location.origin}/subscribe`,
-                }),
-            });
-
-            const data = await res.json();
-
-            if (data.url) {
-                // Keep loading while redirecting
-                window.location.href = data.url;
-            } else {
-                console.error("No checkout URL returned");
-                setLoadingPriceId(null);
-            }
-        } catch (error) {
-            console.error("Checkout error:", error);
-            setLoadingPriceId(null);
-        }
-    };
+    const { loadingPriceId, subscribe } = useSubscriptionViewModel();
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-16 px-4">
@@ -101,7 +71,7 @@ export default function SubscribePage() {
                                         variant={plan.isFeatured ? "solid" : "bordered"}
                                         size="lg"
                                         className="w-full font-medium"
-                                        onPress={() => handleSubscribe(plan.priceId)}
+                                        onPress={() => subscribe(plan.priceId)}
                                         isLoading={isLoading}
                                         isDisabled={isDisabled}
                                         startContent={isLoading ? undefined : null}

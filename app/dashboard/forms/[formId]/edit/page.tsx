@@ -7,6 +7,7 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import EditorLayout from "@/components/Editor/EditorLayout";
 import { useFormEditor } from "@/hooks/useFormEditor";
+import { useClipboard } from "@/hooks/useClipboard";
 
 interface Props {
     params: Promise<{ formId: string }>;
@@ -40,43 +41,10 @@ export default function FormEditorPage({ params }: Props) {
         error
     } = useFormEditor(formParams?.formId || null);
 
+    const { copyToClipboard } = useClipboard();
+
     const handleCopyLink = () => {
         const url = `${window.location.origin}/f/${form?.shortId || form?._id}`;
-
-        // Helper function to handle clipboard fallback
-        const copyToClipboard = async (text: string) => {
-            try {
-                if (navigator.clipboard) {
-                    await navigator.clipboard.writeText(text);
-                    toast.success("Enlace copiado correctamente");
-                } else {
-                    // Fallback using legacy execCommand
-                    const textArea = document.createElement("textarea");
-                    textArea.value = text;
-                    textArea.style.position = "fixed";  // Avoid scrolling to bottom
-                    textArea.style.left = "-9999px";
-                    document.body.appendChild(textArea);
-                    textArea.focus();
-                    textArea.select();
-
-                    try {
-                        const successful = document.execCommand('copy');
-                        if (successful) {
-                            toast.success("Enlace copiado correctamente");
-                        } else {
-                            toast.error("No se pudo copiar el enlace");
-                        }
-                    } catch (err) {
-                        toast.error("Error al copiar el enlace");
-                    }
-
-                    document.body.removeChild(textArea);
-                }
-            } catch (err) {
-                toast.error("Error al copiar el enlace");
-            }
-        };
-
         copyToClipboard(url);
     };
 
