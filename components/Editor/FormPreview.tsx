@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@heroui/react";
 import { ChevronUp, ChevronDown, Plus, GripVertical, Trash2 } from "lucide-react";
 import ModuleRenderer from "../Modules/ModuleRenderer";
+import { FormStyling } from "@/types/FormStyling";
 
 interface Module {
     id: string;
@@ -28,7 +29,7 @@ interface FormPreviewProps {
     onDeleteModule?: (id: string) => void;
     isMobile?: boolean;
     onEditModule?: () => void;
-    styling?: any;
+    styling?: FormStyling;
     formSettings?: any;
 }
 
@@ -59,7 +60,6 @@ export default function FormPreview({
     isMobile,
     onEditModule,
     styling,
-    formSettings,
 }: FormPreviewProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -239,6 +239,12 @@ export default function FormPreview({
                 className="flex-1 h-full relative bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden"
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
+                onClick={(e) => {
+                    // Only deselect if clicking the background itself, not a child
+                    if (e.target === e.currentTarget) {
+                        onSelectModule("");
+                    }
+                }}
                 style={{
                     // @ts-ignore
                     "--color-primary": styling?.primaryColor || "#3b82f6",
@@ -248,10 +254,19 @@ export default function FormPreview({
                 {/* Current module - Full Screen */}
                 <div
                     className={`h-full w-full flex items-center justify-center ${isMobile ? "p-4 cursor-pointer" : "p-8"}`}
-                    onClick={() => isMobile && onEditModule?.()}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (isMobile) onEditModule?.();
+                    }}
                 >
                     <div className="w-full max-w-3xl pointer-events-none">
-                        <ModuleRenderer module={currentModule} isPreview />
+                        <ModuleRenderer
+                            module={currentModule}
+                            isPreview
+                            primaryColor={styling?.primaryColor}
+                            radius={styling?.heroUIRadius === "full" ? "lg" : styling?.heroUIRadius}
+                            shadow={styling?.heroUIShadow}
+                        />
                     </div>
                 </div>
 

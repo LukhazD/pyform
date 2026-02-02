@@ -4,11 +4,10 @@ import { useState, useMemo } from "react";
 import {
     Card, Select, SelectItem, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
     Chip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure,
-    Pagination
 } from "@heroui/react";
 import { IQuestion } from "@/models/Question";
 import { ISubmission } from "@/models/Submission";
-import { Calendar, Smartphone, Globe, Monitor, Search, ChevronRight, FileText, User as UserIcon, BarChart3 } from "lucide-react";
+import { Calendar, Smartphone, Monitor, Search, ChevronRight, User as UserIcon, BarChart3 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 
@@ -121,7 +120,10 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                         placeholder="Selecciona una pregunta"
                         className="max-w-md"
                         selectedKeys={selectedQuestionId ? [selectedQuestionId] : []}
-                        onChange={(e) => setSelectedQuestionId(e.target.value)}
+                        onChange={(e) => {
+                            if (e.target.value) setSelectedQuestionId(e.target.value);
+                        }}
+                        disallowEmptySelection
                         startContent={<Search size={16} className="text-gray-400" />}
                     >
                         {questionsWithAnswers.map((q) => (

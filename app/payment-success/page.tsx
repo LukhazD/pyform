@@ -6,10 +6,7 @@ import { CheckCircle, Loader2 } from "lucide-react";
 import { usePaymentSuccessViewModel } from "@/hooks/usePaymentSuccessViewModel";
 
 function PaymentSuccessContent() {
-    const { isRefreshing, refreshComplete, handleContinue, handleRetry } = usePaymentSuccessViewModel();
-
-
-
+    const { isRefreshing, refreshComplete, handleContinue, handleRetry, isNavigating } = usePaymentSuccessViewModel();
 
     return (
         <Card className="w-full max-w-md p-8 shadow-xl bg-white text-center">
@@ -45,6 +42,7 @@ function PaymentSuccessContent() {
                             size="lg"
                             className="w-full font-medium bg-gray-900 text-white hover:bg-gray-800"
                             onPress={handleContinue}
+                            isLoading={isNavigating}
                         >
                             Ir al Dashboard
                         </Button>

@@ -4,6 +4,8 @@
 import React from "react";
 import { Card, RadioGroup, Radio } from "@heroui/react";
 
+import { FormStyling } from "@/types/FormStyling";
+
 interface Module {
     id: string;
     type: string;
@@ -18,9 +20,12 @@ interface MultipleChoiceQuestionProps {
     value?: string;
     onChange?: (_v: string) => void;
     isPreview?: boolean;
+    primaryColor?: string;
+    radius?: FormStyling["heroUIRadius"];
+    shadow?: FormStyling["heroUIShadow"];
 }
 
-export default function MultipleChoiceQuestion({ module, value, onChange }: MultipleChoiceQuestionProps) {
+export default function MultipleChoiceQuestion({ module, value, onChange, primaryColor, radius = "lg", shadow = "sm" }: MultipleChoiceQuestionProps) {
     const defaultOptions = [
         { id: "1", label: "Opción 1", value: "option1", order: 0 },
         { id: "2", label: "Opción 2", value: "option2", order: 1 },
@@ -31,7 +36,7 @@ export default function MultipleChoiceQuestion({ module, value, onChange }: Mult
 
     return (
         <div className="min-h-[300px] md:min-h-[400px] flex items-center justify-center p-4 md:p-8">
-            <Card shadow="sm" radius="lg" className="max-w-2xl w-full p-6 md:p-10 bg-white">
+            <Card shadow={shadow} radius={radius === "full" ? "lg" : radius} className="max-w-2xl w-full p-6 md:p-10 bg-white">
                 <div className="space-y-6">
                     <div>
                         <label className="text-xl md:text-2xl font-semibold text-gray-900 block mb-2">
@@ -57,9 +62,19 @@ export default function MultipleChoiceQuestion({ module, value, onChange }: Mult
                                     wrapper: "group-data-[selected=true]:border-primary",
                                     label: "text-lg",
                                 }}
+                                style={{
+                                    // @ts-ignore
+                                    "--nextui-primary": primaryColor,
+                                }}
                             >
                                 <span className="inline-flex items-center gap-3">
-                                    <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-medium text-gray-600">
+                                    <span
+                                        className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors"
+                                        style={{
+                                            backgroundColor: value === option.value ? primaryColor : "#f3f4f6",
+                                            color: value === option.value ? "white" : "#4b5563"
+                                        }}
+                                    >
                                         {String.fromCharCode(65 + index)}
                                     </span>
                                     {option.label}

@@ -3,7 +3,7 @@ import { submissionService } from "@/libs/services/submissionService";
 
 export async function POST(req: Request) {
     try {
-        const { formId, answers, metadata } = await req.json();
+        const { formId, answers, metadata, completionTimeMs } = await req.json();
 
         // Refine metadata
         const userAgent = metadata.userAgent || "";
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
             browser,
         };
 
-        const submission = await submissionService.submitResponse(formId, answers, refinedMetadata || {});
+        const submission = await submissionService.submitResponse(formId, answers, refinedMetadata || {}, completionTimeMs || 0);
         return NextResponse.json(submission, { status: 201 });
     } catch (error: any) {
         console.error("Submission Error:", error);

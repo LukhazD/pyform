@@ -18,10 +18,12 @@ import {
     ChevronDown,
     Calendar,
     Upload,
+    Settings,
 } from "lucide-react";
 
 interface ToolbarProps {
     onAddModule: (type: string, position?: number) => void;
+    onOpenSettings?: () => void;
     isMobile?: boolean;
 }
 
@@ -46,9 +48,24 @@ const questionModules = [
     { type: "FILE_UPLOAD", label: "Archivo", icon: Upload },
 ];
 
-export default function Toolbar({ onAddModule, isMobile }: ToolbarProps) {
+export default function Toolbar({ onAddModule, onOpenSettings, isMobile }: ToolbarProps) {
     return (
         <div className={`bg-white ${isMobile ? 'w-full' : 'w-64 border-r border-gray-200'} p-4 overflow-y-auto flex-shrink-0`}>
+            {/* General Settings Button */}
+            {!isMobile && (
+                <div className="mb-6">
+                    <button
+                        onClick={onOpenSettings}
+                        className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-gray-50 transition-all text-left bg-gray-50/50"
+                    >
+                        <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 flex-shrink-0 shadow-sm">
+                            <Settings size={18} />
+                        </div>
+                        <span className="text-sm font-medium text-gray-700">Diseño y Configuración</span>
+                    </button>
+                </div>
+            )}
+
             {/* Informational Modules */}
             <div className="mb-6">
                 <h3 className="text-sm font-medium text-gray-700 mb-3">

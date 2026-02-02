@@ -1,15 +1,10 @@
 import React from "react";
 import { Input, Select, SelectItem, Textarea, Switch } from "@heroui/react";
+import { FormStyling } from "@/types/FormStyling";
 
 interface GeneralSettingsPanelProps {
-    styling: {
-        primaryColor?: string;
-        fontFamily?: string;
-        heroUIRadius?: string;
-        heroUIShadow?: string;
-        customCSS?: string;
-    };
-    onUpdateStyling: (updates: any) => void;
+    styling: FormStyling;
+    onUpdateStyling: (updates: Partial<FormStyling>) => void;
     formMetadata?: {
         title?: string;
         description?: string;
@@ -51,17 +46,38 @@ export default function GeneralSettingsPanel({
             <div className="space-y-4">
                 <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Estilos Globales</h3>
 
-                <Input
-                    label="Color Primario"
-                    type="color"
-                    // Use a default but allow value to override
-                    value={styling?.primaryColor || "#3b82f6"}
-                    onChange={(e) => onUpdateStyling({ primaryColor: e.target.value })}
-                    description="Color principal para botones y acentos"
-                    classNames={{
-                        input: "h-10 w-full p-1 cursor-pointer",
-                    }}
-                />
+                <div className="flex flex-col gap-2">
+                    <label className="text-sm font-medium text-gray-700">Color Primario</label>
+                    <div className="flex gap-3 items-center">
+                        <div className="relative group">
+                            <input
+                                type="color"
+                                value={styling?.primaryColor || "#3b82f6"}
+                                onChange={(e) => onUpdateStyling({ primaryColor: e.target.value })}
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            />
+                            <div
+                                className="w-10 h-10 rounded-full border-2 border-white shadow-md transition-transform group-hover:scale-110"
+                                style={{ backgroundColor: styling?.primaryColor || "#3b82f6" }}
+                            />
+                        </div>
+                        <Input
+                            placeholder="#000000"
+                            value={styling?.primaryColor || "#3b82f6"}
+                            onChange={(e) => onUpdateStyling({ primaryColor: e.target.value })}
+                            variant="bordered"
+                            radius="lg"
+                            className="flex-1"
+                            startContent={
+                                <div className="text-gray-400 text-sm">#</div>
+                            }
+                            classNames={{
+                                input: "uppercase font-mono",
+                            }}
+                        />
+                    </div>
+                    <p className="text-xs text-gray-400">Color principal para botones y acentos</p>
+                </div>
 
                 <Select
                     label="Fuente"
@@ -79,7 +95,7 @@ export default function GeneralSettingsPanel({
                     <Select
                         label="Radio Borde"
                         selectedKeys={styling?.heroUIRadius ? [styling.heroUIRadius] : ["full"]}
-                        onChange={(e) => onUpdateStyling({ heroUIRadius: e.target.value })}
+                        onChange={(e) => onUpdateStyling({ heroUIRadius: e.target.value as FormStyling["heroUIRadius"] })}
                     >
                         <SelectItem key="none">Cuadrado</SelectItem>
                         <SelectItem key="sm">Pequeño</SelectItem>
@@ -91,7 +107,7 @@ export default function GeneralSettingsPanel({
                     <Select
                         label="Sombra"
                         selectedKeys={styling?.heroUIShadow ? [styling.heroUIShadow] : ["sm"]}
-                        onChange={(e) => onUpdateStyling({ heroUIShadow: e.target.value })}
+                        onChange={(e) => onUpdateStyling({ heroUIShadow: e.target.value as FormStyling["heroUIShadow"] })}
                     >
                         <SelectItem key="none">Sin sombra</SelectItem>
                         <SelectItem key="sm">Suave</SelectItem>

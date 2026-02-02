@@ -4,23 +4,32 @@ import React from "react";
 import { Card } from "@heroui/react";
 import { Upload } from "lucide-react";
 
+import { FormStyling } from "@/types/FormStyling";
+
 interface Module {
     id: string;
     type: string;
     title?: string;
     description?: string;
     isRequired?: boolean;
+    options?: Array<{ id: string; label: string; value: string; order: number }>;
 }
 
 interface FileUploadQuestionProps {
     module: Module;
+    value?: string | File;
+    onChange?: (_v: string | File) => void;
+    isPreview?: boolean;
+    primaryColor?: string;
+    radius?: FormStyling["heroUIRadius"];
+    shadow?: FormStyling["heroUIShadow"];
 }
 
-export default function FileUploadQuestion({ module }: FileUploadQuestionProps) {
+export default function FileUploadQuestion({ module, value, onChange, primaryColor, radius = "lg", shadow = "sm" }: FileUploadQuestionProps) {
     return (
         <div className="min-h-[300px] md:min-h-[400px] flex items-center justify-center p-4 md:p-8">
-            <Card shadow="sm" radius="lg" className="max-w-2xl w-full p-6 md:p-10 bg-white">
-                <div className="space-y-3">
+            <Card shadow={shadow} radius={radius === "full" ? "lg" : radius} className="max-w-2xl w-full p-6 md:p-10 bg-white">
+                <div className="space-y-6">
                     <div>
                         <label className="text-xl md:text-2xl font-semibold text-gray-900 block mb-2">
                             {module.title || "Subir archivo"}

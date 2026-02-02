@@ -134,8 +134,24 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
         return <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100" />;
     }
 
+    const primaryColor = form.styling?.primaryColor || "#111827"; // Default to gray-900 if missing
+    const fontFamily = form.styling?.fontFamily ? `"${form.styling.fontFamily}", sans-serif` : "Inter, sans-serif";
+
     return (
-        <div ref={containerRef} className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex flex-col overflow-hidden">
+        <div
+            ref={containerRef}
+            className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex flex-col overflow-hidden transition-colors duration-300"
+            style={{
+                fontFamily,
+                // @ts-ignore
+                "--color-primary": primaryColor,
+            } as React.CSSProperties}
+        >
+            {/* Custom CSS Injection */}
+            {form.styling?.customCSS && (
+                <style dangerouslySetInnerHTML={{ __html: form.styling.customCSS }} />
+            )}
+
             {/* Preview mode banner */}
             {isPreview && (
                 <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-amber-500 text-white px-6 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium">
@@ -151,8 +167,25 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                         size="sm"
                         radius="none"
                         classNames={{
-                            indicator: "bg-gray-900 transition-all duration-500 ease-out",
+                            indicator: "transition-all duration-500 ease-out",
                             track: "bg-gray-200",
+                        }}
+                        style={{
+                            // @ts-ignore
+                            "--nextui-primary": primaryColor, // HeroUI/NextUI often uses this var
+                        }}
+                    // If HeroUI doesn't use the var, we try overriding the indicator:
+                    // But Component API usually takes classnames. We can use inline style on the indicator if exposed, 
+                    // or just rely on a wrapper. HeroUI Progress usually accepts `color` prop but only for preset colors.
+                    // Let's use CSS variable injection context if possible, or style prop.
+                    // Ideally:
+                    />
+                    {/* Manual overlay for color if component doesn't support arbitrary hex */}
+                    <div
+                        className="absolute top-0 left-0 h-1 transition-all duration-500 ease-out"
+                        style={{
+                            width: `${progress}%`,
+                            backgroundColor: primaryColor
                         }}
                     />
                 </div>
@@ -168,6 +201,9 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                         value={responses[currentModule.id] || ""}
                         onChange={handleAnswer}
                         onNext={navigateNext}
+                        primaryColor={primaryColor} // Pass color to renderer if it accepts it
+                        radius={form.styling?.heroUIRadius === "full" ? "lg" : form.styling?.heroUIRadius}
+                        shadow={form.styling?.heroUIShadow}
                     />
 
                     {/* Internal Navigation (for questions) */}
@@ -184,7 +220,10 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                         size="lg"
                                         onPress={submitForm}
                                         isLoading={submitting}
-                                        className="bg-gray-900 hover:bg-gray-800 text-white px-12 font-medium shadow-lg"
+                                        className="text-white px-12 font-medium shadow-lg transition-transform hover:scale-105"
+                                        style={{
+                                            backgroundColor: primaryColor,
+                                        }}
                                     >
                                         Enviar respuestas
                                     </Button>
@@ -215,7 +254,10 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                     <Button
                                         radius="full"
                                         onPress={navigateNext}
-                                        className="bg-gray-900 hover:bg-gray-800 text-white px-8"
+                                        className="text-white px-8 transition-transform hover:scale-105"
+                                        style={{
+                                            backgroundColor: primaryColor,
+                                        }}
                                         endContent={<ChevronDown size={18} />}
                                     >
                                         Siguiente

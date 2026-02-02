@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { Button } from "@heroui/react";
 import { ArrowLeft, Save, Eye, Link as LinkIcon } from "lucide-react";
 import Link from "next/link";
-import toast from "react-hot-toast";
 import EditorLayout from "@/components/Editor/EditorLayout";
 import { useFormEditor } from "@/hooks/useFormEditor";
 import { useClipboard } from "@/hooks/useClipboard";

@@ -2,6 +2,10 @@ import { useState, useEffect } from "react";
 import { nanoid } from "nanoid";
 import { useDebounce } from "@/hooks/useDebounce";
 
+import { FormStyling } from "@/types/FormStyling";
+
+// ... existing imports
+
 // Module interface
 export interface Module {
     id: string; // The UUID used by frontend
@@ -18,8 +22,19 @@ export interface Module {
     showConfetti?: boolean;
 }
 
+interface FormState {
+    _id: string;
+    shortId?: string;
+    title: string;
+    description?: string;
+    status: string;
+    publishedAt?: string;
+    settings?: any;
+    styling?: FormStyling;
+}
+
 export function useFormEditor(formId: string | null) {
-    const [form, setForm] = useState<any>(null);
+    const [form, setForm] = useState<FormState | null>(null);
     const [modules, setModules] = useState<Module[]>([]);
     const [selectedModuleId, setSelectedModuleId] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
@@ -210,13 +225,13 @@ export function useFormEditor(formId: string | null) {
         }
     };
 
-    const handleUpdateFormStyling = async (stylingUpdates: any) => {
+    const handleUpdateFormStyling = async (stylingUpdates: Partial<FormStyling>) => {
         if (!form) return;
 
         // Optimistic update
         const updatedForm = {
             ...form,
-            styling: { ...form.styling, ...stylingUpdates }
+            styling: { ...(form.styling || {}), ...stylingUpdates }
         };
         setForm(updatedForm);
 
@@ -228,7 +243,7 @@ export function useFormEditor(formId: string | null) {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    styling: stylingUpdates
+                    styling: { ...(form.styling || {}), ...stylingUpdates }
                 }),
             });
             setLastSaved(new Date());
@@ -251,7 +266,7 @@ export function useFormEditor(formId: string | null) {
             if (key === 'settings') {
                 updatedForm.settings = { ...updatedForm.settings, ...updates.settings };
             } else {
-                updatedForm[key] = updates[key];
+                (updatedForm as any)[key] = updates[key];
             }
         });
 

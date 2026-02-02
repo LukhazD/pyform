@@ -21,7 +21,7 @@ export default async function LayoutPrivate({
     <div className="h-full bg-gray-50">
       <Sidebar />
       <main className="lg:ml-64 h-full">
-        <div className=" lg:p-8 h-full">
+        <div className=" lg:p-8 h-full p-4">
           {children}
         </div>
       </main>

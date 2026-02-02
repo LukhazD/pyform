@@ -17,6 +17,8 @@ import DropdownQuestion from "./DropdownQuestion";
 import DateQuestion from "./DateQuestion";
 import FileUploadQuestion from "./FileUploadQuestion";
 
+import { FormStyling } from "@/types/FormStyling";
+
 interface Module {
     id: string;
     type: string;
@@ -37,19 +39,25 @@ interface ModuleRendererProps {
     value?: any;
     onChange?: (_val: any) => void;
     onNext?: () => void;
+    primaryColor?: string;
+    radius?: FormStyling["heroUIRadius"];
+    shadow?: FormStyling["heroUIShadow"];
 }
 
-export default function ModuleRenderer({ module, isPreview, value, onChange, onNext }: ModuleRendererProps) {
+export default function ModuleRenderer({ module, isPreview, value, onChange, onNext, primaryColor, radius, shadow }: ModuleRendererProps) {
     const commonProps = {
         module,
         value,
         onChange: onChange || (() => { }),
-        isPreview
+        isPreview,
+        primaryColor,
+        radius,
+        shadow
     };
 
     switch (module.type) {
         case "WELCOME":
-            return <WelcomeModule module={module} onNext={onNext} />;
+            return <WelcomeModule module={module} onNext={onNext} primaryColor={primaryColor} radius={radius} shadow={shadow} />;
         case "QUOTE":
             return <QuoteModule module={module} />;
         case "GOODBYE":

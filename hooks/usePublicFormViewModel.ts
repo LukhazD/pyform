@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import toast from "react-hot-toast";
 import { Form, Question } from "@/types/Form";
 import { incrementFormViews } from "@/actions/form";
 
@@ -27,6 +28,21 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
                 incrementFormViews(form._id);
                 sessionStorage.setItem(viewKey, "true");
                 setViewCounted(true);
+            }
+
+            // Check for previous submission if multiple submissions are not allowed
+            const completionKey = `completed_${form._id}`;
+            const hasCompleted = localStorage.getItem(completionKey);
+
+            if (!form.settings?.allowMultipleSubmissions && hasCompleted) {
+                // Determine what to do: redirect to goodbye or stay on a clean state but warn?
+                // For now, let's just go to the goodbye screen if it exists.
+                const goodbyeIndex = questions.findIndex(q => q.type === "GOODBYE");
+                if (goodbyeIndex !== -1) {
+                    setCurrentIndex(goodbyeIndex);
+                    setIsLoaded(true);
+                    return;
+                }
             }
 
             // Restore progress
@@ -101,13 +117,21 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
         }
     }, [currentIndex]);
 
+    // Track start time for analytics
+    const startTime = useRef<number>(Date.now());
+
+    // ... (existing code)
+
     const submitForm = async () => {
         if (!validateCurrent()) return;
         setSubmitting(true);
 
         try {
+            const completionTimeMs = Date.now() - startTime.current;
+
             const submissionData = {
                 formId: form._id,
+                completionTimeMs,
                 answers: Object.entries(responses).map(([questionId, value]) => {
                     const question = questions.find(q => q._id === questionId);
                     return {
@@ -134,18 +158,20 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
 
             if (!isPreview) {
                 localStorage.removeItem(STORAGE_KEY);
+                localStorage.setItem(`completed_${form._id}`, "true");
             }
+
 
             const goodbyeIndex = questions.findIndex(q => q.type === "GOODBYE");
             if (goodbyeIndex !== -1) {
                 setDirection(1);
                 setCurrentIndex(goodbyeIndex);
             } else {
-                alert("Thank you! Your response has been recorded.");
+                toast.success("¡Gracias! Tu respuesta ha sido registrada.");
             }
         } catch (error) {
             console.error("Submission error:", error);
-            alert("Failed to submit form. Please try again.");
+            toast.error("Error al enviar el formulario. Por favor, inténtalo de nuevo.");
         } finally {
             setSubmitting(false);
         }

@@ -10,6 +10,7 @@ export function usePaymentSuccessViewModel() {
     const { update, status } = useSession();
     const [isRefreshing, setIsRefreshing] = useState(true);
     const [refreshComplete, setRefreshComplete] = useState(false);
+    const [isNavigating, setIsNavigating] = useState(false);
     const hasAttemptedRefresh = useRef(false);
 
     useEffect(() => {
@@ -44,7 +45,12 @@ export function usePaymentSuccessViewModel() {
         refreshSession();
     }, [status, update, sessionId, router]);
 
+    const [isNavigating, setIsNavigating] = useState(false);
+
+    // ... (rest of the file until handleContinue)
+
     const handleContinue = () => {
+        setIsNavigating(true);
         window.location.href = "/dashboard";
     };
 
@@ -56,6 +62,7 @@ export function usePaymentSuccessViewModel() {
         isRefreshing,
         refreshComplete,
         handleContinue,
-        handleRetry
+        handleRetry,
+        isNavigating
     };
 }

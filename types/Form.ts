@@ -17,9 +17,22 @@ export interface Question {
 }
 
 export interface FormSettings {
+    isConversational?: boolean;
+    showProgressBar?: boolean;
+    allowMultipleSubmissions?: boolean;
+    requireAuth?: boolean;
     welcomeMessage?: string;
     thankYouMessage?: string;
-    showProgressBar?: boolean;
+    redirectUrl?: string;
+    notificationEmail?: string;
+}
+
+export interface FormStyling {
+    primaryColor: string;
+    fontFamily: string;
+    heroUIRadius: "none" | "sm" | "md" | "lg" | "full";
+    heroUIShadow: "none" | "sm" | "md" | "lg";
+    customCSS?: string;
 }
 
 export interface Form {
@@ -27,6 +40,7 @@ export interface Form {
     title: string;
     description?: string;
     settings?: FormSettings;
+    styling?: FormStyling;
 }
 
 export interface SubmissionData {

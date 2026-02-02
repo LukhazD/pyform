@@ -5,6 +5,8 @@ import React from "react";
 import { Button, Input, Textarea, Switch, Divider } from "@heroui/react";
 import { Trash2, Copy, MousePointer, Plus, X, GripVertical } from "lucide-react";
 
+import GeneralSettingsPanel from "./GeneralSettingsPanel";
+
 interface Option {
     id: string;
     label: string;
@@ -32,6 +34,10 @@ interface PropertiesPanelProps {
     onDeleteModule: (id: string) => void;
     onDuplicateModule?: (id: string) => void;
     isMobile?: boolean;
+    styling?: any;
+    onUpdateStyling?: (updates: any) => void;
+    formMetadata?: any;
+    onUpdateForm?: (updates: any) => void;
 }
 
 const moduleLabels: Record<string, string> = {
@@ -57,19 +63,22 @@ export default function PropertiesPanel({
     onDeleteModule,
     onDuplicateModule,
     isMobile,
+    styling,
+    onUpdateStyling,
+    formMetadata,
+    onUpdateForm,
 }: PropertiesPanelProps) {
     if (!selectedModule) {
         return (
-            <div className={`bg-white ${isMobile ? 'w-full' : 'w-80 border-l border-gray-200'} p-6 overflow-y-auto flex-shrink-0`}>
-                <div className="h-full flex items-center justify-center">
-                    <div className="text-center py-12">
-                        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                            <MousePointer className="text-gray-400" size={32} />
-                        </div>
-                        <p className="text-gray-600">
-                            Selecciona un módulo para editar sus propiedades
-                        </p>
-                    </div>
+            <div className={`bg-white ${isMobile ? 'w-full' : 'w-80 border-l border-gray-200'} h-full overflow-hidden flex flex-col`}>
+                <div className="flex-1 overflow-y-auto custom-scrollbar">
+                    {/* @ts-ignore */}
+                    <GeneralSettingsPanel
+                        styling={styling}
+                        onUpdateStyling={onUpdateStyling}
+                        formMetadata={formMetadata}
+                        onUpdateForm={onUpdateForm}
+                    />
                 </div>
             </div>
         );

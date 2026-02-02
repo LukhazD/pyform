@@ -12,15 +12,20 @@ interface Module {
     image?: string;
 }
 
+import { FormStyling } from "@/types/FormStyling";
+
 interface WelcomeModuleProps {
-    module: Module;
+    module: any;
     onNext?: () => void;
+    primaryColor?: string;
+    radius?: FormStyling["heroUIRadius"];
+    shadow?: FormStyling["heroUIShadow"];
 }
 
-export default function WelcomeModule({ module, onNext }: WelcomeModuleProps) {
+export default function WelcomeModule({ module, onNext, primaryColor, radius = "lg", shadow = "sm" }: WelcomeModuleProps) {
     return (
-        <div className="min-h-[300px] md:min-h-[500px] flex items-center justify-center bg-gray-50 rounded-2xl p-4 md:p-8">
-            <Card shadow="lg" radius="lg" className="max-w-2xl w-full p-6 md:p-12 text-center bg-white">
+        <div className="min-h-[300px] md:min-h-[500px] flex items-center justify-center bg-transparent p-4 md:p-8">
+            <Card shadow={shadow} radius={radius === "full" ? "lg" : radius} className="max-w-2xl w-full p-6 md:p-12 text-center bg-white border-0">
                 {module.image && (
                     <div className="mb-8">
                         <img
@@ -30,20 +35,25 @@ export default function WelcomeModule({ module, onNext }: WelcomeModuleProps) {
                         />
                     </div>
                 )}
-                <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 md:mb-6">
-                    {module.title || "Bienvenido"}
-                </h1>
-                <p className="text-lg text-gray-600 mb-10 leading-relaxed max-w-xl mx-auto">
-                    {module.description || "Gracias por participar en nuestra encuesta."}
-                </p>
-                <Button
-                    size="lg"
-                    radius="full"
-                    className="bg-gray-900 hover:bg-gray-800 text-white px-12 py-6 text-lg font-medium"
-                    onPress={onNext}
-                >
-                    {module.buttonText || "Comenzar"}
-                </Button>
+                <div className="space-y-8 flex flex-col items-center">
+                    <div>
+                        <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 md:mb-6">
+                            {module.title || "Bienvenido"}
+                        </h1>
+                        <p className="text-lg text-gray-600 leading-relaxed max-w-xl mx-auto">
+                            {module.description || "Gracias por participar en nuestra encuesta."}
+                        </p>
+                    </div>
+                    <Button
+                        size="lg"
+                        radius="full"
+                        className="text-white px-12 py-6 text-lg font-medium transition-transform hover:scale-105"
+                        style={{ backgroundColor: primaryColor || "#111827" }}
+                        onPress={onNext}
+                    >
+                        {module.buttonText || "Comenzar"}
+                    </Button>
+                </div>
             </Card>
         </div>
     );

@@ -74,12 +74,9 @@ class SubmissionService implements ISubmissionService {
             analytics.averageCompletionTimeMs = ((oldAvg * oldTotal) + completionTimeMs) / (oldTotal + 1);
 
             // Completion rate
-            // If totalSubmissions is tracking starts, we need to know starts. 
-            // If we don't track starts, completion rate is always 100% of reported submissions.
-            // Assuming this API is only called on completion.
-            // To properly track completion rate, we need a separate event for "Form Opened".
-            // For now, calculating based on known data.
-            analytics.completionRate = (analytics.completedSubmissions / analytics.totalSubmissions) * 100;
+            // We use 'views' (which tracks form opens) as the denominator, not 'totalSubmissions' (which tracks attempts/starts).
+            const views = analytics.views || 0;
+            analytics.completionRate = views > 0 ? Math.round((analytics.completedSubmissions / views) * 100) : 0;
 
             // Update Timeline
             const timelineEntry = analytics.submissionTimeline.find(t => new Date(t.date).getTime() === today.getTime());
@@ -145,6 +142,10 @@ class SubmissionService implements ISubmissionService {
             avgTime: 0
         };
 
+        // Fetch persistent analytics to get the correct view count
+        const persistentAnalytics = await FormAnalytics.findOne({ formId: objectId });
+        const persistentViews = persistentAnalytics?.views || 0;
+
         // Construct a FormAnalytics object (in-memory) to satisfy the interface
         // We use the model constructor to ensure it has all methods and properties
         const analytics = new FormAnalytics({
@@ -152,8 +153,10 @@ class SubmissionService implements ISubmissionService {
             totalSubmissions: result.totalSubmissions,
             completedSubmissions: result.completedSubmissions,
             partialSubmissions: result.partialSubmissions,
-            completionRate: result.totalSubmissions > 0 ? result.completedSubmissions / result.totalSubmissions : 0,
+            // CORRECT FORMULA: Completed / Views (if views > 0)
+            completionRate: persistentViews > 0 ? Math.round((result.completedSubmissions / persistentViews) * 100) : 0,
             averageCompletionTimeMs: result.avgTime,
+            views: persistentViews, // Ensure we return the correct view count
             dropOffByQuestion: [],
             submissionTimeline: []
         });

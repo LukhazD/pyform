@@ -9,6 +9,8 @@ import FormPreview from "@/components/Editor/FormPreview";
 import MobileModuleNav from "@/components/Editor/MobileModuleNav";
 import GeneralSettingsPanel from "@/components/Editor/GeneralSettingsPanel";
 
+import { FormStyling } from "@/types/FormStyling";
+
 interface Module {
     id: string;
     type: string;
@@ -33,8 +35,8 @@ interface EditorLayoutProps {
     onReorderModules: (fromIndex: number, toIndex: number) => void;
     onModulesChange?: (modules: Module[]) => void;
     onDuplicateModule: (id: string) => void;
-    formStyling?: any;
-    onUpdateFormStyling?: (updates: any) => void;
+    formStyling?: FormStyling;
+    onUpdateFormStyling?: (updates: Partial<FormStyling>) => void;
     formMetadata?: any;
     onUpdateForm?: (updates: any) => void;
 }
@@ -75,7 +77,10 @@ export default function EditorLayout({
         return (
             <div className="flex-1 flex overflow-hidden">
                 {/* Left Sidebar - Toolbar */}
-                <Toolbar onAddModule={onAddModule} />
+                <Toolbar
+                    onAddModule={onAddModule}
+                    onOpenSettings={() => onSelectModule(null)}
+                />
 
                 {/* Center - Form Preview (WYSIWYG) */}
                 <FormPreview
@@ -95,6 +100,10 @@ export default function EditorLayout({
                     onUpdateModule={onUpdateModule}
                     onDeleteModule={onDeleteModule}
                     onDuplicateModule={onDuplicateModule}
+                    styling={formStyling}
+                    onUpdateStyling={onUpdateFormStyling}
+                    formMetadata={formMetadata}
+                    onUpdateForm={onUpdateForm}
                 />
             </div>
         );
