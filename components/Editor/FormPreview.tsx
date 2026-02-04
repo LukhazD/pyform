@@ -253,7 +253,7 @@ export default function FormPreview({
             >
                 {/* Current module - Full Screen */}
                 <div
-                    className={`h-full w-full flex items-center justify-center ${isMobile ? "p-4 cursor-pointer" : "p-8"}`}
+                    className={`h-full w-full flex items-center justify-center ${isMobile ? "px-4 pb-20 pt-4 cursor-pointer" : "p-8"}`}
                     onClick={(e) => {
                         e.stopPropagation();
                         if (isMobile) onEditModule?.();

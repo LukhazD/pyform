@@ -18,12 +18,12 @@ export default async function LayoutPrivate({
   }
 
   return (
-    <div className="h-full bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <Sidebar />
-      <main className="lg:ml-64 h-full">
-        <div className=" lg:p-8 h-full p-4">
-          {children}
-        </div>
+      <main className="lg:ml-64 min-h-screen">
+
+        {children}
+
       </main>
     </div>
   );

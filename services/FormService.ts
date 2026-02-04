@@ -60,12 +60,42 @@ export class FormService {
 
     static async getDashboardStats(userId: string) {
         await connectMongo();
-        const totalForms = await Form.countDocuments({ userId });
-        const publishedForms = await Form.countDocuments({ userId, status: "published" });
 
-        // TODO: Get actual submission count from Submission model or Analytics
-        const totalResponses = 0;
-        const completionRate = 0;
+        // Parallelize form counts and forms fetching
+        const [forms, totalForms, publishedForms] = await Promise.all([
+            Form.find({ userId }).select('_id').lean(),
+            Form.countDocuments({ userId }),
+            Form.countDocuments({ userId, status: "published" })
+        ]);
+
+        const formIds = forms.map((f: any) => f._id);
+
+        // Aggregate totals from FormAnalytics
+        const result = await FormAnalytics.aggregate([
+            { $match: { formId: { $in: formIds } } },
+            {
+                $group: {
+                    _id: null,
+                    totalSubmissions: { $sum: "$totalSubmissions" },
+                    completedSubmissions: { $sum: "$completedSubmissions" },
+                    totalViews: { $sum: "$views" }
+                }
+            }
+        ]);
+
+        const stats = result[0] || {
+            totalSubmissions: 0,
+            completedSubmissions: 0,
+            totalViews: 0
+        };
+
+        const totalResponses = stats.completedSubmissions;
+
+        // Calculate global completion rate based on aggregated valid data
+        // Rate = (Total Completed / Total Views) * 100
+        const completionRate = stats.totalViews > 0
+            ? Math.round((stats.completedSubmissions / stats.totalViews) * 100)
+            : 0;
 
         return {
             totalForms,
@@ -84,15 +114,24 @@ export class FormService {
         }
 
         const forms = await query.lean();
+        const formIds = forms.map((f: any) => f._id);
 
+        // Fetch analytics for all forms in one go
+        const analyticsList = await FormAnalytics.find({ formId: { $in: formIds } })
+            .select('formId completedSubmissions')
+            .lean();
+
+        // Create a map for quick lookup
+        const analyticsMap = new Map();
+        analyticsList.forEach((a: any) => {
+            analyticsMap.set(a.formId.toString(), a.completedSubmissions);
+        });
+
+        // Parallelize question counts
         const formsWithCounts = await Promise.all(
             forms.map(async (form: any) => {
-                const [questionCount, responseCount] = await Promise.all([
-                    // Optimistic counting or separate call. 
-                    // Note: If performance becomes an issue, we should aggregate or store counts on Form model.
-                    Question.countDocuments({ formId: form._id }),
-                    Submission.countDocuments({ formId: form._id })
-                ]);
+                const questionCount = await Question.countDocuments({ formId: form._id });
+                const responseCount = analyticsMap.get(form._id.toString()) || 0;
 
                 return {
                     ...form,

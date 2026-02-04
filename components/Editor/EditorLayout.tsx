@@ -111,121 +111,124 @@ export default function EditorLayout({
 
     // Mobile Layout
     return (
-        <div className="h-full flex justify-between flex-col">
-            {/* Main Content Area */}
-            <div className="h-full relative">
-                {/* Preview is always rendered but may be hidden */}
-                <div className={`absolute inset-0 ${activePanel === "preview" ? "z-10 h-full" : "z-0 h-0 overflow-hidden"}`}>
-                    <FormPreview
-                        modules={modules}
-                        selectedModuleId={selectedModuleId}
-                        onSelectModule={onSelectModule}
-                        onAddModule={onAddModule}
-                        onReorderModules={onReorderModules}
-                        onDeleteModule={onDeleteModule}
-                        isMobile
-                        onEditModule={() => setActivePanel("properties")}
-                        styling={formStyling}
-                        formSettings={formMetadata}
-                    />
+        <div className="flex flex-col w-full h-[calc(100dvh-64px)]">
+            <div className="flex justify-between flex-col h-full">
+                {/* Main Content Area */}
+                {/* Main Content Area */}
+                <div className="flex-1 relative md:pb-0">
+                    {/* Preview is always rendered but may be hidden */}
+                    <div className={`absolute inset-0 ${activePanel === "preview" ? "z-10 h-full" : "z-0 h-0 overflow-hidden"}`}>
+                        <FormPreview
+                            modules={modules}
+                            selectedModuleId={selectedModuleId}
+                            onSelectModule={onSelectModule}
+                            onAddModule={onAddModule}
+                            onReorderModules={onReorderModules}
+                            onDeleteModule={onDeleteModule}
+                            isMobile
+                            onEditModule={() => setActivePanel("properties")}
+                            styling={formStyling}
+                            formSettings={formMetadata}
+                        />
+                    </div>
+
+                    {/* Toolbar Sheet */}
+                    {activePanel === "toolbar" && (
+                        <div className="absolute inset-0 z-20 bg-white animate-in slide-in-from-bottom duration-200">
+                            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                                <h2 className="font-semibold text-gray-900">Añadir Módulo</h2>
+                                <Button
+                                    isIconOnly
+                                    variant="light"
+                                    radius="full"
+                                    onPress={() => setActivePanel("preview")}
+                                >
+                                    <X size={20} />
+                                </Button>
+                            </div>
+                            <div className="overflow-y-auto h-[calc(100%-60px)] pb-24">
+                                <Toolbar
+                                    onAddModule={(type, position) => {
+                                        onAddModule(type, position);
+                                        setActivePanel("preview");
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Properties Sheet */}
+                    {activePanel === "properties" && (
+                        <div className="absolute inset-0 z-20 bg-white animate-in slide-in-from-bottom duration-200">
+                            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                                <h2 className="font-semibold text-gray-900">Propiedades</h2>
+                                <Button
+                                    isIconOnly
+                                    variant="light"
+                                    radius="full"
+                                    onPress={() => setActivePanel("preview")}
+                                >
+                                    <X size={20} />
+                                </Button>
+                            </div>
+                            <div className="overflow-y-auto h-[calc(100%-60px)] pb-24">
+                                <PropertiesPanel
+                                    selectedModule={selectedModule}
+                                    onUpdateModule={onUpdateModule}
+                                    onDeleteModule={onDeleteModule}
+                                    onDuplicateModule={onDuplicateModule}
+                                    isMobile
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Settings Sheet */}
+                    {activePanel === "settings" && (
+                        <div className="absolute inset-0 z-20 bg-white animate-in slide-in-from-bottom duration-200">
+                            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+                                <h2 className="font-semibold text-gray-900">Configuración General</h2>
+                                <Button
+                                    isIconOnly
+                                    variant="light"
+                                    radius="full"
+                                    onPress={() => setActivePanel("preview")}
+                                >
+                                    <X size={20} />
+                                </Button>
+                            </div>
+                            <div className="overflow-y-auto h-[calc(100%-60px)] pb-24">
+                                <GeneralSettingsPanel
+                                    styling={formStyling || {}}
+                                    onUpdateStyling={onUpdateFormStyling || (() => { })}
+                                    formMetadata={formMetadata}
+                                    onUpdateForm={onUpdateForm || (() => { })}
+                                />
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-                {/* Toolbar Sheet */}
-                {activePanel === "toolbar" && (
-                    <div className="absolute inset-0 z-20 bg-white animate-in slide-in-from-bottom duration-200">
-                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                            <h2 className="font-semibold text-gray-900">Añadir Módulo</h2>
-                            <Button
-                                isIconOnly
-                                variant="light"
-                                radius="full"
-                                onPress={() => setActivePanel("preview")}
-                            >
-                                <X size={20} />
-                            </Button>
-                        </div>
-                        <div className="overflow-y-auto h-[calc(100%-60px)] pb-24">
-                            <Toolbar
-                                onAddModule={(type, position) => {
-                                    onAddModule(type, position);
-                                    setActivePanel("preview");
-                                }}
-                            />
-                        </div>
-                    </div>
-                )}
-
-                {/* Properties Sheet */}
-                {activePanel === "properties" && (
-                    <div className="absolute inset-0 z-20 bg-white animate-in slide-in-from-bottom duration-200">
-                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                            <h2 className="font-semibold text-gray-900">Propiedades</h2>
-                            <Button
-                                isIconOnly
-                                variant="light"
-                                radius="full"
-                                onPress={() => setActivePanel("preview")}
-                            >
-                                <X size={20} />
-                            </Button>
-                        </div>
-                        <div className="overflow-y-auto h-[calc(100%-60px)] pb-24">
-                            <PropertiesPanel
-                                selectedModule={selectedModule}
-                                onUpdateModule={onUpdateModule}
-                                onDeleteModule={onDeleteModule}
-                                onDuplicateModule={onDuplicateModule}
-                                isMobile
-                            />
-                        </div>
-                    </div>
-                )}
-
-                {/* Settings Sheet */}
-                {activePanel === "settings" && (
-                    <div className="absolute inset-0 z-20 bg-white animate-in slide-in-from-bottom duration-200">
-                        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                            <h2 className="font-semibold text-gray-900">Configuración General</h2>
-                            <Button
-                                isIconOnly
-                                variant="light"
-                                radius="full"
-                                onPress={() => setActivePanel("preview")}
-                            >
-                                <X size={20} />
-                            </Button>
-                        </div>
-                        <div className="overflow-y-auto h-[calc(100%-60px)] pb-24">
-                            <GeneralSettingsPanel
-                                styling={formStyling || {}}
-                                onUpdateStyling={onUpdateFormStyling || (() => { })}
-                                formMetadata={formMetadata}
-                                onUpdateForm={onUpdateForm || (() => { })}
-                            />
-                        </div>
-                    </div>
-                )}
+                {/* Bottom Navigation Bar */}
+                {/* Bottom Navigation Strip */}
+                <MobileModuleNav
+                    modules={modules}
+                    selectedModuleId={selectedModuleId}
+                    onSelectModule={(id) => {
+                        if (id === selectedModuleId) {
+                            onSelectModule(null); // Deselect if already selected
+                            if (activePanel === "properties") setActivePanel("preview");
+                        } else {
+                            onSelectModule(id);
+                            if (activePanel === "toolbar") setActivePanel("preview");
+                        }
+                    }}
+                    onAddModule={() => setActivePanel("toolbar")}
+                    onModulesChange={onModulesChange}
+                    onReorderModules={onReorderModules}
+                    onOpenSettings={() => setActivePanel("settings")}
+                />
             </div>
-
-            {/* Bottom Navigation Bar */}
-            {/* Bottom Navigation Strip */}
-            <MobileModuleNav
-                modules={modules}
-                selectedModuleId={selectedModuleId}
-                onSelectModule={(id) => {
-                    if (id === selectedModuleId) {
-                        onSelectModule(null); // Deselect if already selected
-                        if (activePanel === "properties") setActivePanel("preview");
-                    } else {
-                        onSelectModule(id);
-                        if (activePanel === "toolbar") setActivePanel("preview");
-                    }
-                }}
-                onAddModule={() => setActivePanel("toolbar")}
-                onModulesChange={onModulesChange}
-                onReorderModules={onReorderModules}
-                onOpenSettings={() => setActivePanel("settings")}
-            />
         </div>
     );
 }

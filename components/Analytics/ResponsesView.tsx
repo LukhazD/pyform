@@ -27,6 +27,22 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
     const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(questions.length > 0 ? String(questions[0]._id) : null);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
+    // Preview Modal State
+    const [previewFile, setPreviewFile] = useState<string | null>(null);
+    const { isOpen: isPreviewOpen, onOpen: onPreviewOpen, onOpenChange: onPreviewChange } = useDisclosure();
+
+    const handlePreview = (key: string) => {
+        setPreviewFile(key);
+        onPreviewOpen();
+    };
+
+    const getFileType = (fileName: string) => {
+        const ext = fileName.split('.').pop()?.toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext || '')) return 'image';
+        if (ext === 'pdf') return 'pdf';
+        return 'other';
+    };
+
     const questionsWithAnswers = useMemo(() => {
         return questions.filter(q =>
             !["WELCOME", "GOODBYE", "QUOTE"].includes(q.type)
@@ -70,10 +86,20 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
 
         if (isChoiceType) {
             const rawCounts: Record<string, number> = {};
+
+            // Initialize counts for all defined options
+            if (question.options && Array.isArray(question.options)) {
+                question.options.forEach(opt => {
+                    rawCounts[opt.label] = 0;
+                });
+            }
+
             answerData.forEach(item => {
                 const vals = Array.isArray(item.value) ? item.value : [item.value];
                 vals.forEach(v => {
                     const key = String(v);
+                    // Only count if it's a known option or if we want to support "Other" (dynamic)
+                    // For now, we add it if it didn't exist (handling dynamic/other values)
                     rawCounts[key] = (rawCounts[key] || 0) + 1;
                 });
             });
@@ -208,7 +234,21 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                     <div className="grid gap-3">
                                         {analysis.answerData.slice(0, 5).map((item, idx) => (
                                             <div key={idx} className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-100 group">
-                                                <p className="text-gray-800 font-medium mb-2">{String(item.value)}</p>
+                                                {analysis.question.type === "FILE_UPLOAD" ? (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="flat"
+                                                        color="primary"
+                                                        onPress={() => handlePreview(String(item.value))}
+                                                        startContent={
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                                        }
+                                                    >
+                                                        Ver Archivo
+                                                    </Button>
+                                                ) : (
+                                                    <p className="text-gray-800 font-medium mb-2">{String(item.value)}</p>
+                                                )}
                                                 <div className="flex items-center gap-3 text-xs text-gray-400">
                                                     <div className="flex items-center gap-1 text-purple-600/70 bg-purple-50 px-2 py-0.5 rounded-full">
                                                         <UserIcon size={12} />
@@ -256,7 +296,23 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                 <div className="space-y-3 pb-4">
                                     {analysis.answerData.map((item, idx) => (
                                         <div key={idx} className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                            <p className="text-gray-800 font-medium mb-2">{String(item.value)}</p>
+                                            {analysis.question.type === "FILE_UPLOAD" ? (
+                                                <div className="mb-2">
+                                                    <Button
+                                                        size="sm"
+                                                        variant="flat"
+                                                        color="primary"
+                                                        onPress={() => handlePreview(String(item.value))}
+                                                        startContent={
+                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                                        }
+                                                    >
+                                                        Ver Archivo
+                                                    </Button>
+                                                </div>
+                                            ) : (
+                                                <p className="text-gray-800 font-medium mb-2">{String(item.value)}</p>
+                                            )}
                                             <div className="flex items-center justify-between text-xs text-gray-500">
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-medium text-purple-600">{item.respondent}</span>
@@ -277,6 +333,51 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                             </ModalFooter>
                         </>
                     )}
+                </ModalContent>
+            </Modal>
+
+            {/* Preview Modal */}
+            <Modal isOpen={isPreviewOpen} onOpenChange={onPreviewChange} size="3xl">
+                <ModalContent>
+                    {(onClose) => {
+                        const fileUrl = previewFile ? `/api/storage/view?key=${encodeURIComponent(previewFile)}` : '';
+                        const fileType = previewFile ? getFileType(previewFile) : 'other';
+
+                        return (
+                            <>
+                                <ModalHeader className="flex flex-col gap-1">
+                                    Vista Previa
+                                </ModalHeader>
+                                <ModalBody className="p-0 bg-gray-100 flex items-center justify-center min-h-[400px]">
+                                    {fileType === 'image' && (
+                                        <img src={fileUrl} alt="Preview" className="max-w-full max-h-[70vh] object-contain" />
+                                    )}
+                                    {fileType === 'pdf' && (
+                                        <iframe src={fileUrl} className="w-full h-[70vh]" title="PDF Preview" />
+                                    )}
+                                    {fileType === 'other' && (
+                                        <div className="text-center p-8">
+                                            <p className="mb-4 text-gray-500">Vista previa no disponible para este tipo de archivo.</p>
+                                        </div>
+                                    )}
+                                </ModalBody>
+                                <ModalFooter className="justify-between">
+                                    <Button color="danger" variant="light" onPress={onClose}>
+                                        Cerrar
+                                    </Button>
+                                    <Button
+                                        as="a"
+                                        href={fileUrl}
+                                        download
+                                        color="primary"
+                                        startContent={<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>}
+                                    >
+                                        Descargar Original
+                                    </Button>
+                                </ModalFooter>
+                            </>
+                        )
+                    }}
                 </ModalContent>
             </Modal>
 

@@ -42,9 +42,10 @@ interface ModuleRendererProps {
     primaryColor?: string;
     radius?: FormStyling["heroUIRadius"];
     shadow?: FormStyling["heroUIShadow"];
+    formId?: string; // Added for file uploads
 }
 
-export default function ModuleRenderer({ module, isPreview, value, onChange, onNext, primaryColor, radius, shadow }: ModuleRendererProps) {
+export default function ModuleRenderer({ module, isPreview, value, onChange, onNext, primaryColor, radius, shadow, formId }: ModuleRendererProps) {
     const commonProps = {
         module,
         value,
@@ -83,7 +84,7 @@ export default function ModuleRenderer({ module, isPreview, value, onChange, onN
         case "DATE":
             return <DateQuestion {...commonProps} />;
         case "FILE_UPLOAD":
-            return <FileUploadQuestion {...commonProps} />;
+            return <FileUploadQuestion {...commonProps} formId={formId} />;
         default:
             return (
                 <div className="p-6 bg-gray-100 rounded-lg text-center text-gray-500">

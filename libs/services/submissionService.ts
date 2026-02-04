@@ -1,7 +1,10 @@
 import Submission, { ISubmission, Answer, SubmissionMetadata, SubmissionFilters } from "@/models/Submission";
 import FormAnalytics, { IFormAnalytics, IStartDropOffData, ITimelineData } from "@/models/FormAnalytics";
+import Form from "@/models/Form";
+import User from "@/models/User";
 import connectMongo from "@/libs/mongoose";
 import mongoose from "mongoose";
+import { hasActiveProAccess } from "@/libs/subscriptionUtils";
 
 export interface ISubmissionService {
     submitResponse(formId: string, answers: Answer[], metadata: SubmissionMetadata, completionTimeMs?: number): Promise<ISubmission>;
@@ -13,6 +16,17 @@ export interface ISubmissionService {
 class SubmissionService implements ISubmissionService {
     async submitResponse(formId: string, answers: Answer[], metadata: SubmissionMetadata, completionTimeMs: number = 0): Promise<ISubmission> {
         await connectMongo();
+
+        // Check if form owner has active subscription
+        const form = await Form.findById(formId);
+        if (!form) {
+            throw new Error("Formulario no encontrado");
+        }
+
+        const owner = await User.findById(form.userId);
+        if (!owner || !hasActiveProAccess(owner)) {
+            throw new Error("Este formulario no está disponible temporalmente");
+        }
 
         const formattedAnswers = answers.map((a) => ({
             ...a,

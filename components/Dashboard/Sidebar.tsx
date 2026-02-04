@@ -9,7 +9,8 @@ import {
     BarChart3,
     Settings,
     Menu,
-    X
+    X,
+    LifeBuoy
 } from "lucide-react";
 import ButtonAccount from "@/components/ButtonAccount";
 
@@ -23,6 +24,7 @@ const navItems: NavItem[] = [
     { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={20} /> },
     { label: "Formularios", href: "/dashboard/forms", icon: <FileText size={20} /> },
     { label: "Analíticas", href: "/dashboard/analytics", icon: <BarChart3 size={20} /> },
+    { label: "Soporte", href: "/dashboard/support", icon: <LifeBuoy size={20} /> },
     { label: "Ajustes", href: "/dashboard/settings", icon: <Settings size={20} /> },
 ];
 
@@ -89,9 +91,7 @@ export default function Sidebar() {
                 </nav>
 
                 {/* User Section */}
-                <div className="p-4 border-t border-gray-100">
-                    <ButtonAccount />
-                </div>
+
             </aside>
 
             {/* Mobile Sidebar */}

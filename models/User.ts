@@ -13,6 +13,8 @@ export interface IUser extends mongoose.Document {
   stripeSubscriptionId?: string;
   stripePriceId?: string;
   subscriptionStatus?: "active" | "canceled" | "past_due" | "trialing";
+  cancelAtPeriodEnd?: boolean;
+  currentPeriodEnd?: Date;
   formLimit: number;
   onboardingCompleted: boolean;
   createdAt: Date;
@@ -70,6 +72,13 @@ const userSchema = new mongoose.Schema(
     subscriptionStatus: {
       type: String,
       enum: ["active", "canceled", "past_due", "trialing"],
+    },
+    cancelAtPeriodEnd: {
+      type: Boolean,
+      default: false,
+    },
+    currentPeriodEnd: {
+      type: Date,
     },
     formLimit: {
       type: Number,

@@ -43,23 +43,23 @@ const seedDatabase = async () => {
         }
 
         console.log("👥 Creating Users...");
+        // Note: All users start without subscription - they must subscribe via Stripe to access the platform
         const users = await User.insertMany([
             {
                 name: "Alice Admin",
                 email: "alice@example.com",
                 googleId: "google_123",
                 role: "admin",
-                subscriptionTier: "pro",
-                subscriptionStatus: "active",
+                // No subscription - must go through paywall
                 onboardingCompleted: true,
-                formLimit: 100,
+                formLimit: 3, // Default free limit (but can't use without subscription)
             },
             {
                 name: "Bob Builder",
                 email: "bob@example.com",
                 googleId: "google_456",
                 role: "user",
-                // No subscriptionTier - user needs to subscribe
+                // No subscription - must go through paywall
                 onboardingCompleted: true,
                 formLimit: 3,
             },
@@ -68,27 +68,16 @@ const seedDatabase = async () => {
                 email: "superadmin@example.com",
                 googleId: "google_789",
                 role: "superadmin",
-                subscriptionTier: "pro",
-                subscriptionStatus: "active",
+                // No subscription - must go through paywall
                 onboardingCompleted: true,
-                formLimit: -1, // Unlimited
+                formLimit: 3,
             },
         ]);
 
-        console.log(`✅ Created ${users.length} users`);
+        console.log(`✅ Created ${users.length} users (no subscriptions - paywall required)`);
 
-        console.log("💳 Creating Subscriptions...");
-        await (Subscription as any).create({
-            userId: users[0]._id,
-            stripeSubscriptionId: "sub_1234567890",
-            stripePriceId: "price_1234567890",
-            status: "active",
-            currentPeriodStart: new Date(),
-            currentPeriodEnd: new Date(new Date().setMonth(new Date().getMonth() + 1)),
-            cancelAtPeriodEnd: false,
-            tier: "pro",
-        });
-        console.log("✅ Created Subscription for Admin");
+        // Note: Subscription documents are created by Stripe webhooks, not seeded
+        // The Subscription model is used for real Stripe subscription tracking
 
         console.log("📝 Creating Forms...");
         const forms = await Form.insertMany([
@@ -173,6 +162,7 @@ const seedDatabase = async () => {
             // Feedback Form Questions
             {
                 formId: forms[0]._id,
+                id: "q_name_feedback",
                 type: "TEXT" as const,
                 order: 0,
                 title: "What is your name?",
@@ -186,6 +176,7 @@ const seedDatabase = async () => {
             },
             {
                 formId: forms[0]._id,
+                id: "q_rating_feedback",
                 type: "NUMBER" as const,
                 order: 1,
                 title: "How would you rate us (1-10)?",
@@ -198,6 +189,7 @@ const seedDatabase = async () => {
             // Event Form Questions
             {
                 formId: forms[1]._id,
+                id: "q_email_event",
                 type: "EMAIL" as const,
                 order: 0,
                 title: "Email Address",
@@ -211,6 +203,7 @@ const seedDatabase = async () => {
             },
             {
                 formId: forms[1]._id,
+                id: "q_dietary_event",
                 type: "MULTIPLE_CHOICE" as const,
                 order: 1,
                 title: "Dietary Restrictions",
@@ -222,6 +215,7 @@ const seedDatabase = async () => {
             },
             {
                 formId: forms[1]._id,
+                id: "q_topics_event",
                 type: "CHECKBOXES" as const,
                 order: 2,
                 title: "Topics of Interest",
@@ -237,6 +231,7 @@ const seedDatabase = async () => {
             // Contact Form Questions
             {
                 formId: forms[2]._id,
+                id: "q_message_contact",
                 type: "TEXTAREA" as const,
                 order: 0,
                 title: "Message",
@@ -347,6 +342,7 @@ const seedDatabase = async () => {
             partialSubmissions: 0,
             completionRate: 1, // 100%
             averageCompletionTimeMs: 38500,
+            views: 15, // Total form views
             dropOffByQuestion: [
                 {
                     questionId: questions[0]._id,
@@ -380,6 +376,7 @@ const seedDatabase = async () => {
             partialSubmissions: 2,
             completionRate: 0,
             averageCompletionTimeMs: 0,
+            views: 8, // Total form views
             dropOffByQuestion: [
                 {
                     questionId: questions[2]._id,

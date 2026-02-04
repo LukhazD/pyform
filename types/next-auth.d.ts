@@ -15,6 +15,10 @@ declare module 'next-auth' {
       subscriptionTier?: string;
       /** The user's subscription status. */
       subscriptionStatus?: string;
+      /** Whether the subscription will cancel at period end. */
+      cancelAtPeriodEnd?: boolean;
+      /** The end date of the current billing period. */
+      currentPeriodEnd?: string;
       /** Whether the user has completed onboarding. */
       onboardingCompleted: boolean;
     } & DefaultSession['user'];
@@ -28,6 +32,9 @@ declare module "next-auth/jwt" {
     role: string;
     subscriptionTier?: string;
     subscriptionStatus?: string;
+    cancelAtPeriodEnd?: boolean;
+    currentPeriodEnd?: string;
     onboardingCompleted: boolean;
   }
 }
+

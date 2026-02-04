@@ -204,6 +204,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                         primaryColor={primaryColor} // Pass color to renderer if it accepts it
                         radius={form.styling?.heroUIRadius === "full" ? "lg" : form.styling?.heroUIRadius}
                         shadow={form.styling?.heroUIShadow}
+                        formId={form._id} // Pass form ID
                     />
 
                     {/* Internal Navigation (for questions) */}

@@ -40,6 +40,45 @@ const getModuleIcon = (type: string) => {
     }
 };
 
+// Helper for "Haptic" Audio Feedback
+const triggerHapticFeedback = (audioCtx?: AudioContext | null) => {
+    // 1. Try native vibration (Android)
+    if (typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate(50);
+    }
+
+    // 2. Play subtle "tick" sound (iOS/All)
+    try {
+        // Use provided context or create new one (fallback)
+        let ctx = audioCtx;
+
+        if (!ctx) {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioContextClass) {
+                ctx = new AudioContext();
+            }
+        }
+
+        if (ctx) {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(150, ctx.currentTime); // Low frequency "thud"
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+
+            osc.start();
+            osc.stop(ctx.currentTime + 0.1);
+        }
+    } catch (e) {
+        // Ignore audio errors (silent fallback)
+    }
+};
+
 const DraggableItem = ({
     module,
     isSelected,
@@ -80,18 +119,79 @@ const DraggableItem = ({
         };
     }, [isDragging, scope]);
 
+    const resetVisuals = () => {
+        if (timeoutRef.current) {
+            clearTimeout(timeoutRef.current);
+            timeoutRef.current = null;
+        }
+        setIsHolding(false);
+        setIsDragging(false);
+
+        // Reset animations
+        animate(scope.current, { scale: 1, zIndex: 0, rotate: 0 }, { duration: 0.2 });
+        animate("button", {
+            boxShadow: "none",
+            borderColor: "transparent",
+            borderWidth: "0px"
+        });
+        animate(".progress-ring", { pathLength: 0, opacity: 0 }, { duration: 0.1 });
+    };
+
+    // Watch for external deselection to force reset
+    useEffect(() => {
+        if (!isSelected) {
+            resetVisuals();
+        }
+    }, [isSelected]);
+
     const handlePointerDown = (e: React.PointerEvent) => {
         if (e.button !== 0) return;
 
         startPoint.current = { x: e.clientX, y: e.clientY };
+
+        // Prepare AudioContext immediately on user gesture (required for iOS)
+        let audioCtx: AudioContext | null = null;
+        try {
+            const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+            if (AudioContextClass) {
+                audioCtx = new AudioContextClass();
+                // iOS requires resume() within the handler sometimes if state is suspended
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+            }
+        } catch (err) {
+            // Ignore
+        }
+
         setIsHolding(true);
         animate(scope.current, { scale: 0.9 }, { duration: 0.2 });
         animate(".progress-ring", { pathLength: 1, opacity: 1 }, { duration: 0.5, ease: "linear" });
 
         timeoutRef.current = setTimeout(() => {
-            if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(50);
+            // Fix: Sync selection state
+            // Ensure the dragged module becomes active if it isn't already.
+            // This prevents the "Split Brain" state where one module is active but another is being dragged.
+            if (!isSelected) {
+                onSelect();
+            }
 
-            animate(scope.current, { scale: 1.1, zIndex: 100 }, { type: "spring", stiffness: 400, damping: 10 });
+            // Pass the pre-initialized context
+            triggerHapticFeedback(audioCtx);
+
+            // Enhanced visual feedback: bigger scale + shadow + ring
+            animate(scope.current, {
+                scale: 1.2,
+                zIndex: 100,
+                rotate: 5, // Slight tilt for emphasis
+            }, { type: "spring", stiffness: 400, damping: 15 });
+
+            animate("button", {
+                boxShadow: "0px 10px 20px rgba(0,0,0,0.2)",
+                borderColor: "rgb(59, 130, 246)", // Primary Blue
+                borderWidth: "2px"
+            });
+
             animate(".progress-ring", { opacity: 0 }, { duration: 0.2 });
 
             controls.start(e);
@@ -108,22 +208,10 @@ const DraggableItem = ({
 
             // If moved > 10px before activation, cancel everything
             if (moveX > 10 || moveY > 10) {
-                cancelLongPress();
+                resetVisuals();
             }
         }
     }
-
-    const cancelLongPress = () => {
-        if (timeoutRef.current) {
-            clearTimeout(timeoutRef.current);
-            timeoutRef.current = null;
-        }
-        if (isHolding) {
-            setIsHolding(false);
-            animate(scope.current, { scale: 1, zIndex: 0 }, { duration: 0.2 });
-            animate(".progress-ring", { pathLength: 0, opacity: 0 }, { duration: 0.1 });
-        }
-    };
 
     return (
         <Reorder.Item
@@ -133,12 +221,12 @@ const DraggableItem = ({
             className="relative flex-shrink-0 touch-pan-x"
             style={{ touchAction: "pan-x" }}
             onDragEnd={() => {
-                setIsDragging(false);
                 onDragEnd(); // Unlock scroll container
+                resetVisuals();
             }}
-            onPointerUp={cancelLongPress}
-            onPointerLeave={cancelLongPress}
-            onPointerCancel={cancelLongPress}
+            onPointerUp={resetVisuals}
+            onPointerLeave={resetVisuals}
+            onPointerCancel={resetVisuals}
             onPointerMove={handlePointerMove}
         >
             <div ref={scope} className="relative">

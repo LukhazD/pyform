@@ -45,7 +45,7 @@ export function usePaymentSuccessViewModel() {
         refreshSession();
     }, [status, update, sessionId, router]);
 
-    const [isNavigating, setIsNavigating] = useState(false);
+
 
     // ... (rest of the file until handleContinue)
 

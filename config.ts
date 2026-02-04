@@ -60,7 +60,7 @@ const config = {
         price: 71.88,
         priceAnchor: 119.88,
         features: [
-          { name: "5 formularios activos" },
+          { name: "Formularios ilimitados" },
           { name: "Respuestas ilimitadas" },
           { name: "13 tipos de preguntas" },
           { name: "Editor Live en tiempo real" },

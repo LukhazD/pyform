@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import connectMongo from "@/libs/mongoose";
 import User from "@/models/User";
 import Subscription from "@/models/Subscription";
+import config from "@/config";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2023-08-16",
@@ -82,6 +83,11 @@ export async function POST(req: NextRequest) {
                             stripePriceId: priceId,
                             subscriptionTier: "pro",
                             subscriptionStatus: "active",
+                            cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+                            currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+
+                            formLimit: (priceId === config.stripe.plans.find(p => p.name === "Pro Anual")?.priceId) ? -1 : 5,
+
                             // Ensure onboarding is false so they go through flow when they first login
                             onboardingCompleted: user.onboardingCompleted ?? false
                         });
@@ -172,11 +178,16 @@ export async function POST(req: NextRequest) {
                     cancelAtPeriodEnd: subscription.cancel_at_period_end,
                 };
 
+                let currentPeriodStart: Date | undefined;
                 if (subscription.current_period_start) {
-                    updateData.currentPeriodStart = new Date(subscription.current_period_start * 1000);
+                    currentPeriodStart = new Date(subscription.current_period_start * 1000);
+                    updateData.currentPeriodStart = currentPeriodStart;
                 }
+
+                let currentPeriodEnd: Date | undefined;
                 if (subscription.current_period_end) {
-                    updateData.currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+                    currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+                    updateData.currentPeriodEnd = currentPeriodEnd;
                 }
 
                 // Update Subscription
@@ -185,12 +196,19 @@ export async function POST(req: NextRequest) {
                     updateData
                 );
                 // Sync to User
+                const userUpdate: Record<string, unknown> = {
+                    subscriptionStatus: mappedStatus,
+                    stripePriceId: subscription.items.data[0]?.price.id,
+                    cancelAtPeriodEnd: subscription.cancel_at_period_end,
+                };
+
+                if (currentPeriodEnd) {
+                    userUpdate.currentPeriodEnd = currentPeriodEnd;
+                }
+
                 await User.findOneAndUpdate(
                     { stripeSubscriptionId: subscription.id },
-                    {
-                        subscriptionStatus: mappedStatus,
-                        stripePriceId: subscription.items.data[0]?.price.id,
-                    }
+                    userUpdate
                 );
                 console.log(`[WEBHOOK] Subscription updated - synced: ${subscription.id} -> ${mappedStatus}`);
                 break;

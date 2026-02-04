@@ -1,8 +1,8 @@
 import { auth } from "@/libs/next-auth";
 import { redirect } from "next/navigation";
-import FormCard from "@/components/Dashboard/FormCard";
 import EmptyState from "@/components/Dashboard/EmptyState";
 import CreateFormButton from "@/components/Dashboard/CreateFormButton";
+import FormList from "@/components/Dashboard/FormList";
 import { FormService } from "@/services/FormService";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,7 @@ export default async function FormsPage() {
     const forms = await FormService.getUserForms(session.user.id);
 
     return (
-        <div className="max-w-7xl mx-auto p-4">
+        <div className="max-w-7xl mx-auto p-6">
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-2xl font-bold text-gray-900">
@@ -34,22 +34,11 @@ export default async function FormsPage() {
             {forms.length === 0 ? (
                 <EmptyState />
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {forms.map((form: any) => (
-                        <FormCard
-                            key={form._id}
-                            id={form.shortId || form._id}
-                            title={form.title}
-                            description={form.description}
-                            status={form.status}
-                            responseCount={form.responseCount || 0}
-                            questionCount={form.questionCount || 0}
-                            updatedAt={form.updatedAt}
-                        />
-                    ))}
-                </div>
+                <FormList
+                    initialForms={JSON.parse(JSON.stringify(forms))}
+                    formsPerPage={4}
+                />
             )}
         </div>
     );
 }
-

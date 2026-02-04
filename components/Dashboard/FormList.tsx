@@ -5,18 +5,36 @@ import FormCard from "./FormCard";
 import EmptyState from "./EmptyState";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface FormListProps {
     initialForms: any[];
+    formsPerPage?: number;
 }
 
-export default function FormList({ initialForms }: FormListProps) {
+const FORMS_PER_PAGE = 4;
+
+export default function FormList({ initialForms, formsPerPage = FORMS_PER_PAGE }: FormListProps) {
     const [forms, setForms] = useState(initialForms);
+    const [currentPage, setCurrentPage] = useState(1);
+
+    // Pagination calculations
+    const totalPages = Math.ceil(forms.length / formsPerPage);
+    const startIndex = (currentPage - 1) * formsPerPage;
+    const endIndex = startIndex + formsPerPage;
+    const currentForms = forms.slice(startIndex, endIndex);
 
     const handleDelete = async (id: string) => {
         // Optimistic update
         const previousForms = [...forms];
         setForms((prev) => prev.filter((f) => (f.shortId || f._id) !== id));
+
+        // Adjust current page if needed after deletion
+        const newFormsCount = forms.length - 1;
+        const newTotalPages = Math.ceil(newFormsCount / formsPerPage);
+        if (currentPage > newTotalPages && newTotalPages > 0) {
+            setCurrentPage(newTotalPages);
+        }
 
         try {
             const res = await fetch(`/api/forms/${id}`, {
@@ -36,35 +54,84 @@ export default function FormList({ initialForms }: FormListProps) {
         }
     };
 
+    const goToPage = (page: number) => {
+        setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+    };
+
     if (forms.length === 0) {
         return <EmptyState />;
     }
 
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <AnimatePresence>
-                {forms.map((form) => (
-                    <motion.div
-                        key={form.shortId || form._id}
-                        layout
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <AnimatePresence mode="popLayout">
+                    {currentForms.map((form) => (
+                        <motion.div
+                            key={form.shortId || form._id}
+                            layout
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.2 } }}
+                        >
+                            <FormCard
+                                id={form.shortId || form._id}
+                                title={form.title}
+                                description={form.description}
+                                status={form.status}
+                                responseCount={form.responseCount || 0}
+                                questionCount={form.questionCount || 0}
+                                updatedAt={form.updatedAt}
+                                onDelete={handleDelete}
+                            />
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-center gap-2 pt-4">
+                    <button
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                        className="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                        <FormCard
-                            id={form.shortId || form._id}
-                            title={form.title}
-                            description={form.description}
-                            status={form.status}
-                            responseCount={0} // TODO: Connect real stats
-                            questionCount={form.questionCount || 0}
-                            updatedAt={form.updatedAt}
-                            onDelete={handleDelete}
-                        // FormCard handles copy internally now
-                        />
-                    </motion.div>
-                ))}
-            </AnimatePresence>
+                        <ChevronLeft size={20} />
+                    </button>
+
+                    <div className="flex items-center gap-1">
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <button
+                                key={page}
+                                onClick={() => goToPage(page)}
+                                className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${page === currentPage
+                                        ? "bg-gray-900 text-white"
+                                        : "text-gray-600 hover:bg-gray-100"
+                                    }`}
+                            >
+                                {page}
+                            </button>
+                        ))}
+                    </div>
+
+                    <button
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                        className="p-2 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                        <ChevronRight size={20} />
+                    </button>
+                </div>
+            )}
+
+            {/* Page info */}
+            {totalPages > 1 && (
+                <p className="text-center text-sm text-gray-500">
+                    Mostrando {startIndex + 1}-{Math.min(endIndex, forms.length)} de {forms.length} formularios
+                </p>
+            )}
         </div>
     );
 }
+

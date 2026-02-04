@@ -79,6 +79,8 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({
             subscriptionTier: user.subscriptionTier || null,
             subscriptionStatus: user.subscriptionStatus || null,
+            cancelAtPeriodEnd: user.cancelAtPeriodEnd || false,
+            currentPeriodEnd: user.currentPeriodEnd?.toISOString() || null,
             onboardingCompleted: user.onboardingCompleted || false,
             role: user.role || "user",
         });

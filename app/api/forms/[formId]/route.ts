@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/libs/next-auth";
-// import { authOptions } from "@/libs/next-auth"; // Unused
 import { formService } from "@/libs/services/formService";
+import { checkActiveSubscription, SUBSCRIPTION_INACTIVE_ERROR } from "@/libs/api/requireActiveSubscription";
 
 export async function GET(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
@@ -28,6 +28,11 @@ export async function PATCH(req: Request, props: { params: Promise<{ formId: str
     const session = await auth();
     if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
+    // Check subscription status
+    if (!checkActiveSubscription(session)) {
+        return NextResponse.json(SUBSCRIPTION_INACTIVE_ERROR, { status: 403 });
+    }
+
     try {
         const form = await formService.getForm(params.formId);
         if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
@@ -49,6 +54,11 @@ export async function DELETE(req: Request, props: { params: Promise<{ formId: st
     const params = await props.params;
     const session = await auth();
     if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    // Check subscription status
+    if (!checkActiveSubscription(session)) {
+        return NextResponse.json(SUBSCRIPTION_INACTIVE_ERROR, { status: 403 });
+    }
 
     try {
         const form = await formService.getForm(params.formId);

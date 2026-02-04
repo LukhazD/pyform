@@ -18,7 +18,7 @@ export default async function AnalyticsPage() {
     const { aggregated, formsWithStats } = await AnalyticsService.getGlobalAnalytics(session.user.id);
 
     return (
-        <div className="max-w-7xl mx-auto py-8">
+        <div className="max-w-7xl mx-auto p-6">
             <div className="flex items-center gap-3 mb-8">
                 <div className="p-3 bg-gray-900 rounded-xl text-white">
                     <BarChart3 size={24} />
