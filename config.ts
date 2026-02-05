@@ -44,7 +44,6 @@ const config = {
           { name: "13 tipos de preguntas" },
           { name: "Editor Live en tiempo real" },
           { name: "Analíticas de abandono" },
-          { name: "Exportación CSV" },
           { name: "Inicio de sesión con Google" },
         ],
       },

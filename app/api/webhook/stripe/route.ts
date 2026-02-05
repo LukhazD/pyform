@@ -104,8 +104,28 @@ export async function POST(req: NextRequest) {
 
       case "customer.subscription.updated": {
         // The customer might have changed the plan (higher or lower plan, cancel soon etc...)
-        // You don't need to do anything here, because Stripe will let us know when the subscription is canceled for good (at the end of the billing cycle) in the "customer.subscription.deleted" event
-        // You can update the user data to show a "Subscription ending soon" badge for instance
+        const stripeObject: Stripe.Subscription = event.data
+          .object as Stripe.Subscription;
+
+        const subscription = await stripe.subscriptions.retrieve(
+          stripeObject.id
+        );
+
+        const user = await User.findOne({ stripeCustomerId: subscription.customer });
+
+        if (user) {
+          user.stripePriceId = subscription.items.data[0].price.id;
+          user.subscriptionStatus = subscription.status;
+          user.cancelAtPeriodEnd = subscription.cancel_at_period_end;
+          user.currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+
+          // Ensure tier is set correctly based on status
+          if (["active", "trialing", "past_due"].includes(subscription.status)) {
+            user.subscriptionTier = "pro";
+          }
+
+          await user.save();
+        }
         break;
       }
 
