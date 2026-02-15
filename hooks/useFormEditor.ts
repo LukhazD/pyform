@@ -74,6 +74,10 @@ export function useFormEditor(formId: string | null) {
                         id: q.id || q._id
                     }));
                     setModules(mappedModules);
+                    // Auto-select first module so the editor starts ready
+                    if (mappedModules.length > 0) {
+                        setSelectedModuleId(mappedModules[0].id);
+                    }
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);

@@ -231,6 +231,22 @@ export default function EditorLayout({
                                     onDuplicateModule={onDuplicateModule}
                                     onAddModule={() => setActivePanel("toolbar")}
                                     isMobile
+                                    onMoveUp={() => {
+                                        const idx = modules.findIndex(m => m.id === selectedModuleId);
+                                        if (idx > 0) {
+                                            onReorderModules(idx, idx - 1);
+                                            onSelectModule(modules[idx].id);
+                                        }
+                                    }}
+                                    onMoveDown={() => {
+                                        const idx = modules.findIndex(m => m.id === selectedModuleId);
+                                        if (idx < modules.length - 1) {
+                                            onReorderModules(idx, idx + 1);
+                                            onSelectModule(modules[idx].id);
+                                        }
+                                    }}
+                                    canMoveUp={(modules.findIndex(m => m.id === selectedModuleId)) > 0}
+                                    canMoveDown={(modules.findIndex(m => m.id === selectedModuleId)) < modules.length - 1}
                                 />
                             </motion.div>
                         </div>
@@ -280,6 +296,7 @@ export default function EditorLayout({
                     onEditModule={() => {
                         if (selectedModuleId) setActivePanel("properties");
                     }}
+                    onReorderModules={onReorderModules}
                 />
             </div>
         </div>

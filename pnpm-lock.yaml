@@ -149,6 +149,9 @@ importers:
       resend:
         specifier: ^6.0.0
         version: 6.8.0
+      ship-fast-code:
+        specifier: 'link:'
+        version: 'link:'
       stripe:
         specifier: ^13.11.0
         version: 13.11.0

@@ -17,7 +17,7 @@ const formSettingsSchema = new Schema(
 
 const formStylingSchema = new Schema(
     {
-        primaryColor: { type: String, default: "#3b82f6" },
+        primaryColor: { type: String, default: "#1a1a1a" },
         fontFamily: { type: String, default: "Inter" },
         heroUIRadius: {
             type: String,

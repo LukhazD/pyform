@@ -203,36 +203,51 @@ export default function FormPreview({
     // Empty State
     if (modules.length === 0) {
         return (
-            <div className="flex-1 flex">
-                {/* Empty preview area */}
+            <div className="flex-1 flex h-full">
                 <div
-                    className="flex-1 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center"
+                    className="flex-1 h-full bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center"
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}
                 >
-                    <div className="text-center p-12 border-4 border-dashed border-gray-300 rounded-2xl mx-8">
-                        <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
-                            <Plus className="text-gray-400" size={48} />
-                        </div>
-                        <p className="text-xl text-gray-700 font-semibold mb-2">
-                            {isMobile ? "Pulsa + para empezar" : "Arrastra un módulo aquí"}
-                        </p>
-                        <p className="text-gray-500">
-                            {isMobile
-                                ? "Añade tu primer módulo al formulario"
-                                : "Selecciona un tipo de pregunta de la barra lateral izquierda"
-                            }
-                        </p>
-                        {isMobile && (
+                    {isMobile ? (
+                        /* Mobile: Clean minimal empty state */
+                        <div className="text-center px-8">
+                            <div className="relative mx-auto w-20 h-20 mb-6">
+                                <div className="absolute inset-0 rounded-full bg-gray-900/10 animate-ping" style={{ animationDuration: "2s" }} />
+                                <button
+                                    onClick={onOpenToolbar}
+                                    className="relative w-20 h-20 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+                                >
+                                    <Plus size={32} strokeWidth={2.5} />
+                                </button>
+                            </div>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                Crea tu formulario
+                            </h3>
+                            <p className="text-sm text-gray-500 leading-relaxed mb-6">
+                                Añade módulos como preguntas, textos<br />y elementos interactivos
+                            </p>
                             <button
                                 onClick={onOpenToolbar}
-                                className="mt-6 px-6 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-colors"
+                                className="px-8 py-3 bg-gray-900 text-white rounded-full font-semibold text-sm hover:bg-gray-800 active:scale-95 transition-all shadow-md"
                             >
-                                <Plus size={18} className="inline mr-2 -mt-0.5" />
-                                Añadir módulo
+                                Añadir primera pregunta
                             </button>
-                        )}
-                    </div>
+                        </div>
+                    ) : (
+                        /* Desktop: Drag & drop oriented */
+                        <div className="text-center p-12 border-4 border-dashed border-gray-300 rounded-2xl mx-8">
+                            <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+                                <Plus className="text-gray-400" size={48} />
+                            </div>
+                            <p className="text-xl text-gray-700 font-semibold mb-2">
+                                Arrastra un módulo aquí
+                            </p>
+                            <p className="text-gray-500">
+                                Selecciona un tipo de pregunta de la barra lateral izquierda
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
         );
@@ -324,7 +339,7 @@ export default function FormPreview({
                 }}
                 style={{
                     // @ts-ignore
-                    "--color-primary": styling?.primaryColor || "#3b82f6",
+                    "--color-primary": styling?.primaryColor || "#1a1a1a",
                     fontFamily: styling?.fontFamily ? `"${styling.fontFamily}", sans-serif` : "Inter, sans-serif",
                 } as React.CSSProperties}
             >
@@ -366,7 +381,7 @@ export default function FormPreview({
 
                                         {/* Text */}
                                         <h3 className="text-xl font-bold text-gray-900 mb-2">
-                                            Añadir nuevo módulo
+                                            Añadir nueva pregunta
                                         </h3>
                                         <p className="text-sm text-gray-500 mb-6 leading-relaxed">
                                             Agrega preguntas, textos o elementos<br />a tu formulario
@@ -385,7 +400,7 @@ export default function FormPreview({
                                             onClick={onOpenToolbar}
                                             className="px-8 py-3 bg-gray-900 text-white rounded-full font-semibold text-sm hover:bg-gray-800 active:scale-95 transition-all shadow-md"
                                         >
-                                            Elegir tipo de módulo
+                                            Elegir tipo de pregunta
                                         </button>
                                     </div>
                                 </div>

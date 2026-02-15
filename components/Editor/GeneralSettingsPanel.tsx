@@ -52,18 +52,18 @@ export default function GeneralSettingsPanel({
                         <div className="relative group">
                             <input
                                 type="color"
-                                value={styling?.primaryColor || "#3b82f6"}
+                                value={styling?.primaryColor || "#1a1a1a"}
                                 onChange={(e) => onUpdateStyling({ primaryColor: e.target.value })}
                                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                             />
                             <div
                                 className="w-10 h-10 rounded-full border-2 border-white shadow-md transition-transform group-hover:scale-110"
-                                style={{ backgroundColor: styling?.primaryColor || "#3b82f6" }}
+                                style={{ backgroundColor: styling?.primaryColor || "#1a1a1a" }}
                             />
                         </div>
                         <Input
                             placeholder="#000000"
-                            value={styling?.primaryColor || "#3b82f6"}
+                            value={styling?.primaryColor || "#1a1a1a"}
                             onChange={(e) => onUpdateStyling({ primaryColor: e.target.value })}
                             variant="bordered"
                             radius="lg"

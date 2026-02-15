@@ -123,7 +123,7 @@ const seedDatabase = async () => {
                     notificationEmail: "events@example.com",
                 },
                 styling: {
-                    primaryColor: "#3b82f6",
+                    primaryColor: "#1a1a1a",
                     fontFamily: "Inter",
                     heroUIRadius: "full",
                     heroUIShadow: "sm",
@@ -146,7 +146,7 @@ const seedDatabase = async () => {
                 },
                 styling: {
                     heroUIRadius: "md",
-                    primaryColor: "#3b82f6",
+                    primaryColor: "#1a1a1a",
                     fontFamily: "Inter",
                     heroUIShadow: "sm",
                 },

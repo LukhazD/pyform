@@ -3,7 +3,7 @@
 
 import React from "react";
 import { Button, Input, Textarea, Switch, Divider } from "@heroui/react";
-import { Trash2, Copy, MousePointer, Plus, X, GripVertical } from "lucide-react";
+import { Trash2, Copy, MousePointer, Plus, X, GripVertical, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 
 import GeneralSettingsPanel from "./GeneralSettingsPanel";
 
@@ -39,6 +39,10 @@ interface PropertiesPanelProps {
     onUpdateStyling?: (updates: any) => void;
     formMetadata?: any;
     onUpdateForm?: (updates: any) => void;
+    onMoveUp?: () => void;
+    onMoveDown?: () => void;
+    canMoveUp?: boolean;
+    canMoveDown?: boolean;
 }
 
 const moduleLabels: Record<string, string> = {
@@ -69,6 +73,10 @@ export default function PropertiesPanel({
     onUpdateStyling,
     formMetadata,
     onUpdateForm,
+    onMoveUp,
+    onMoveDown,
+    canMoveUp,
+    canMoveDown,
 }: PropertiesPanelProps) {
     if (!selectedModule) {
         return (
@@ -293,6 +301,33 @@ export default function PropertiesPanel({
 
             {/* Actions */}
             <div className="space-y-3">
+                {/* Move Up/Down — visible on mobile */}
+                {isMobile && (onMoveUp || onMoveDown) && (
+                    <div className="flex gap-2">
+                        <Button
+                            fullWidth
+                            variant="bordered"
+                            radius="full"
+                            startContent={<ChevronLeft size={16} />}
+                            onPress={onMoveUp}
+                            isDisabled={!canMoveUp}
+                            className="border-gray-300"
+                        >
+                            Anterior
+                        </Button>
+                        <Button
+                            fullWidth
+                            variant="bordered"
+                            radius="full"
+                            startContent={<ChevronRight size={16} />}
+                            onPress={onMoveDown}
+                            isDisabled={!canMoveDown}
+                            className="border-gray-300"
+                        >
+                            Siguiente
+                        </Button>
+                    </div>
+                )}
                 {onAddModule && (
                     <Button
                         fullWidth
@@ -305,15 +340,6 @@ export default function PropertiesPanel({
                         Añadir módulo
                     </Button>
                 )}
-                {/* <Button
-                    fullWidth
-                    variant="bordered"
-                    radius="full"
-                    startContent={<Copy size={16} />}
-                    onPress={() => onDuplicateModule?.(selectedModule.id)}
-                >
-                    Duplicar Módulo
-                </Button> */}
             </div>
 
             {/* Auto-save indicator */}
