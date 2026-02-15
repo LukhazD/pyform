@@ -111,8 +111,8 @@ export default function MobileModuleNav({
     useEffect(() => {
         if (modules.length >= 2 && !hintShown.current && !reorderMode) {
             hintShown.current = true;
-            const show = setTimeout(() => setShowHint(true), 1500);
-            const hide = setTimeout(() => setShowHint(false), 5500);
+            const show = setTimeout(() => setShowHint(true), 1200);
+            const hide = setTimeout(() => setShowHint(false), 7000);
             return () => { clearTimeout(show); clearTimeout(hide); };
         }
     }, [modules.length, reorderMode]);
@@ -236,19 +236,34 @@ export default function MobileModuleNav({
     /* ── Normal Mode (Dot Navigation) ── */
     return (
         <div className="relative bg-white/90 backdrop-blur-md border-t border-gray-100 flex-shrink-0 z-30">
-            {/* Reorder hint — floats above the bar */}
+            {/* Reorder hint — floats above the bar with emphasis */}
             <AnimatePresence>
                 {showHint && (
                     <motion.div
-                        className="absolute -top-8 left-0 right-0 flex justify-center pointer-events-none"
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: [0, 1, 1, 0], y: 0 }}
-                        transition={{ duration: 5, times: [0, 0.08, 0.85, 1] }}
-                        onAnimationComplete={() => setShowHint(false)}
+                        className="absolute -top-12 left-0 right-0 flex justify-center pointer-events-none z-50"
+                        initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
-                        <span className="text-[11px] text-gray-400 bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm border border-gray-100">
+                        <motion.span
+                            className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700 bg-white px-4 py-2 rounded-full border border-gray-200"
+                            animate={{
+                                boxShadow: [
+                                    "0 0 0 0 rgba(17, 24, 39, 0)",
+                                    "0 0 0 6px rgba(17, 24, 39, 0.08)",
+                                    "0 0 0 0 rgba(17, 24, 39, 0)",
+                                ],
+                            }}
+                            transition={{
+                                duration: 1.8,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                            }}
+                        >
+                            <GripVertical size={14} className="text-gray-400" />
                             Mantén presionado para reordenar
-                        </span>
+                        </motion.span>
                     </motion.div>
                 )}
             </AnimatePresence>
@@ -263,13 +278,30 @@ export default function MobileModuleNav({
                 </button>
 
                 {/* Center: Position dots — long-press anywhere in this zone to reorder */}
-                <div
-                    className="flex-1 flex items-center justify-center gap-1.5 px-4 py-4 -my-1 overflow-hidden cursor-default select-none"
+                <motion.div
+                    className="flex-1 flex items-center justify-center gap-1.5 px-4 py-3 overflow-hidden cursor-default select-none relative rounded-xl"
                     onPointerDown={handlePointerDown}
                     onPointerUp={handlePointerUp}
                     onPointerLeave={handlePointerLeave}
                     onContextMenu={(e) => e.preventDefault()}
                     style={{ WebkitTouchCallout: "none", WebkitUserSelect: "none", touchAction: "none" }}
+                    animate={showHint ? {
+                        borderColor: [
+                            "rgba(156, 163, 175, 0)",
+                            "rgba(156, 163, 175, 0.6)",
+                            "rgba(156, 163, 175, 0)",
+                        ],
+                        boxShadow: [
+                            "inset 0 0 0 0 rgba(156, 163, 175, 0)",
+                            "inset 0 0 8px 0 rgba(156, 163, 175, 0.1)",
+                            "inset 0 0 0 0 rgba(156, 163, 175, 0)",
+                        ],
+                    } : {
+                        borderColor: "rgba(156, 163, 175, 0)",
+                        boxShadow: "inset 0 0 0 0 rgba(156, 163, 175, 0)",
+                    }}
+                    transition={showHint ? { duration: 1.8, repeat: Infinity, ease: "easeInOut" } : { duration: 0.3 }}
+                    initial={{ borderWidth: 2, borderStyle: "solid", borderColor: "rgba(156, 163, 175, 0)" }}
                 >
                     {modules.map((module, i) => (
                         <button
@@ -297,7 +329,7 @@ export default function MobileModuleNav({
                     >
                         {showingAddCard && <Plus size={14} />}
                     </button>
-                </div>
+                </motion.div>
 
                 {/* Edit Button */}
                 <button

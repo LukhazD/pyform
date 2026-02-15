@@ -313,18 +313,18 @@ export default function PropertiesPanel({
                             isDisabled={!canMoveUp}
                             className="border-gray-300"
                         >
-                            Anterior
+                            Mover a la izquierda
                         </Button>
                         <Button
                             fullWidth
                             variant="bordered"
                             radius="full"
-                            startContent={<ChevronRight size={16} />}
+                            endContent={<ChevronRight size={16} />}
                             onPress={onMoveDown}
                             isDisabled={!canMoveDown}
                             className="border-gray-300"
                         >
-                            Siguiente
+                            Mover a la derecha
                         </Button>
                     </div>
                 )}
