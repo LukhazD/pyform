@@ -33,6 +33,7 @@ interface PropertiesPanelProps {
     onUpdateModule: (id: string, updates: Partial<Module>) => void;
     onDeleteModule: (id: string) => void;
     onDuplicateModule?: (id: string) => void;
+    onAddModule?: () => void;
     isMobile?: boolean;
     styling?: any;
     onUpdateStyling?: (updates: any) => void;
@@ -62,6 +63,7 @@ export default function PropertiesPanel({
     onUpdateModule,
     onDeleteModule,
     onDuplicateModule,
+    onAddModule,
     isMobile,
     styling,
     onUpdateStyling,
@@ -291,7 +293,19 @@ export default function PropertiesPanel({
 
             {/* Actions */}
             <div className="space-y-3">
-                <Button
+                {onAddModule && (
+                    <Button
+                        fullWidth
+                        variant="flat"
+                        radius="full"
+                        startContent={<Plus size={16} />}
+                        onPress={onAddModule}
+                        className="bg-gray-900 text-white hover:bg-gray-800"
+                    >
+                        Añadir módulo
+                    </Button>
+                )}
+                {/* <Button
                     fullWidth
                     variant="bordered"
                     radius="full"
@@ -299,7 +313,7 @@ export default function PropertiesPanel({
                     onPress={() => onDuplicateModule?.(selectedModule.id)}
                 >
                     Duplicar Módulo
-                </Button>
+                </Button> */}
             </div>
 
             {/* Auto-save indicator */}

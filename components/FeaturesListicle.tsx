@@ -47,7 +47,7 @@ const features: {
           <ul className="space-y-2">
             {[
               "Edición WYSIWYG: lo que ves es lo que obtienen tus usuarios",
-              "Cambios reflejados instantáneamente (<50ms)",
+              "Cambios reflejados instantáneamente (<300ms)",
               "Sin modo de vista previa separado",
               "Atajos de teclado para máxima productividad",
             ].map((item) => (

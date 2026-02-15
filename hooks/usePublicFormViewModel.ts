@@ -89,8 +89,28 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
         if (!currentModule) return true;
         if (currentModule.type === "WELCOME" || currentModule.type === "GOODBYE") return true;
 
+        const value = responses[currentModule._id];
+
+        // Specific validation for Email
+        if (currentModule.type === "EMAIL") {
+            // Check if required first
+            if (currentModule.isRequired && (!value || value === "")) {
+                setValidationError(prev => prev + 1);
+                return false;
+            }
+            // If has value, validate format
+            if (value && value !== "") {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(value)) {
+                    setValidationError(prev => prev + 1);
+                    // Could add toast or specific error UI here
+                    toast.error("Por favor, introduce un email válido.");
+                    return false;
+                }
+            }
+        }
+
         if (currentModule.isRequired) {
-            const value = responses[currentModule._id];
             const isEmpty = value === undefined || value === "" || value === null || (Array.isArray(value) && value.length === 0);
 
             if (isEmpty) {

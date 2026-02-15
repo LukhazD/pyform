@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@heroui/react";
 import { ChevronUp, ChevronDown, Plus, GripVertical, Trash2 } from "lucide-react";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import ModuleRenderer from "../Modules/ModuleRenderer";
 import { FormStyling } from "@/types/FormStyling";
 
@@ -29,6 +30,8 @@ interface FormPreviewProps {
     onDeleteModule?: (id: string) => void;
     isMobile?: boolean;
     onEditModule?: () => void;
+    onOpenToolbar?: () => void;
+    onShowAddCardChange?: (showing: boolean) => void;
     styling?: FormStyling;
     formSettings?: any;
 }
@@ -50,6 +53,9 @@ const moduleTypeLabels: Record<string, string> = {
     FILE_UPLOAD: "Archivo",
 };
 
+const SWIPE_THRESHOLD = 50;
+const SWIPE_VELOCITY = 300;
+
 export default function FormPreview({
     modules,
     selectedModuleId,
@@ -59,11 +65,22 @@ export default function FormPreview({
     onDeleteModule,
     isMobile,
     onEditModule,
+    onOpenToolbar,
+    onShowAddCardChange,
     styling,
 }: FormPreviewProps) {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [direction, setDirection] = useState(0); // -1 = left, 1 = right
+    const [showAddCard, setShowAddCard] = useState(false);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const previewRef = useRef<HTMLDivElement>(null);
+    const lastTapTime = useRef(0);
+    const [showHint, setShowHint] = useState(true);
+
+    // Notify parent when showAddCard changes
+    useEffect(() => {
+        onShowAddCardChange?.(showAddCard);
+    }, [showAddCard]);
 
     // Sync currentIndex with selectedModuleId
     useEffect(() => {
@@ -71,6 +88,7 @@ export default function FormPreview({
             const index = modules.findIndex((m) => m.id === selectedModuleId);
             if (index >= 0) {
                 setCurrentIndex(index);
+                setShowAddCard(false);
             }
         }
     }, [selectedModuleId, modules]);
@@ -89,23 +107,52 @@ export default function FormPreview({
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [currentIndex, modules.length]);
+    }, [currentIndex, modules.length, showAddCard]);
 
-    const navigatePrev = () => {
+    const navigatePrev = useCallback(() => {
+        if (showAddCard) {
+            // Go back from add card to last module
+            setShowAddCard(false);
+            setDirection(1);
+            const lastIndex = modules.length - 1;
+            setCurrentIndex(lastIndex);
+            if (modules[lastIndex]) onSelectModule(modules[lastIndex].id);
+            return;
+        }
         if (currentIndex > 0) {
+            setDirection(1);
             const newIndex = currentIndex - 1;
             setCurrentIndex(newIndex);
             onSelectModule(modules[newIndex].id);
         }
-    };
+    }, [currentIndex, modules, showAddCard, onSelectModule]);
 
-    const navigateNext = () => {
+    const navigateNext = useCallback(() => {
+        if (showAddCard) return; // Already on add card
         if (currentIndex < modules.length - 1) {
+            setDirection(-1);
             const newIndex = currentIndex + 1;
             setCurrentIndex(newIndex);
             onSelectModule(modules[newIndex].id);
+        } else {
+            // Past last module → show add card
+            setDirection(-1);
+            setShowAddCard(true);
         }
-    };
+    }, [currentIndex, modules, showAddCard, onSelectModule]);
+
+    // Mobile swipe handler
+    const handleDragEnd = useCallback((event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+        const { offset, velocity } = info;
+        const swipedLeft = offset.x < -SWIPE_THRESHOLD || velocity.x < -SWIPE_VELOCITY;
+        const swipedRight = offset.x > SWIPE_THRESHOLD || velocity.x > SWIPE_VELOCITY;
+
+        if (swipedLeft) {
+            navigateNext();
+        } else if (swipedRight) {
+            navigatePrev();
+        }
+    }, [navigateNext, navigatePrev]);
 
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
@@ -137,6 +184,22 @@ export default function FormPreview({
         setDraggedIndex(null);
     };
 
+    // Animation variants for slide transitions
+    const slideVariants = {
+        enter: (dir: number) => ({
+            x: dir < 0 ? "100%" : "-100%",
+            opacity: 0.5,
+        }),
+        center: {
+            x: 0,
+            opacity: 1,
+        },
+        exit: (dir: number) => ({
+            x: dir < 0 ? "-100%" : "100%",
+            opacity: 0.5,
+        }),
+    };
+
     // Empty State
     if (modules.length === 0) {
         return (
@@ -152,11 +215,23 @@ export default function FormPreview({
                             <Plus className="text-gray-400" size={48} />
                         </div>
                         <p className="text-xl text-gray-700 font-semibold mb-2">
-                            Arrastra un módulo aquí
+                            {isMobile ? "Pulsa + para empezar" : "Arrastra un módulo aquí"}
                         </p>
                         <p className="text-gray-500">
-                            Selecciona un tipo de pregunta de la barra lateral izquierda
+                            {isMobile
+                                ? "Añade tu primer módulo al formulario"
+                                : "Selecciona un tipo de pregunta de la barra lateral izquierda"
+                            }
                         </p>
+                        {isMobile && (
+                            <button
+                                onClick={onOpenToolbar}
+                                className="mt-6 px-6 py-3 bg-gray-900 text-white rounded-xl font-medium hover:bg-gray-800 transition-colors"
+                            >
+                                <Plus size={18} className="inline mr-2 -mt-0.5" />
+                                Añadir módulo
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -166,8 +241,11 @@ export default function FormPreview({
     // Safe access to module
     const currentModule = modules.find(m => m.id === selectedModuleId) || modules[currentIndex] || modules[0];
 
-    // If no module exists (empty state handled above, but just in case of weird state)
-    if (!currentModule) return null;
+    // If no module exists
+    if (!currentModule && !showAddCard) return null;
+
+    // Unique key for AnimatePresence
+    const contentKey = showAddCard ? "add-card" : (currentModule?.id || `idx-${currentIndex}`);
 
     return (
         <div className="flex-1 flex h-full">
@@ -233,14 +311,13 @@ export default function FormPreview({
                 </div>
             )}
 
-            {/* Main Preview Area - Full Screen Module */}
+            {/* Main Preview Area */}
             <div
                 ref={previewRef}
                 className="flex-1 h-full relative bg-gradient-to-br from-gray-50 via-white to-gray-50 overflow-hidden"
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
                 onClick={(e) => {
-                    // Only deselect if clicking the background itself, not a child
                     if (e.target === e.currentTarget) {
                         onSelectModule("");
                     }
@@ -251,77 +328,170 @@ export default function FormPreview({
                     fontFamily: styling?.fontFamily ? `"${styling.fontFamily}", sans-serif` : "Inter, sans-serif",
                 } as React.CSSProperties}
             >
-                {/* Current module - Full Screen */}
-                <div
-                    className={`h-full w-full flex items-center justify-center ${isMobile ? "px-4 pb-20 pt-4 cursor-pointer" : "p-8"}`}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        if (isMobile) onEditModule?.();
-                    }}
-                >
-                    <div className="w-full max-w-3xl pointer-events-none">
-                        <ModuleRenderer
-                            module={currentModule}
-                            isPreview
-                            primaryColor={styling?.primaryColor}
-                            radius={styling?.heroUIRadius === "full" ? "lg" : styling?.heroUIRadius}
-                            shadow={styling?.heroUIShadow}
-                        />
-                    </div>
-                </div>
+                {/* Mobile: Swipeable content */}
+                {isMobile ? (
+                    <AnimatePresence initial={false} custom={direction} mode="popLayout">
+                        <motion.div
+                            key={contentKey}
+                            custom={direction}
+                            variants={slideVariants}
+                            initial="enter"
+                            animate="center"
+                            exit="exit"
+                            transition={{
+                                x: { type: "spring", stiffness: 350, damping: 35 },
+                                opacity: { duration: 0.15 },
+                            }}
+                            drag="x"
+                            dragConstraints={{ left: 0, right: 0 }}
+                            dragElastic={0.3}
+                            onDragEnd={handleDragEnd}
+                            className="h-full w-full absolute inset-0"
+                            style={{ touchAction: "pan-y" }}
+                        >
+                            {showAddCard ? (
+                                /* Ghost "Add Module" card */
+                                <div className="h-full w-full flex items-center justify-center px-6 pb-4 pt-4">
+                                    <div className="w-full max-w-sm text-center">
+                                        {/* Animated icon */}
+                                        <div className="relative mx-auto w-20 h-20 mb-6">
+                                            <div className="absolute inset-0 rounded-full bg-gray-900/10 animate-ping" style={{ animationDuration: "2s" }} />
+                                            <button
+                                                onClick={onOpenToolbar}
+                                                className="relative w-20 h-20 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+                                            >
+                                                <Plus size={32} strokeWidth={2.5} />
+                                            </button>
+                                        </div>
 
-                {/* Navigation Arrows */}
+                                        {/* Text */}
+                                        <h3 className="text-xl font-bold text-gray-900 mb-2">
+                                            Añadir nuevo módulo
+                                        </h3>
+                                        <p className="text-sm text-gray-500 mb-6 leading-relaxed">
+                                            Agrega preguntas, textos o elementos<br />a tu formulario
+                                        </p>
+
+                                        {/* Quick hint chips */}
+                                        <div className="flex flex-wrap justify-center gap-2 mb-8">
+                                            <span className="px-3 py-1.5 rounded-full bg-gray-100 text-xs text-gray-600 font-medium">📝 Texto</span>
+                                            <span className="px-3 py-1.5 rounded-full bg-gray-100 text-xs text-gray-600 font-medium">🔘 Opción múltiple</span>
+                                            <span className="px-3 py-1.5 rounded-full bg-gray-100 text-xs text-gray-600 font-medium">📅 Fecha</span>
+                                            <span className="px-3 py-1.5 rounded-full bg-gray-100 text-xs text-gray-600 font-medium">📎 Archivo</span>
+                                        </div>
+
+                                        {/* CTA button */}
+                                        <button
+                                            onClick={onOpenToolbar}
+                                            className="px-8 py-3 bg-gray-900 text-white rounded-full font-semibold text-sm hover:bg-gray-800 active:scale-95 transition-all shadow-md"
+                                        >
+                                            Elegir tipo de módulo
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                /* Module content */
+                                <div
+                                    className="h-full w-full flex flex-col items-center justify-center px-4 pb-4 pt-4"
+                                    onClick={() => {
+                                        const now = Date.now();
+                                        if (now - lastTapTime.current < 300) {
+                                            // Double-tap detected
+                                            onEditModule?.();
+                                            lastTapTime.current = 0;
+                                        } else {
+                                            lastTapTime.current = now;
+                                        }
+                                    }}
+                                >
+                                    <div className="w-full max-w-3xl pointer-events-none">
+                                        <ModuleRenderer
+                                            module={currentModule}
+                                            isPreview
+                                            primaryColor={styling?.primaryColor}
+                                            radius={styling?.heroUIRadius === "full" ? "lg" : styling?.heroUIRadius}
+                                            shadow={styling?.heroUIShadow}
+                                        />
+                                    </div>
+                                    {/* Double-tap hint */}
+                                    <p className={`mt-4 text-xs text-gray-400 transition-opacity duration-700 ${showHint ? 'opacity-100' : 'opacity-0'}`}>
+                                        Toca dos veces para editar
+                                    </p>
+                                </div>
+                            )}
+                        </motion.div>
+                    </AnimatePresence>
+                ) : (
+                    /* Desktop: Static content (no swipe) */
+                    <div
+                        className="h-full w-full flex items-center justify-center p-8"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}
+                    >
+                        <div className="w-full max-w-3xl pointer-events-none">
+                            <ModuleRenderer
+                                module={currentModule}
+                                isPreview
+                                primaryColor={styling?.primaryColor}
+                                radius={styling?.heroUIRadius === "full" ? "lg" : styling?.heroUIRadius}
+                                shadow={styling?.heroUIShadow}
+                            />
+                        </div>
+                    </div>
+                )}
+
+                {/* Navigation Arrows (Desktop only) */}
                 {!isMobile && (
                     <div className={`absolute z-10 flex gap-2 right-6 top-1/2 -translate-y-1/2 flex-col`}>
                         <Button
                             isIconOnly
-                            size={isMobile ? "md" : "lg"}
+                            size="lg"
                             variant="flat"
                             radius="full"
                             isDisabled={currentIndex === 0}
                             onPress={navigatePrev}
                             className="bg-white/90 backdrop-blur shadow-lg border border-gray-100"
                         >
-                            <ChevronUp size={isMobile ? 20 : 24} />
+                            <ChevronUp size={24} />
                         </Button>
                         <Button
                             isIconOnly
-                            size={isMobile ? "md" : "lg"}
+                            size="lg"
                             variant="flat"
                             radius="full"
                             isDisabled={currentIndex === modules.length - 1}
                             onPress={navigateNext}
                             className="bg-white/90 backdrop-blur shadow-lg border border-gray-100"
                         >
-                            <ChevronDown size={isMobile ? 20 : 24} />
+                            <ChevronDown size={24} />
                         </Button>
                     </div>
                 )}
 
-                {/* Progress indicator */}
-                <div className={`absolute left-1/2 -translate-x-1/2 flex items-center gap-4 ${isMobile ? "bottom-20" : "bottom-6"
-                    }`}>
-                    {!isMobile && (
+                {/* Progress indicator (Desktop only — mobile dots move to bottom bar) */}
+                {!isMobile && (
+                    <div className="absolute left-1/2 -translate-x-1/2 bottom-6 flex items-center gap-4">
                         <span className="text-sm text-gray-500">
                             {currentIndex + 1} / {modules.length}
                         </span>
-                    )}
-                    <div className="flex gap-1">
-                        {modules.map((module, i) => (
-                            <div
-                                key={module.id || `progress-${i}`}
-                                className={`w-2 h-2 rounded-full transition-all cursor-pointer ${i === currentIndex
-                                    ? "bg-gray-900 w-6"
-                                    : "bg-gray-300 hover:bg-gray-400"
-                                    }`}
-                                onClick={() => {
-                                    setCurrentIndex(i);
-                                    onSelectModule(modules[i].id);
-                                }}
-                            />
-                        ))}
+                        <div className="flex gap-1">
+                            {modules.map((module, i) => (
+                                <div
+                                    key={module.id || `progress-${i}`}
+                                    className={`w-2 h-2 rounded-full transition-all cursor-pointer ${i === currentIndex
+                                        ? "bg-gray-900 w-6"
+                                        : "bg-gray-300 hover:bg-gray-400"
+                                        }`}
+                                    onClick={() => {
+                                        setCurrentIndex(i);
+                                        onSelectModule(modules[i].id);
+                                    }}
+                                />
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* Keyboard hint (Desktop only) */}
                 {!isMobile && (

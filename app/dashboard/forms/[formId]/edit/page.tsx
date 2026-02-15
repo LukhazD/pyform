@@ -63,7 +63,7 @@ export default function FormEditorPage({ params }: Props) {
     }
 
     return (
-        <>
+        <div className="fixed inset-0 lg:relative lg:inset-auto flex flex-col h-[100dvh] lg:h-screen overflow-hidden bg-white z-50">
             <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 flex-shrink-0">
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard/forms">
@@ -151,7 +151,7 @@ export default function FormEditorPage({ params }: Props) {
                 onUpdateForm={handleUpdateForm}
             />
 
-        </>
+        </div>
 
     );
 }

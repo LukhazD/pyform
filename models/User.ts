@@ -15,13 +15,12 @@ export interface IUser extends mongoose.Document {
   subscriptionStatus?: "active" | "canceled" | "past_due" | "trialing" | "unpaid" | "incomplete" | "incomplete_expired" | "paused";
   cancelAtPeriodEnd?: boolean;
   currentPeriodEnd?: Date;
-  formLimit: number;
+
   onboardingCompleted: boolean;
   createdAt: Date;
   updatedAt: Date;
 
   // Methods
-  canCreateForm(): boolean;
   getActiveFormsCount(): Promise<number>;
 }
 
@@ -80,10 +79,7 @@ const userSchema = new mongoose.Schema(
     currentPeriodEnd: {
       type: Date,
     },
-    formLimit: {
-      type: Number,
-      default: 3, // Default for free tier
-    },
+
     onboardingCompleted: {
       type: Boolean,
       default: false,
@@ -98,14 +94,6 @@ const userSchema = new mongoose.Schema(
 // add plugin that converts mongoose to json
 userSchema.plugin(toJSON);
 
-// Methods
-userSchema.methods.canCreateForm = function (): boolean {
-  // Logic to be implemented or simply return true if unlimited for pro
-  if (this.subscriptionTier === 'pro') return true;
-  // Need to check active forms count, but that requires async db call which is tricky in sync method context usually
-  // For now, simple check or rely on service layer
-  return true;
-};
 
 userSchema.methods.getActiveFormsCount = async function (): Promise<number> {
   // This would likely require circular dependency if importing Form model here.

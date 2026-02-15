@@ -54,6 +54,7 @@ export interface IQuestion extends mongoose.Document {
     validation: ValidationRules;
     options?: QuestionOption[];
     placeholder?: string;
+    showConfetti?: boolean;
     createdAt: Date;
     updatedAt: Date;
 
@@ -130,6 +131,10 @@ const questionSchema = new Schema(
         },
         placeholder: {
             type: String,
+        },
+        showConfetti: {
+            type: Boolean,
+            default: false,
         },
     },
     {

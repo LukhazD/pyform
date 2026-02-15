@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { auth } from "@/libs/next-auth";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import s3Client from "@/libs/s3";
@@ -8,6 +9,11 @@ import connectMongo from "@/libs/mongoose";
 
 export async function POST(req: Request) {
     try {
+        const session = await auth();
+        if (!session?.user?.id) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
         const body = await req.json();
         const { formId, fileType, fileName } = body;
 
@@ -25,6 +31,11 @@ export async function POST(req: Request) {
 
         if (!form) {
             return NextResponse.json({ error: "Form not found" }, { status: 404 });
+        }
+
+        // Security Check: Verify ownership
+        if (form.userId.toString() !== session.user.id) {
+            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
         // Clean filename to prevent weird chars

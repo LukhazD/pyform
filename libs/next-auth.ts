@@ -47,7 +47,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         await connectMongoose();
         await User.findByIdAndUpdate(user.id, {
           role: "user",
-          formLimit: 3,
           // subscriptionTier and subscriptionStatus are set when user subscribes via Stripe webhook
         });
         console.log(`User ${user.id} initialized with default schema values.`);

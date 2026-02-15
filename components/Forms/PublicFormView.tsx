@@ -116,6 +116,9 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                 }
             } else {
                 // Scroll up -> Prev
+                // Prevent scrolling back if current module is GOODBYE (completed)
+                if (currentModule?.type === "GOODBYE") return;
+
                 if (currentIndex > 0) {
                     setNavigating(true);
                     setLastActionTime(now);

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import React from "react";
 import { Button } from "@heroui/react";
+import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { MobileThreadsHandle } from "./MobileThreads";
 
@@ -26,6 +27,7 @@ const professions = [
 ];
 
 export default function Hero() {
+    const router = useRouter();
     const containerRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null);
     const professionRef = useRef<HTMLSpanElement>(null);
@@ -168,6 +170,7 @@ export default function Hero() {
                             radius="full"
                             color="default"
                             className="font-semibold text-lg px-8 text-white bg-gray-900 shadow-lg hover:bg-gray-800"
+                            onPress={() => router.push("/auth/signin")}
                         >
                             Empezar
                         </Button>
@@ -176,6 +179,7 @@ export default function Hero() {
                             radius="full"
                             variant="bordered"
                             className="font-semibold text-lg px-8"
+                            onPress={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
                         >
                             Más información
                         </Button>

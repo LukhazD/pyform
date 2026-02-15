@@ -91,7 +91,7 @@ export default function
                             />
                             <Textarea
                                 label="Descripción (opcional)"
-                                placeholder="Breve descripción del propósito del formulario"
+                                placeholder="Breve descripción del propósito del formulario. Solo tú la verás."
                                 variant="bordered"
                                 radius="lg"
                                 value={description}

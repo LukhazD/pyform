@@ -35,7 +35,7 @@ function PaymentSuccessContent() {
                                 ¡Pago exitoso! 🎉
                             </h1>
                             <p className="text-gray-500 mb-6">
-                                Tu suscripción Pro está activa. Ya puedes crear formularios sin límites.
+                                Tu suscripción Pro está activa. Ya puedes crear formularios fantásticos.
                             </p>
                         </div>
                         <Button

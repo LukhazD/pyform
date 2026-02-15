@@ -5,6 +5,7 @@ import User from "@/models/User";
 import connectMongo from "@/libs/mongoose";
 import mongoose from "mongoose";
 import { hasActiveProAccess } from "@/libs/subscriptionUtils";
+import { RESPONSES_PER_FORM_LIMIT } from "@/libs/planLimits";
 
 export interface ISubmissionService {
     submitResponse(formId: string, answers: Answer[], metadata: SubmissionMetadata, completionTimeMs?: number): Promise<ISubmission>;
@@ -26,6 +27,13 @@ class SubmissionService implements ISubmissionService {
         const owner = await User.findById(form.userId);
         if (!owner || !hasActiveProAccess(owner)) {
             throw new Error("Este formulario no está disponible temporalmente");
+        }
+
+        // Enforce response-per-form limit
+        const analytics = await FormAnalytics.findOne({ formId });
+        const currentResponses = analytics?.completedSubmissions ?? 0;
+        if (currentResponses >= RESPONSES_PER_FORM_LIMIT) {
+            throw new Error(`Este formulario ha alcanzado el límite de ${RESPONSES_PER_FORM_LIMIT} respuestas.`);
         }
 
         const formattedAnswers = answers.map((a) => ({

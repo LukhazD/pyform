@@ -71,7 +71,7 @@ export default function Toolbar({ onAddModule, onOpenSettings, isMobile }: Toolb
                 <h3 className="text-sm font-medium text-gray-700 mb-3">
                     Módulos Informativos
                 </h3>
-                <div className="space-y-2">
+                <div className={isMobile ? "grid grid-cols-2 gap-2" : "space-y-2"}>
                     {informationalModules.map((module) => (
                         <ModuleButton
                             key={module.type}
@@ -79,6 +79,7 @@ export default function Toolbar({ onAddModule, onOpenSettings, isMobile }: Toolb
                             label={module.label}
                             icon={<module.icon size={18} />}
                             onClick={() => onAddModule(module.type)}
+                            compact={isMobile}
                         />
                     ))}
                 </div>
@@ -87,9 +88,9 @@ export default function Toolbar({ onAddModule, onOpenSettings, isMobile }: Toolb
             {/* Question Modules */}
             <div>
                 <h3 className="text-sm font-medium text-gray-700 mb-3">
-                    Tipos de Pregunta
+                    Tipos de pregunta
                 </h3>
-                <div className="space-y-2">
+                <div className={isMobile ? "grid grid-cols-2 gap-2" : "space-y-2"}>
                     {questionModules.map((module) => (
                         <ModuleButton
                             key={module.type}
@@ -97,6 +98,7 @@ export default function Toolbar({ onAddModule, onOpenSettings, isMobile }: Toolb
                             label={module.label}
                             icon={<module.icon size={18} />}
                             onClick={() => onAddModule(module.type)}
+                            compact={isMobile}
                         />
                     ))}
                 </div>

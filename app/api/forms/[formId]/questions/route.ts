@@ -84,17 +84,27 @@ export async function PUT(req: Request, props: { params: Promise<{ formId: strin
 
         // 2. Prepare questions with correct formId ObjectId
         // Filter out temporary string IDs that are not valid ObjectIds
+        // Track seen IDs to avoid duplicates (e.g. from module duplication)
+        const seenIds = new Set<string>();
         const questionsToInsert = questions.map((q: any) => {
             const { _id, id, ...rest } = q;
             // Use _id or id if it is a valid ObjectId, otherwise let mongoose generate one
-            const validId = (typeof _id === 'string' && /^[0-9a-fA-F]{24}$/.test(_id)) ? _id :
+            let validId = (typeof _id === 'string' && /^[0-9a-fA-F]{24}$/.test(_id)) ? _id :
                 (typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id)) ? id : undefined;
+
+            // If this _id was already seen, skip it so Mongoose generates a new one
+            if (validId && seenIds.has(validId)) {
+                validId = undefined;
+            }
+            if (validId) {
+                seenIds.add(validId);
+            }
 
             return {
                 ...rest,
                 formId: form._id,
                 _id: validId,
-                id: q.id // Preserve the frontend ID
+                id: validId || q.id // Use the resolved id
             };
         });
 

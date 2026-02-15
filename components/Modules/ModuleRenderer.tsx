@@ -62,7 +62,7 @@ export default function ModuleRenderer({ module, isPreview, value, onChange, onN
         case "QUOTE":
             return <QuoteModule module={module} />;
         case "GOODBYE":
-            return <GoodbyeModule module={module} />;
+            return <GoodbyeModule module={module} isPreview={isPreview} />;
         case "TEXT":
             return <TextQuestion {...commonProps} />;
         case "EMAIL":

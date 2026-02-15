@@ -34,13 +34,21 @@ export default function Sidebar() {
 
     return (
         <>
-            {/* Mobile Menu Button */}
-            <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="fixed top-4 left-4 z-50 p-2 rounded-full bg-white shadow-md lg:hidden"
-            >
-                {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            {/* Mobile Top Bar */}
+            <div className="fixed top-0 left-0 right-0 z-40 flex items-center h-14 px-4 bg-white/80 backdrop-blur-md border-b border-gray-100 lg:hidden">
+                <button
+                    onClick={() => setIsOpen(!isOpen)}
+                    className="p-1.5 -ml-1 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                    {isOpen ? <X size={22} /> : <Menu size={22} />}
+                </button>
+                <Link href="/dashboard" className="flex items-center gap-2 ml-3">
+                    <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">P</span>
+                    </div>
+                    <span className="text-base font-bold text-gray-900">Pyform</span>
+                </Link>
+            </div>
 
             {/* Overlay for mobile */}
             {isOpen && (

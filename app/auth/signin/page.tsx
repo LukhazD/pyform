@@ -1,10 +1,15 @@
 "use client";
 
+import { useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Button, Input, Card, CardBody, CardHeader } from "@heroui/react";
 import Image from "next/image";
 import { useAuthViewModel } from "@/hooks/useAuthViewModel";
 
 export default function SigninPage() {
+    const { data: session, status } = useSession();
+    const router = useRouter();
     const {
         email,
         setEmail,
@@ -13,6 +18,20 @@ export default function SigninPage() {
         handleEmailSignIn,
         handleGoogleSignIn
     } = useAuthViewModel();
+
+    useEffect(() => {
+        if (status === "authenticated") {
+            router.replace("/dashboard");
+        }
+    }, [status, router]);
+
+    if (status === "loading" || status === "authenticated") {
+        return (
+            <div className="flex items-center justify-center min-h-screen bg-gray-50">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+            </div>
+        );
+    }
 
 
     return (

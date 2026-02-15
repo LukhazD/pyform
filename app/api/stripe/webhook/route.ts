@@ -3,7 +3,6 @@ import Stripe from "stripe";
 import connectMongo from "@/libs/mongoose";
 import User from "@/models/User";
 import Subscription from "@/models/Subscription";
-import config from "@/config";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2023-08-16",
@@ -85,9 +84,6 @@ export async function POST(req: NextRequest) {
                             subscriptionStatus: "active",
                             cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
                             currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-
-                            formLimit: (priceId === config.stripe.plans.find(p => p.name === "Pro Anual")?.priceId) ? -1 : 5,
-
                             // Ensure onboarding is false so they go through flow when they first login
                             onboardingCompleted: user.onboardingCompleted ?? false
                         });

@@ -55,7 +55,6 @@ export default async function Dashboard() {
           label="Total Respuestas"
           value={stats.totalResponses}
           icon={<MessageSquare size={24} />}
-          trend={{ value: 0, isPositive: true }}
         />
         <StatsCard
           label="Tasa de Completado"
