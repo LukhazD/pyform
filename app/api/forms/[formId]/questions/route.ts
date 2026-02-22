@@ -78,40 +78,63 @@ export async function PUT(req: Request, props: { params: Promise<{ formId: strin
 
         const questions = await req.json();
 
-        // Transaction approach would be better but for now simple replacement
-        // 1. Delete all existing questions for this form ObjectId
-        await Question.deleteMany({ formId: form._id });
+        // 1. Get current questions from DB to track what needs deletion
+        const currentQuestions = await Question.find({ formId: form._id }, '_id id');
+        const currentIds = currentQuestions.map(q => q.id);
 
-        // 2. Prepare questions with correct formId ObjectId
-        // Filter out temporary string IDs that are not valid ObjectIds
-        // Track seen IDs to avoid duplicates (e.g. from module duplication)
+        const updatedIds: string[] = [];
         const seenIds = new Set<string>();
-        const questionsToInsert = questions.map((q: any) => {
+
+        // 2. Upsert each incoming question
+        const upsertPromises = questions.map(async (q: any) => {
             const { _id, id, ...rest } = q;
-            // Use _id or id if it is a valid ObjectId, otherwise let mongoose generate one
-            let validId = (typeof _id === 'string' && /^[0-9a-fA-F]{24}$/.test(_id)) ? _id :
-                (typeof id === 'string' && /^[0-9a-fA-F]{24}$/.test(id)) ? id : undefined;
 
-            // If this _id was already seen, skip it so Mongoose generates a new one
-            if (validId && seenIds.has(validId)) {
-                validId = undefined;
-            }
-            if (validId) {
-                seenIds.add(validId);
-            }
+            // Validate ObjectIds to prevent Casting Errors
+            let validDbId = (typeof _id === 'string' && /^[0-9a-fA-F]{24}$/.test(_id)) ? _id : undefined;
 
-            return {
+            // The frontend UUID is reliable for syncing
+            const frontendId = id || _id;
+
+            // Avoid duplicate ID errors if duplicate module fired
+            if (frontendId && seenIds.has(frontendId)) {
+                return null;
+            }
+            if (frontendId) seenIds.add(frontendId);
+            updatedIds.push(frontendId);
+
+            const questionData = {
                 ...rest,
                 formId: form._id,
-                _id: validId,
-                id: validId || q.id // Use the resolved id
+                id: frontendId
             };
+
+            // Using findOneAndUpdate with upsert ensures we don't drop existing ObjectIds/refs
+            if (validDbId) {
+                return Question.findOneAndUpdate(
+                    { _id: validDbId, formId: form._id },
+                    { $set: questionData },
+                    { upsert: true, new: true }
+                );
+            } else {
+                // Try matching by the frontend `id` instead
+                return Question.findOneAndUpdate(
+                    { id: frontendId, formId: form._id },
+                    { $set: questionData },
+                    { upsert: true, new: true }
+                );
+            }
         });
 
-        // 3. Insert new questions
-        const createdQuestions = await Question.insertMany(questionsToInsert);
+        const updatedQuestions = (await Promise.all(upsertPromises)).filter(Boolean);
 
-        return NextResponse.json(createdQuestions);
+        // 3. Delete only the questions that are no longer in the updated list
+        const idsToDelete = currentIds.filter(id => !updatedIds.includes(id));
+        if (idsToDelete.length > 0) {
+            await Question.deleteMany({ formId: form._id, id: { $in: idsToDelete } });
+        }
+
+        // Return the fresh data so the frontend can receive any newly minted ObjectIds
+        return NextResponse.json(updatedQuestions);
     } catch (error: any) {
         console.error("Error updates questions:", error);
         return NextResponse.json({ error: error.message }, { status: 500 });

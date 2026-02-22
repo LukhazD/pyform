@@ -40,6 +40,7 @@ interface EditorLayoutProps {
     onUpdateFormStyling?: (updates: Partial<FormStyling>) => void;
     formMetadata?: any;
     onUpdateForm?: (updates: any) => void;
+    onUnpublish?: () => void;
 }
 
 type MobilePanel = "preview" | "toolbar" | "properties" | "settings";
@@ -58,11 +59,13 @@ export default function EditorLayout({
     onUpdateFormStyling,
     formMetadata,
     onUpdateForm,
+    onUnpublish,
 }: EditorLayoutProps) {
     const selectedModule = modules.find((m) => m.id === selectedModuleId);
     const [isMobile, setIsMobile] = useState(false);
     const [activePanel, setActivePanel] = useState<MobilePanel>("preview");
     const [showingAddCard, setShowingAddCard] = useState(false);
+    const [isToolbarCollapsed, setIsToolbarCollapsed] = useState(false);
 
     // Detect mobile on mount and resize
     useEffect(() => {
@@ -82,6 +85,8 @@ export default function EditorLayout({
                 <Toolbar
                     onAddModule={onAddModule}
                     onOpenSettings={() => onSelectModule(null)}
+                    isCollapsed={isToolbarCollapsed}
+                    onToggleCollapse={() => setIsToolbarCollapsed(!isToolbarCollapsed)}
                 />
 
                 {/* Center - Form Preview (WYSIWYG) */}
@@ -106,6 +111,7 @@ export default function EditorLayout({
                     onUpdateStyling={onUpdateFormStyling}
                     formMetadata={formMetadata}
                     onUpdateForm={onUpdateForm}
+                    onUnpublish={onUnpublish}
                 />
             </div>
         );
@@ -149,7 +155,7 @@ export default function EditorLayout({
                                 <Button
                                     isIconOnly
                                     variant="light"
-                                    radius="full"
+                                    radius="md"
                                     onPress={() => setActivePanel("preview")}
                                 >
                                     <X size={20} />
@@ -203,7 +209,7 @@ export default function EditorLayout({
                                 <Button
                                     isIconOnly
                                     variant="light"
-                                    radius="full"
+                                    radius="md"
                                     onPress={() => setActivePanel("preview")}
                                 >
                                     <X size={20} />
@@ -247,6 +253,7 @@ export default function EditorLayout({
                                     }}
                                     canMoveUp={(modules.findIndex(m => m.id === selectedModuleId)) > 0}
                                     canMoveDown={(modules.findIndex(m => m.id === selectedModuleId)) < modules.length - 1}
+                                    onUnpublish={onUnpublish}
                                 />
                             </motion.div>
                         </div>
@@ -260,7 +267,7 @@ export default function EditorLayout({
                                 <Button
                                     isIconOnly
                                     variant="light"
-                                    radius="full"
+                                    radius="md"
                                     onPress={() => setActivePanel("preview")}
                                 >
                                     <X size={20} />
@@ -272,6 +279,7 @@ export default function EditorLayout({
                                     onUpdateStyling={onUpdateFormStyling || (() => { })}
                                     formMetadata={formMetadata}
                                     onUpdateForm={onUpdateForm || (() => { })}
+                                    onUnpublish={onUnpublish}
                                 />
                             </div>
                         </div>

@@ -2,11 +2,12 @@
 
 import React, { useState } from "react";
 import { Button } from "@heroui/react";
-import { ArrowLeft, Save, Eye, Link as LinkIcon } from "lucide-react";
+import { ArrowLeft, Save, Eye, Link as LinkIcon, ArchiveRestore } from "lucide-react";
 import Link from "next/link";
 import EditorLayout from "@/components/Editor/EditorLayout";
 import { useFormEditor } from "@/hooks/useFormEditor";
 import { useClipboard } from "@/hooks/useClipboard";
+import toast from "react-hot-toast";
 
 interface Props {
     params: Promise<{ formId: string }>;
@@ -34,6 +35,7 @@ export default function FormEditorPage({ params }: Props) {
         handleReorderModules,
         handleDuplicateModule,
         handlePublish,
+        handleUnpublish,
         handleUpdateFormStyling,
         handleUpdateForm,
         setModules,
@@ -42,9 +44,28 @@ export default function FormEditorPage({ params }: Props) {
 
     const { copyToClipboard } = useClipboard();
 
-    const handleCopyLink = () => {
-        const url = `${window.location.origin}/f/${form?.shortId || form?._id}`;
-        copyToClipboard(url);
+    const handleShareNative = async () => {
+        const shareUrl = `${window.location.origin}/f/${form?.shortId || form?._id}`;
+        const shareData = {
+            title: `Formulario: ${form?.title || "Sin título"}`,
+            text: "Te invito a contestar este formulario",
+            url: shareUrl
+        };
+
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+                toast.success("¡Compartido con éxito!");
+            } catch (err) {
+                if ((err as Error).name !== 'AbortError') {
+                    console.error("Error al compartir:", err);
+                    toast.error("Hubo un error al intentar compartir");
+                }
+            }
+        } else {
+            // Desktop/unsupported fallback
+            copyToClipboard(shareUrl);
+        }
     };
 
     if (loading) {
@@ -67,14 +88,18 @@ export default function FormEditorPage({ params }: Props) {
             <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 flex-shrink-0">
                 <div className="flex items-center gap-4">
                     <Link href="/dashboard/forms">
-                        <Button isIconOnly variant="light" radius="full" size="sm">
+                        <Button isIconOnly variant="light" radius="md" size="sm">
                             <ArrowLeft size={20} />
                         </Button>
                     </Link>
                     <div>
                         <h1 className="text-lg font-medium text-gray-900 max-w-[150px] sm:max-w-xs truncate">{form?.title || "Sin título"}</h1>
                         <div className="flex items-center gap-2">
-                            <span className="text-xs text-gray-500 capitalize">{form?.status || "draft"}</span>
+                            <span className="text-xs text-gray-500 capitalize">{
+                                form?.status === "draft" ? "Borrador" :
+                                    form?.status === "published" ? "Publicado" :
+                                        form?.status === "closed" ? "Cerrado" : "Borrador"
+                            }</span>
                             {saving ? (
                                 <span className="text-xs text-gray-400 animate-pulse">Guardando...</span>
                             ) : lastSaved ? (
@@ -88,11 +113,11 @@ export default function FormEditorPage({ params }: Props) {
                     <Button
                         isIconOnly
                         variant="light"
-                        radius="full"
+                        radius="md"
                         size="sm"
                         className="text-gray-500"
-                        onPress={handleCopyLink}
-                        title="Copiar enlace"
+                        onPress={handleShareNative}
+                        title="Compartir enlace"
                     >
                         <LinkIcon size={20} />
                     </Button>
@@ -102,7 +127,7 @@ export default function FormEditorPage({ params }: Props) {
                         href={`/f/${form?.shortId || form?._id}/preview`}
                         target="_blank"
                         variant="light"
-                        radius="full"
+                        radius="md"
                         size="sm"
                         isIconOnly
                         className="text-gray-500"
@@ -111,20 +136,30 @@ export default function FormEditorPage({ params }: Props) {
                         <Eye size={20} />
                     </Button>
 
-                    <Button
-                        color={form?.status === "published" && (!lastSaved || !form?.publishedAt || new Date(lastSaved) <= new Date(form.publishedAt)) ? "default" : "primary"}
-                        radius="full"
-                        size="sm"
-                        startContent={form?.status !== "published" || (lastSaved && form?.publishedAt && new Date(lastSaved) > new Date(form.publishedAt)) ? <Save size={16} /> : undefined}
-                        className={form?.status === "published" && (!lastSaved || !form?.publishedAt || new Date(lastSaved) <= new Date(form.publishedAt)) ? "bg-gray-200 text-gray-600" : "bg-green-500 text-white"}
-                        onPress={handlePublish}
-                        isDisabled={form?.status === "published" && (!lastSaved || !form?.publishedAt || new Date(lastSaved) <= new Date(form.publishedAt))}
-                        isIconOnly={false}
-                    >
-                        {form?.status === "published"
-                            ? ((lastSaved && form?.publishedAt && new Date(lastSaved) > new Date(form.publishedAt)) ? "Publicar" : "Publicado")
-                            : "Publicar"}
-                    </Button>
+                    {form?.status === "published" && (!lastSaved || !form?.publishedAt || new Date(lastSaved) <= new Date(form.publishedAt)) ? (
+                        <Button
+                            color="default"
+                            className="bg-gray-200 text-gray-600"
+                            size="sm"
+                            radius="md"
+                            isDisabled
+                        >
+                            Publicado
+                        </Button>
+                    ) : (
+                        <Button
+                            color="primary"
+                            radius="md"
+                            size="sm"
+                            startContent={<Save size={16} />}
+                            className="bg-green-500 text-white"
+                            onPress={handlePublish}
+                        >
+                            {(lastSaved && form?.publishedAt && form?.status === "published" && new Date(lastSaved) > new Date(form.publishedAt))
+                                ? "Actualizar"
+                                : "Publicar"}
+                        </Button>
+                    )}
                 </div>
             </header>
 
@@ -146,9 +181,11 @@ export default function FormEditorPage({ params }: Props) {
                 formMetadata={{
                     title: form?.title,
                     description: form?.description,
-                    settings: form?.settings
+                    settings: form?.settings,
+                    status: form?.status
                 }}
                 onUpdateForm={handleUpdateForm}
+                onUnpublish={handleUnpublish}
             />
 
         </div>

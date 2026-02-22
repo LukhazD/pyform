@@ -42,10 +42,10 @@ export default async function FormDetailPage({
                         <span>/</span>
                         <span className="text-gray-900">{form.title}</span>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">{form.title}</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 break-words break-all sm:break-normal">{form.title}</h1>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                     <AnalyticsModal data={analytics} formTitle={form.title} />
 
                     <Button
@@ -53,7 +53,7 @@ export default async function FormDetailPage({
                         href={`/f/${form.shortId}`}
                         target="_blank"
                         variant="bordered"
-                        radius="full"
+                        radius="md"
                         startContent={<ExternalLink size={18} />}
                         className="text-gray-700 bg-white"
                     >
@@ -63,7 +63,7 @@ export default async function FormDetailPage({
                         as={Link}
                         href={`/dashboard/forms/${form.shortId || form._id}/edit`}
                         color="secondary"
-                        radius="full"
+                        radius="md"
                         startContent={<LayoutDashboard size={18} />}
                         className="bg-purple-500 text-white font-medium"
                     >
@@ -75,6 +75,7 @@ export default async function FormDetailPage({
             {/* Client Dashboard with Custom Tabs */}
             <FormDashboardClient
                 formTitle={form.title}
+                formShortId={form.shortId || form._id.toString()}
                 questions={JSON.parse(JSON.stringify(questions))}
                 submissions={JSON.parse(JSON.stringify(submissions))}
             />

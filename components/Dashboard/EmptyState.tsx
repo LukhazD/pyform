@@ -30,7 +30,7 @@ export default function EmptyState({
                     as={Link}
                     href={actionHref}
                     size="lg"
-                    radius="full"
+                    radius="md"
                     className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-8"
                     startContent={<Plus size={20} />}
                 >

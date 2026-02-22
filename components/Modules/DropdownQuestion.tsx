@@ -56,7 +56,7 @@ export default function DropdownQuestion({ module, value, onChange, primaryColor
                     <Select
                         labelPlacement="outside"
                         placeholder="Selecciona una opción"
-                        radius="full"
+                        radius="md"
                         variant="bordered"
                         size="lg"
                         selectedKeys={value ? [value] : []}

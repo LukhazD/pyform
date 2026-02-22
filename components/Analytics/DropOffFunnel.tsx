@@ -44,7 +44,7 @@ export default function DropOffFunnel({ data }: DropOffFunnelProps) {
     const sortedQuestions = [...data.dropOffByQuestion].sort((a, b) => a.order - b.order);
 
     return (
-        <Card ref={containerRef} className="p-6 border-none shadow-sm" radius="lg">
+        <Card ref={containerRef} className="p-6 border-none shadow-sm" radius="md">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Análisis de Abandono</h3>
 
             <div className="space-y-6">

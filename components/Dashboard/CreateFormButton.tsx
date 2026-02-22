@@ -11,7 +11,7 @@ export default function CreateFormButton() {
         <>
             <Button
                 onPress={onOpen}
-                radius="full"
+                radius="md"
                 className="bg-gray-900 hover:bg-gray-800 text-white font-semibold px-6"
             >
                 <Plus size={20} />

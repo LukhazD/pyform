@@ -55,7 +55,7 @@ export default function CheckboxesQuestion({ module, value, onChange, primaryCol
                             <Checkbox
                                 key={option.id}
                                 value={option.value}
-                                radius="lg"
+                                radius="md"
                                 classNames={{
                                     base: "border-2 border-gray-200 rounded-xl p-4 data-[selected=true]:border-primary data-[selected=true]:bg-gray-100 max-w-full m-0 hover:bg-gray-50 transition-all",
                                     wrapper: "after:bg-primary group-data-[selected=true]:border-primary text-lg",

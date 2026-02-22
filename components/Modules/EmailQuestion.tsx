@@ -41,7 +41,7 @@ export default function EmailQuestion({ module, value, onChange, radius = "lg", 
                     <Input
                         type="email"
                         placeholder={module.placeholder || "tu@email.com"}
-                        radius="full"
+                        radius="md"
                         variant="bordered"
                         size="lg"
                         value={value || ""}

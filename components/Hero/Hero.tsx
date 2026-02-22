@@ -167,7 +167,7 @@ export default function Hero() {
                     <div ref={buttonRef} className="flex flex-wrap gap-4 pt-2">
                         <Button
                             size="lg"
-                            radius="full"
+                            radius="md"
                             color="default"
                             className="font-semibold text-lg px-8 text-white bg-gray-900 shadow-lg hover:bg-gray-800"
                             onPress={() => router.push("/auth/signin")}
@@ -176,7 +176,7 @@ export default function Hero() {
                         </Button>
                         <Button
                             size="lg"
-                            radius="full"
+                            radius="md"
                             variant="bordered"
                             className="font-semibold text-lg px-8"
                             onPress={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}

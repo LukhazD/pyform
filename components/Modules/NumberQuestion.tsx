@@ -41,7 +41,7 @@ export default function NumberQuestion({ module, value, onChange, radius = "lg",
                     <Input
                         type="number"
                         placeholder={module.placeholder || "0"}
-                        radius="full"
+                        radius="md"
                         variant="bordered"
                         size="lg"
                         value={value?.toString() || ""}

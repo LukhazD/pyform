@@ -43,6 +43,7 @@ interface PropertiesPanelProps {
     onMoveDown?: () => void;
     canMoveUp?: boolean;
     canMoveDown?: boolean;
+    onUnpublish?: () => void;
 }
 
 const moduleLabels: Record<string, string> = {
@@ -77,6 +78,7 @@ export default function PropertiesPanel({
     onMoveDown,
     canMoveUp,
     canMoveDown,
+    onUnpublish,
 }: PropertiesPanelProps) {
     if (!selectedModule) {
         return (
@@ -88,6 +90,7 @@ export default function PropertiesPanel({
                         onUpdateStyling={onUpdateStyling}
                         formMetadata={formMetadata}
                         onUpdateForm={onUpdateForm}
+                        onUnpublish={onUnpublish}
                     />
                 </div>
             </div>
@@ -144,7 +147,7 @@ export default function PropertiesPanel({
                     isIconOnly
                     size="sm"
                     variant="light"
-                    radius="full"
+                    radius="md"
                     onPress={() => onDeleteModule(selectedModule.id)}
                 >
                     <Trash2 size={18} className="text-red-500" />
@@ -157,7 +160,7 @@ export default function PropertiesPanel({
                 <Input
                     label="Título"
                     placeholder="Escribe el título"
-                    radius="lg"
+                    radius="md"
                     variant="bordered"
                     value={selectedModule.title || ""}
                     onChange={(e) => handleUpdate("title", e.target.value)}
@@ -170,7 +173,7 @@ export default function PropertiesPanel({
                 <Textarea
                     label="Descripción (opcional)"
                     placeholder="Añade contexto adicional"
-                    radius="lg"
+                    radius="md"
                     variant="bordered"
                     minRows={2}
                     value={selectedModule.description || ""}
@@ -185,7 +188,7 @@ export default function PropertiesPanel({
                     <Input
                         label="Placeholder"
                         placeholder="Texto de ejemplo"
-                        radius="lg"
+                        radius="md"
                         variant="bordered"
                         value={selectedModule.placeholder || ""}
                         onChange={(e) => handleUpdate("placeholder", e.target.value)}
@@ -209,7 +212,7 @@ export default function PropertiesPanel({
                                     </div>
                                     <Input
                                         size="sm"
-                                        radius="lg"
+                                        radius="md"
                                         variant="bordered"
                                         value={option.label}
                                         onChange={(e) => handleUpdateOption(option.id, "label", e.target.value)}
@@ -228,7 +231,7 @@ export default function PropertiesPanel({
                                         isIconOnly
                                         size="sm"
                                         variant="light"
-                                        radius="full"
+                                        radius="md"
                                         onPress={() => handleDeleteOption(option.id)}
                                         isDisabled={options.length <= 2}
                                         className="opacity-0 group-hover:opacity-100 transition-opacity"
@@ -241,7 +244,7 @@ export default function PropertiesPanel({
                         <Button
                             size="sm"
                             variant="bordered"
-                            radius="full"
+                            radius="md"
                             startContent={<Plus size={14} />}
                             onPress={handleAddOption}
                             className="w-full mt-2"
@@ -256,7 +259,7 @@ export default function PropertiesPanel({
                     <Input
                         label="Texto del Botón"
                         placeholder="Comenzar"
-                        radius="lg"
+                        radius="md"
                         variant="bordered"
                         value={selectedModule.buttonText || "Comenzar"}
                         onChange={(e) => handleUpdate("buttonText", e.target.value)}
@@ -272,7 +275,7 @@ export default function PropertiesPanel({
                         <Textarea
                             label="Mensaje"
                             placeholder="Mensaje de despedida"
-                            radius="lg"
+                            radius="md"
                             variant="bordered"
                             value={selectedModule.message || ""}
                             onChange={(e) => handleUpdate("message", e.target.value)}
@@ -307,7 +310,7 @@ export default function PropertiesPanel({
                         <Button
                             fullWidth
                             variant="bordered"
-                            radius="full"
+                            radius="md"
                             startContent={<ChevronLeft size={16} />}
                             onPress={onMoveUp}
                             isDisabled={!canMoveUp}
@@ -318,7 +321,7 @@ export default function PropertiesPanel({
                         <Button
                             fullWidth
                             variant="bordered"
-                            radius="full"
+                            radius="md"
                             endContent={<ChevronRight size={16} />}
                             onPress={onMoveDown}
                             isDisabled={!canMoveDown}
@@ -328,11 +331,12 @@ export default function PropertiesPanel({
                         </Button>
                     </div>
                 )}
+
                 {onAddModule && (
                     <Button
                         fullWidth
                         variant="flat"
-                        radius="full"
+                        radius="md"
                         startContent={<Plus size={16} />}
                         onPress={onAddModule}
                         className="bg-gray-900 text-white hover:bg-gray-800"

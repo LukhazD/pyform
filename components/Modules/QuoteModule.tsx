@@ -19,7 +19,7 @@ interface QuoteModuleProps {
 export default function QuoteModule({ module }: QuoteModuleProps) {
     return (
         <div className="min-h-[300px] md:min-h-[400px] flex items-center justify-center p-4 md:p-8">
-            <Card shadow="sm" radius="lg" className="max-w-2xl w-full p-6 md:p-12 bg-white text-center">
+            <Card shadow="sm" radius="md" className="max-w-2xl w-full p-6 md:p-12 bg-white text-center">
                 <div className="flex flex-col items-center">
                     <div className="mb-6">
                         <Quote className="text-primary opacity-80" size={48} />

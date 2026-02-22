@@ -41,7 +41,7 @@ export default function TextQuestion({ module, value, onChange, radius = "lg", s
 
                     <Input
                         placeholder={module.placeholder || "Escribe tu respuesta..."}
-                        radius="full"
+                        radius="md"
                         variant="bordered"
                         size="lg"
                         value={value || ""}

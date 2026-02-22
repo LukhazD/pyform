@@ -8,6 +8,7 @@ interface ModuleButtonProps {
     icon: React.ReactNode;
     onClick: () => void;
     compact?: boolean;
+    iconOnly?: boolean;
 }
 
 export default function ModuleButton({
@@ -16,6 +17,7 @@ export default function ModuleButton({
     icon,
     onClick,
     compact,
+    iconOnly = false,
 }: ModuleButtonProps) {
     const handleDragStart = (e: React.DragEvent) => {
         e.dataTransfer.setData("moduleType", type);
@@ -37,18 +39,35 @@ export default function ModuleButton({
             </button>
         );
     }
+    if (iconOnly && !compact) {
+        return (
+            <div className="flex justify-center w-full">
+                <button
+                    draggable
+                    onDragStart={handleDragStart}
+                    onClick={onClick}
+                    title={label}
+                    className="flex items-center justify-center p-2 rounded-xl border border-transparent hover:border-gray-200 hover:bg-gray-50 transition-all cursor-move group"
+                >
+                    <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 flex-shrink-0 group-hover:bg-white group-hover:shadow-sm transition-all">
+                        {icon}
+                    </div>
+                </button>
+            </div>
+        );
+    }
 
     return (
         <button
             draggable
             onDragStart={handleDragStart}
             onClick={onClick}
-            className="w-full flex items-center gap-3 p-3 rounded-lg border border-gray-200 hover:border-primary hover:bg-gray-50 transition-all cursor-move text-left"
+            className="w-full flex items-center gap-3 p-3 rounded-lg border border-transparent hover:border-gray-200 hover:bg-gray-50 transition-all cursor-move text-left"
         >
             <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-600 flex-shrink-0">
                 {icon}
             </div>
-            <span className="text-sm font-medium text-gray-700">{label}</span>
+            <span className="text-sm font-medium text-gray-700 truncate">{label}</span>
         </button>
     );
 }

@@ -31,13 +31,11 @@ export default async function AnalyticsPage() {
 
             <AnalyticsCards data={aggregated} />
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2">
+            <div className="flex flex-col gap-8">
+                <div className="w-full">
                     <TimelineChart data={aggregated} />
                 </div>
-                <div>
-                    <GlobalFormsList forms={formsWithStats} />
-                </div>
+                <GlobalFormsList forms={formsWithStats} />
             </div>
         </div>
     );

@@ -61,7 +61,7 @@ export default function GoodbyeModule({ module, isPreview }: GoodbyeModuleProps)
 
     return (
         <div className="min-h-[300px] md:min-h-[500px] flex items-center justify-center bg-gray-50 rounded-2xl p-4 md:p-8">
-            <Card shadow="lg" radius="lg" className="max-w-2xl w-full p-6 md:p-12 text-center bg-white">
+            <Card shadow="lg" radius="md" className="max-w-2xl w-full p-6 md:p-12 text-center bg-white">
                 <div className="mb-8">
                     <div className="w-24 h-24 mx-auto rounded-full bg-gray-900 flex items-center justify-center">
                         <CheckCircle className="text-white" size={48} />
@@ -81,7 +81,7 @@ export default function GoodbyeModule({ module, isPreview }: GoodbyeModuleProps)
                             <Button
                                 isIconOnly
                                 variant="light"
-                                radius="full"
+                                radius="md"
                                 size="lg"
                                 as="a"
                                 href={module.socialLinks.twitter}
@@ -93,7 +93,7 @@ export default function GoodbyeModule({ module, isPreview }: GoodbyeModuleProps)
                             <Button
                                 isIconOnly
                                 variant="light"
-                                radius="full"
+                                radius="md"
                                 size="lg"
                                 as="a"
                                 href={module.socialLinks.instagram}
@@ -105,7 +105,7 @@ export default function GoodbyeModule({ module, isPreview }: GoodbyeModuleProps)
                             <Button
                                 isIconOnly
                                 variant="light"
-                                radius="full"
+                                radius="md"
                                 size="lg"
                                 as="a"
                                 href={module.socialLinks.linkedin}
@@ -117,7 +117,7 @@ export default function GoodbyeModule({ module, isPreview }: GoodbyeModuleProps)
                             <Button
                                 isIconOnly
                                 variant="light"
-                                radius="full"
+                                radius="md"
                                 size="lg"
                                 as="a"
                                 href={module.socialLinks.website}

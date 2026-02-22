@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Button } from "@heroui/react";
-import { ChevronUp, ChevronDown, Plus, GripVertical, Trash2 } from "lucide-react";
+import { ChevronUp, ChevronDown, Plus, GripVertical, Trash2, Home, Quote, CheckCircle, Type, Mail, Hash, Phone, Link, AlignLeft, Circle, CheckSquare, Calendar, Upload } from "lucide-react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import ModuleRenderer from "../Modules/ModuleRenderer";
 import { FormStyling } from "@/types/FormStyling";
@@ -35,6 +35,23 @@ interface FormPreviewProps {
     styling?: FormStyling;
     formSettings?: any;
 }
+
+const moduleTypeIcons: Record<string, React.ReactNode> = {
+    WELCOME: <Home size={16} />,
+    QUOTE: <Quote size={16} />,
+    GOODBYE: <CheckCircle size={16} />,
+    TEXT: <Type size={16} />,
+    EMAIL: <Mail size={16} />,
+    NUMBER: <Hash size={16} />,
+    PHONE: <Phone size={16} />,
+    URL: <Link size={16} />,
+    TEXTAREA: <AlignLeft size={16} />,
+    MULTIPLE_CHOICE: <Circle size={16} />,
+    CHECKBOXES: <CheckSquare size={16} />,
+    DROPDOWN: <ChevronDown size={16} />,
+    DATE: <Calendar size={16} />,
+    FILE_UPLOAD: <Upload size={16} />,
+};
 
 const moduleTypeLabels: Record<string, string> = {
     WELCOME: "Bienvenida",
@@ -73,6 +90,7 @@ export default function FormPreview({
     const [direction, setDirection] = useState(0); // -1 = left, 1 = right
     const [showAddCard, setShowAddCard] = useState(false);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+    const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
     const previewRef = useRef<HTMLDivElement>(null);
     const lastTapTime = useRef(0);
     const [showHint, setShowHint] = useState(true);
@@ -174,14 +192,38 @@ export default function FormPreview({
 
     const handleSidebarDragOver = (e: React.DragEvent, index: number) => {
         e.preventDefault();
-        if (draggedIndex !== null && draggedIndex !== index && onReorderModules) {
-            onReorderModules(draggedIndex, index);
-            setDraggedIndex(index);
+        if (draggedIndex !== null) {
+            // Reordering existing items
+            if (draggedIndex !== index && onReorderModules) {
+                onReorderModules(draggedIndex, index);
+                setDraggedIndex(index);
+            }
+        } else {
+            // Dragging new module from toolbar
+            e.dataTransfer.dropEffect = "copy";
+            const currentTarget = e.currentTarget as HTMLElement;
+            const rect = currentTarget.getBoundingClientRect();
+            const y = e.clientY - rect.top;
+            if (y < rect.height / 2) {
+                setDragOverIndex(index);
+            } else {
+                setDragOverIndex(index + 1);
+            }
         }
     };
 
     const handleSidebarDragEnd = () => {
         setDraggedIndex(null);
+        setDragOverIndex(null);
+    };
+
+    const handleSidebarDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        const moduleType = e.dataTransfer.getData("moduleType");
+        if (moduleType && dragOverIndex !== null) {
+            onAddModule(moduleType, dragOverIndex);
+            setDragOverIndex(null);
+        }
     };
 
     // Animation variants for slide transitions
@@ -266,62 +308,81 @@ export default function FormPreview({
         <div className="flex-1 flex h-full">
             {/* Miniature Sidebar - Module List (hidden on mobile) */}
             {!isMobile && (
-                <div className="w-20 bg-white border-r border-gray-200 flex flex-col py-4 overflow-y-auto">
+                <div
+                    className="w-28 bg-white border-r border-gray-200 flex flex-col py-4 overflow-y-auto"
+                    onDragLeave={() => setDragOverIndex(null)}
+                    onDrop={handleSidebarDrop}
+                    onDragOver={(e) => {
+                        e.preventDefault();
+                        if (draggedIndex === null && modules.length === 0) {
+                            setDragOverIndex(0);
+                        }
+                    }}
+                >
                     <div className="px-2 space-y-2">
                         {modules.map((module, index) => (
-                            <div
-                                key={module.id || `module-${index}`}
-                                draggable
-                                onDragStart={() => handleSidebarDragStart(index)}
-                                onDragOver={(e) => handleSidebarDragOver(e, index)}
-                                onDragEnd={handleSidebarDragEnd}
-                                onClick={() => {
-                                    setCurrentIndex(index);
-                                    onSelectModule(module.id);
-                                }}
-                                className={`relative group cursor-pointer rounded-lg p-2 transition-all ${currentIndex === index
-                                    ? "bg-gray-100 ring-2 ring-gray-900"
-                                    : "bg-gray-50 hover:bg-gray-100"
-                                    } ${draggedIndex === index ? "opacity-50" : ""}`}
-                            >
-                                {/* Module number */}
-                                <div className="text-xs font-bold text-center mb-1 text-gray-700">
-                                    {index + 1}
-                                </div>
-
-                                {/* Module type label */}
-                                <div className="text-[10px] text-center text-gray-500 truncate">
-                                    {moduleTypeLabels[module.type] || module.type}
-                                </div>
-
-                                {/* Delete button on hover */}
-                                {onDeleteModule && (
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onDeleteModule(module.id);
-                                        }}
-                                        className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
-                                    >
-                                        <Trash2 size={10} />
-                                    </button>
+                            <div key={module.id || `module-${index}`} className="relative">
+                                {/* Drop indicator above item */}
+                                {dragOverIndex === index && (
+                                    <div className="absolute -top-1.5 left-0 right-0 h-1 bg-gray-900 rounded-full z-10" />
                                 )}
+                                <div
+                                    draggable
+                                    onDragStart={() => handleSidebarDragStart(index)}
+                                    onDragOver={(e) => handleSidebarDragOver(e, index)}
+                                    onDragEnd={handleSidebarDragEnd}
+                                    onClick={() => {
+                                        setCurrentIndex(index);
+                                        onSelectModule(module.id);
+                                    }}
+                                    className={`relative group cursor-pointer rounded-xl p-3 transition-all duration-300 ${currentIndex === index
+                                        ? "bg-white shadow-md ring-1 ring-gray-200 z-10 scale-[1.05]"
+                                        : "bg-transparent hover:bg-white/50 opacity-60 hover:opacity-100 scale-100"
+                                        } ${draggedIndex === index ? "opacity-30 scale-95" : ""}`}
+                                >
+                                    {/* Icon */}
+                                    <div className="flex justify-center mb-1 text-gray-700">
+                                        {moduleTypeIcons[module.type] || <div className="text-xs font-bold">{index + 1}</div>}
+                                    </div>
 
-                                {/* Drag indicator */}
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 opacity-0 group-hover:opacity-50 cursor-grab">
-                                    <GripVertical size={12} className="text-gray-400" />
+                                    {/* Module type label */}
+                                    <div className="text-xs text-center text-gray-500 line-clamp-2 leading-tight px-1">
+                                        {moduleTypeLabels[module.type] || module.type}
+                                    </div>
+
+                                    {/* Delete button on hover */}
+                                    {onDeleteModule && (
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onDeleteModule(module.id);
+                                            }}
+                                            className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                                        >
+                                            <Trash2 size={10} />
+                                        </button>
+                                    )}
+
+                                    {/* Drag indicator */}
+                                    <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 opacity-0 group-hover:opacity-50 cursor-grab">
+                                        <GripVertical size={12} className="text-gray-400" />
+                                    </div>
                                 </div>
+                                {/* Drop indicator below last item */}
+                                {dragOverIndex === modules.length && index === modules.length - 1 && (
+                                    <div className="absolute -bottom-1.5 left-0 right-0 h-1 bg-gray-900 rounded-full z-10" />
+                                )}
                             </div>
                         ))}
 
                         {/* Add button */}
-                        <div
+                        {/* <div
                             className="rounded-lg p-2 bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-300 hover:border-gray-400 cursor-pointer transition-all"
                             onDrop={handleDrop}
                             onDragOver={handleDragOver}
                         >
                             <Plus size={16} className="mx-auto text-gray-400" />
-                        </div>
+                        </div> */}
                     </div>
                 </div>
             )}
@@ -463,7 +524,7 @@ export default function FormPreview({
                             isIconOnly
                             size="lg"
                             variant="flat"
-                            radius="full"
+                            radius="md"
                             isDisabled={currentIndex === 0}
                             onPress={navigatePrev}
                             className="bg-white/90 backdrop-blur shadow-lg border border-gray-100"
@@ -474,7 +535,7 @@ export default function FormPreview({
                             isIconOnly
                             size="lg"
                             variant="flat"
-                            radius="full"
+                            radius="md"
                             isDisabled={currentIndex === modules.length - 1}
                             onPress={navigateNext}
                             className="bg-white/90 backdrop-blur shadow-lg border border-gray-100"

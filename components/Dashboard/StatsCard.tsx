@@ -37,7 +37,7 @@ export default function StatsCard({
     return (
         <Card
             shadow="sm"
-            radius="lg"
+            radius="md"
             className={`p-6 ${bgStyles[variant]}`}
         >
             <div className="flex items-start justify-between">

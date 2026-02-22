@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 import { auth } from "@/libs/next-auth";
 import config from "@/config";
-import Sidebar from "@/components/Dashboard/Sidebar";
+import DashboardLayoutClient from "@/components/Dashboard/DashboardLayoutClient";
 import connectMongo from "@/libs/mongoose";
 import User from "@/models/User";
 import { hasActiveProAccess } from "@/libs/subscriptionUtils";
@@ -28,13 +28,8 @@ export default async function LayoutPrivate({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Sidebar />
-      <main className="lg:ml-64 min-h-screen pt-16 lg:pt-0">
-
-        {children}
-
-      </main>
-    </div>
+    <DashboardLayoutClient>
+      {children}
+    </DashboardLayoutClient>
   );
 }

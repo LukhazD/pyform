@@ -41,7 +41,7 @@ export default function PhoneQuestion({ module, value, onChange, radius = "lg", 
                     <Input
                         type="tel"
                         placeholder={module.placeholder || "+58 (414) 123-4567"}
-                        radius="full"
+                        radius="md"
                         variant="bordered"
                         size="lg"
                         value={value || ""}

@@ -52,7 +52,7 @@ export default function DateQuestion({ module, value, onChange, primaryColor, ra
                         )}
                     </div>
                     <DatePicker
-                        radius="full"
+                        radius="md"
                         variant="bordered"
                         size="lg"
                         value={dateValue}

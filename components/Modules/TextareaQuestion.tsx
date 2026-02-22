@@ -39,7 +39,7 @@ export default function TextareaQuestion({ module, value, onChange, radius = "lg
                     </div>
                     <Textarea
                         placeholder={module.placeholder || "Escribe tu respuesta aquí..."}
-                        radius="lg"
+                        radius="md"
                         variant="bordered"
                         minRows={4}
                         value={value || ""}

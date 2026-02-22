@@ -1,5 +1,5 @@
-import React from "react";
-import { Input, Select, SelectItem, Textarea, Switch } from "@heroui/react";
+import { Input, Select, SelectItem, Textarea, Switch, Button } from "@heroui/react";
+import { ArchiveRestore } from "lucide-react";
 import { FormStyling } from "@/types/FormStyling";
 
 interface GeneralSettingsPanelProps {
@@ -9,8 +9,10 @@ interface GeneralSettingsPanelProps {
         title?: string;
         description?: string;
         settings?: any;
+        status?: string;
     };
     onUpdateForm?: (updates: any) => void;
+    onUnpublish?: () => void;
     isMobile?: boolean; // For future responsiveness tweaks if needed
 }
 
@@ -19,9 +21,36 @@ export default function GeneralSettingsPanel({
     onUpdateStyling,
     formMetadata,
     onUpdateForm,
+    onUnpublish,
 }: GeneralSettingsPanelProps) {
     return (
         <div className="p-4 space-y-8">
+            {/* Form Status Section */}
+            {formMetadata?.status === "published" && onUnpublish && (
+                <div className="space-y-4">
+                    <h3 className="text-sm font-medium text-gray-900 border-b pb-2">Estado del Formulario</h3>
+                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 flex flex-col gap-3">
+                        <div>
+                            <p className="text-sm font-medium text-gray-900">Formulario Publicado</p>
+                            <p className="text-xs text-gray-500">
+                                Puedes marcarlo como borrador si necesitas desactivarlo temporalmente.
+                            </p>
+                        </div>
+                        <Button
+                            color="danger"
+                            variant="flat"
+                            size="sm"
+                            startContent={<ArchiveRestore size={16} />}
+                            onPress={onUnpublish}
+                            className="w-full sm:w-auto font-medium"
+                        >
+                            Marcar como borrador
+                        </Button>
+                    </div>
+                </div>
+            )}
+
+
             {/* Basic Info Section */}
             {onUpdateForm && (
                 <div className="space-y-4">
@@ -66,7 +95,7 @@ export default function GeneralSettingsPanel({
                             value={styling?.primaryColor || "#1a1a1a"}
                             onChange={(e) => onUpdateStyling({ primaryColor: e.target.value })}
                             variant="bordered"
-                            radius="lg"
+                            radius="md"
                             className="flex-1"
                             startContent={
                                 <div className="text-gray-400 text-sm">#</div>

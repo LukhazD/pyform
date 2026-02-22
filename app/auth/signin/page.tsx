@@ -91,8 +91,8 @@ export default function SigninPage() {
                         <form onSubmit={handleEmailSignIn} className="flex flex-col gap-4">
                             <Input
                                 type="email"
-                                label="Email profesional"
-                                placeholder="tu@empresa.com"
+                                label="Email"
+                                placeholder="tu@email.com"
                                 value={email}
                                 onValueChange={setEmail}
                                 variant="bordered"

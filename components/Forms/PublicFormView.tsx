@@ -220,7 +220,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                             {questions.length - 2 === currentIndex ? (
                                 <>
                                     <Button
-                                        radius="full"
+                                        radius="md"
                                         size="lg"
                                         onPress={submitForm}
                                         isLoading={submitting}
@@ -235,7 +235,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                     <Button
                                         variant="light"
                                         size="sm"
-                                        radius="full"
+                                        radius="md"
                                         onPress={navigatePrev}
                                         isDisabled={currentIndex === 0 || submitting}
                                         className="text-gray-400 hover:text-gray-600"
@@ -247,7 +247,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                 <>
                                     <Button
                                         variant="light"
-                                        radius="full"
+                                        radius="md"
                                         onPress={navigatePrev}
                                         isDisabled={currentIndex === 0}
                                         startContent={<ChevronUp size={18} />}
@@ -256,7 +256,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                     </Button>
 
                                     <Button
-                                        radius="full"
+                                        radius="md"
                                         onPress={navigateNext}
                                         className="text-white px-8 transition-transform hover:scale-105"
                                         style={{

@@ -39,7 +39,7 @@ export default function TimelineChart({ data }: TimelineChartProps) {
     const maxCount = maxData === 0 ? 5 : Math.ceil(maxData / 5) * 5;
 
     return (
-        <Card ref={containerRef} className="p-6 mb-8 border-none shadow-sm" radius="lg">
+        <Card ref={containerRef} className="p-6 border-none shadow-sm" radius="md">
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Actividad de Respuestas</h3>
 
             <div className="flex gap-4 h-64">

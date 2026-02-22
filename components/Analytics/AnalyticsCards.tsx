@@ -94,7 +94,7 @@ export default function AnalyticsCards({ data }: AnalyticsCardsProps) {
     return (
         <div ref={cardsRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, index) => (
-                <Card key={index} className="analytics-card p-6 border-none shadow-sm hover:shadow-md transition-shadow duration-300" radius="lg">
+                <Card key={index} className="analytics-card p-6 border-none shadow-sm hover:shadow-md transition-shadow duration-300" radius="md">
                     <div className="flex items-start justify-between">
                         <div>
                             <p className="text-sm font-medium text-gray-500 mb-1">{stat.title}</p>

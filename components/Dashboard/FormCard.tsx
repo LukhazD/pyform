@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, Chip, Button } from "@heroui/react";
-import { MoreVertical, Edit, Eye, Copy, Trash2 } from "lucide-react";
+import { MoreVertical, Edit, Eye, Copy, Trash2, ArchiveRestore } from "lucide-react";
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import Link from "next/link";
 import toast from "react-hot-toast";
@@ -16,6 +16,7 @@ interface FormCardProps {
     questionCount: number;
     updatedAt: Date;
     onDelete?: (id: string) => void;
+    onUpdateStatus?: (id: string, status: string) => void;
 }
 
 const statusConfig = {
@@ -45,6 +46,7 @@ export default function FormCard({
     questionCount,
     updatedAt,
     onDelete,
+    onUpdateStatus,
 }: FormCardProps) {
     const statusInfo = statusConfig[status];
 
@@ -93,13 +95,16 @@ export default function FormCard({
             case "delete":
                 if (onDelete) onDelete(id);
                 break;
+            case "unpublish":
+                if (onUpdateStatus) onUpdateStatus(id, "draft");
+                break;
         }
     };
 
     return (
         <Card
             shadow="sm"
-            radius="lg"
+            radius="md"
             className="p-5 hover:shadow-md transition-all duration-200 border border-gray-100"
         >
             <div className="flex items-start justify-between gap-4">
@@ -130,7 +135,7 @@ export default function FormCard({
                         <Button
                             isIconOnly
                             variant="light"
-                            radius="full"
+                            radius="md"
                             size="sm"
                             className="text-gray-400 hover:text-gray-600"
                         >
@@ -163,6 +168,14 @@ export default function FormCard({
                         >
                             Copiar enlace
                         </DropdownItem>
+                        {status === "published" && (
+                            <DropdownItem
+                                key="unpublish"
+                                startContent={<ArchiveRestore size={16} />}
+                            >
+                                Marcar como borrador
+                            </DropdownItem>
+                        )}
                         <DropdownItem
                             key="delete"
                             startContent={<Trash2 size={16} />}
@@ -183,22 +196,22 @@ export default function FormCard({
                 <div className="flex gap-2">
                     <Button
                         as={Link}
-                        href={`/dashboard/forms/${id}/edit`}
-                        size="sm"
+                        href={`/dashboard/forms/${id}`}
+                        size="md"
+                        radius="md"
                         variant="light"
-                        radius="full"
-                        className="text-gray-600"
                     >
-                        Editar
+                        Ver respuestas
                     </Button>
                     <Button
                         as={Link}
-                        href={`/dashboard/forms/${id}`}
-                        size="sm"
-                        radius="full"
-                        className="bg-primary hover:bg-gray-700 text-white"
+                        href={`/dashboard/forms/${id}/edit`}
+                        size="md"
+                        variant="light"
+                        radius="md"
+                        className="text-white bg-[#1a1a1a] hover:bg-[#2a2a2a] hover:text-[#1a1a1a]"
                     >
-                        Ver respuestas
+                        Editar
                     </Button>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { nanoid } from "nanoid";
 import { useDebounce } from "@/hooks/useDebounce";
 
@@ -42,6 +42,8 @@ export function useFormEditor(formId: string | null) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const [isLoaded, setIsLoaded] = useState(false);
+
     // Fetch initial data
     useEffect(() => {
         if (!formId) return;
@@ -78,6 +80,7 @@ export function useFormEditor(formId: string | null) {
                     if (mappedModules.length > 0) {
                         setSelectedModuleId(mappedModules[0].id);
                     }
+                    setIsLoaded(true);
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
@@ -94,7 +97,7 @@ export function useFormEditor(formId: string | null) {
     const debouncedModules = useDebounce(modules, 1000);
 
     useEffect(() => {
-        if (!formId || loading) return;
+        if (!formId || loading || !isLoaded) return;
 
         const saveModules = async () => {
             setSaving(true);
@@ -102,6 +105,7 @@ export function useFormEditor(formId: string | null) {
                 await fetch(`/api/forms/${formId}/questions`, {
                     method: "PUT",
                     headers: { "Content-Type": "application/json" },
+                    // Ensure we don't send malformed React synthetic events or cyclic references
                     body: JSON.stringify(debouncedModules),
                 });
                 setLastSaved(new Date());
@@ -112,11 +116,9 @@ export function useFormEditor(formId: string | null) {
             }
         };
 
-        // Skip initial load save
-        if (modules.length > 0) {
-            saveModules();
-        }
-    }, [debouncedModules, formId, loading]);
+        // If it's loaded, we can save. This allows saving 0 modules if the user deleted them all.
+        saveModules();
+    }, [debouncedModules, formId, loading, isLoaded]);
 
     const handleSelectModule = (id: string) => {
         setSelectedModuleId(id);
@@ -229,6 +231,30 @@ export function useFormEditor(formId: string | null) {
         }
     };
 
+    const handleUnpublish = async () => {
+        if (!formId) return;
+        setSaving(true);
+        try {
+            const res = await fetch(`/api/forms/${formId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    status: "draft"
+                }),
+            });
+            if (res.ok) {
+                setForm((prev: any) => ({
+                    ...prev,
+                    status: "draft"
+                }));
+            }
+        } catch (error) {
+            console.error("Error unpublishing form:", error);
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const handleUpdateFormStyling = async (stylingUpdates: Partial<FormStyling>) => {
         if (!form) return;
 
@@ -306,6 +332,7 @@ export function useFormEditor(formId: string | null) {
         handleReorderModules,
         handleDuplicateModule,
         handlePublish,
+        handleUnpublish,
         handleUpdateFormStyling,
         handleUpdateForm,
         setModules, // Exposed for any direct manipulation if needed

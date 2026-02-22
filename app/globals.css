@@ -111,6 +111,14 @@ progress::-webkit-progress-value {
   transition: 0.6s width ease-out;
 }
 
+@utility scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 .btn-gradient {
   background: linear-gradient(60deg, #f79533, #f37055, #ef4e7b, #a166ab, #5073b8, #1098ad, #07b39b, #6fba82) !important;
   background-size: 300% 300% !important;

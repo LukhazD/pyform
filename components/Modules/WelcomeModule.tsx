@@ -46,7 +46,7 @@ export default function WelcomeModule({ module, onNext, primaryColor, radius = "
                     </div>
                     <Button
                         size="lg"
-                        radius="full"
+                        radius="md"
                         className="text-white px-12 py-6 text-lg font-medium transition-transform hover:scale-105"
                         style={{ backgroundColor: primaryColor || "#111827" }}
                         onPress={onNext}

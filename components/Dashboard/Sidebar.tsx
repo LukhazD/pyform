@@ -10,7 +10,9 @@ import {
     Settings,
     Menu,
     X,
-    LifeBuoy
+    LifeBuoy,
+    PanelLeftClose,
+    PanelLeftOpen,
 } from "lucide-react";
 import ButtonAccount from "@/components/ButtonAccount";
 
@@ -28,7 +30,13 @@ const navItems: NavItem[] = [
     { label: "Ajustes", href: "/dashboard/settings", icon: <Settings size={20} /> },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({
+    isCollapsed = false,
+    onToggleCollapse,
+}: {
+    isCollapsed?: boolean;
+    onToggleCollapse?: () => void;
+}) {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
 
@@ -58,17 +66,18 @@ export default function Sidebar() {
                 />
             )}
 
-            {/* Sidebar */}
+            {/* Sidebar Desktop */}
             <aside
-                className="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex-col hidden lg:flex"
+                className={`fixed inset-y-0 left-0 z-50 bg-white border-r border-gray-200 flex-col hidden lg:flex transition-all duration-300 ${isCollapsed ? "w-20" : "w-64"
+                    }`}
             >
-                {/* Logo */}
-                <div className="p-6 border-b border-gray-100">
-                    <Link href="/dashboard" className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                {/* Logo Area */}
+                <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                    <Link href="/dashboard" className={`flex items-center gap-2 ${isCollapsed ? "justify-center w-full" : ""}`}>
+                        <div className="w-8 h-8 flex-shrink-0 rounded-lg bg-primary flex items-center justify-center">
                             <span className="text-white font-bold text-lg">P</span>
                         </div>
-                        <span className="text-xl font-bold text-gray-900">Pyform</span>
+                        {!isCollapsed && <span className="text-xl font-bold text-gray-900 truncate">Pyform</span>}
                     </Link>
                 </div>
 
@@ -83,23 +92,34 @@ export default function Sidebar() {
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => setIsOpen(false)}
+                                title={isCollapsed ? item.label : undefined}
                                 className={
                                     isActive
-                                        ? "flex items-center gap-3 px-4 py-3 rounded-xl bg-gray-100 text-gray-900 font-medium transition-all duration-150"
-                                        : "flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-150"
+                                        ? `flex items-center gap-3 py-3 rounded-xl bg-gray-100 text-gray-900 font-medium transition-all duration-150 ${isCollapsed ? "justify-center px-0" : "px-4"}`
+                                        : `flex items-center gap-3 py-3 rounded-xl text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all duration-150 ${isCollapsed ? "justify-center px-0" : "px-4"}`
                                 }
                             >
-                                <span className={isActive ? "text-gray-900" : "text-gray-400"}>
+                                <span className={`${isActive ? "text-gray-900" : "text-gray-400"} flex-shrink-0`}>
                                     {item.icon}
                                 </span>
-                                {item.label}
+                                {!isCollapsed && <span className="truncate">{item.label}</span>}
                             </Link>
                         );
                     })}
                 </nav>
 
-                {/* User Section */}
-
+                {/* Collapse Toggle Button & User Section container */}
+                <div className="mt-auto border-t border-gray-100 flex flex-col">
+                    {onToggleCollapse && (
+                        <button
+                            onClick={onToggleCollapse}
+                            className={`p-4 flex items-center text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors ${isCollapsed ? "justify-center" : "justify-end"}`}
+                            title={isCollapsed ? "Expandir" : "Colapsar"}
+                        >
+                            {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+                        </button>
+                    )}
+                </div>
             </aside>
 
             {/* Mobile Sidebar */}

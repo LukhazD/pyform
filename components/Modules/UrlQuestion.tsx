@@ -41,7 +41,7 @@ export default function UrlQuestion({ module, value, onChange, radius = "lg", sh
                     <Input
                         type="text"
                         placeholder={module.placeholder || "https://ejemplo.com"}
-                        radius="full"
+                        radius="md"
                         variant="bordered"
                         size="lg"
                         value={value || ""}

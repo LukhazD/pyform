@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import FormCard from "./FormCard";
 import EmptyState from "./EmptyState";
 import toast from "react-hot-toast";
@@ -15,6 +16,7 @@ interface FormListProps {
 const FORMS_PER_PAGE = 4;
 
 export default function FormList({ initialForms, formsPerPage = FORMS_PER_PAGE }: FormListProps) {
+    const router = useRouter();
     const [forms, setForms] = useState(initialForms);
     const [currentPage, setCurrentPage] = useState(1);
 
@@ -46,10 +48,39 @@ export default function FormList({ initialForms, formsPerPage = FORMS_PER_PAGE }
             }
 
             toast.success("Formulario eliminado correctamente");
+            router.refresh();
         } catch (error) {
             // Revert on error
             setForms(previousForms);
             toast.error("Error al eliminar el formulario");
+            console.error(error);
+        }
+    };
+
+    const handleUpdateStatus = async (id: string, newStatus: string) => {
+        const previousForms = [...forms];
+
+        // Optimistic update
+        setForms((prev) =>
+            prev.map((f) => (f.shortId || f._id) === id ? { ...f, status: newStatus } : f)
+        );
+
+        try {
+            const res = await fetch(`/api/forms/${id}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: newStatus }),
+            });
+
+            if (!res.ok) {
+                throw new Error("Failed to update status");
+            }
+
+            toast.success(newStatus === "draft" ? "Devuelto a borrador" : "Estado actualizado");
+            router.refresh();
+        } catch (error) {
+            setForms(previousForms);
+            toast.error("Error al actualizar el estado");
             console.error(error);
         }
     };
@@ -83,6 +114,7 @@ export default function FormList({ initialForms, formsPerPage = FORMS_PER_PAGE }
                                 questionCount={form.questionCount || 0}
                                 updatedAt={form.updatedAt}
                                 onDelete={handleDelete}
+                                onUpdateStatus={handleUpdateStatus}
                             />
                         </motion.div>
                     ))}
@@ -106,8 +138,8 @@ export default function FormList({ initialForms, formsPerPage = FORMS_PER_PAGE }
                                 key={page}
                                 onClick={() => goToPage(page)}
                                 className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${page === currentPage
-                                        ? "bg-gray-900 text-white"
-                                        : "text-gray-600 hover:bg-gray-100"
+                                    ? "bg-gray-900 text-white"
+                                    : "text-gray-600 hover:bg-gray-100"
                                     }`}
                             >
                                 {page}

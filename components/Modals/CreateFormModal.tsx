@@ -64,7 +64,7 @@ export default function
         <Modal
             isOpen={isOpen}
             onOpenChange={onOpenChange}
-            radius="lg"
+            radius="md"
             classNames={{
                 backdrop: "bg-black/50 backdrop-blur-sm",
             }}
@@ -81,7 +81,7 @@ export default function
                                 label="Título del formulario"
                                 placeholder="Ej. Encuesta de satisfacción"
                                 variant="bordered"
-                                radius="full"
+                                radius="md"
                                 value={title}
                                 onValueChange={setTitle}
                                 isDisabled={mutation.isPending}
@@ -91,9 +91,9 @@ export default function
                             />
                             <Textarea
                                 label="Descripción (opcional)"
-                                placeholder="Breve descripción del propósito del formulario. Solo tú la verás."
+                                placeholder="Breve descripción del propósito del formulario. (Solo tú la verás)"
                                 variant="bordered"
-                                radius="lg"
+                                radius="md"
                                 value={description}
                                 onValueChange={setDescription}
                                 isDisabled={mutation.isPending}
@@ -106,7 +106,7 @@ export default function
                             <Button
                                 variant="light"
                                 onPress={onClose}
-                                radius="full"
+                                radius="md"
                                 isDisabled={mutation.isPending}
                             >
                                 Cancelar
@@ -114,7 +114,7 @@ export default function
                             <Button
                                 color="secondary"
                                 type="submit"
-                                radius="full"
+                                radius="md"
                                 className="bg-primary text-white font-medium shadow-lg hover:bg-gray-700"
                                 isLoading={mutation.isPending}
                             >
