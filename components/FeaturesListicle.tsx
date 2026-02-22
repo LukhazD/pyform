@@ -291,16 +291,16 @@ const FeaturesListicle = () => {
   }, [featureSelected, hasClicked]);
 
   return (
-    <section className="py-24 bg-base-100" id="features">
+    <section className="min-h-screen w-full flex flex-col justify-center py-24 bg-base-100 overflow-hidden" id="features">
       <div className="max-w-3xl mx-auto">
         <div className="bg-base-100 max-md:px-8 max-w-3xl">
-          <span className="inline-block px-4 py-1.5 mb-6 text-sm font-medium bg-primary/10 text-primary rounded-full">
+          <span className="inline-block px-4 py-1.5 mb-4 md:mb-6 text-sm font-medium bg-primary/10 text-primary rounded-full">
             Características
           </span>
-          <h2 className="font-extrabold text-3xl lg:text-5xl tracking-tight mb-8">
+          <h2 className="font-extrabold text-2xl md:text-3xl lg:text-5xl tracking-tight mb-4 md:mb-8">
             Todo lo que necesitas para crear formularios increíbles
           </h2>
-          <div className="text-base-content/80 leading-relaxed mb-8 lg:text-lg">
+          <div className="text-base-content/80 leading-relaxed mb-6 md:mb-8 text-sm md:text-base lg:text-lg">
             Pyform combina la simplicidad de Google Forms con la elegancia de Typeform,
             a una fracción del costo. Sin funciones innecesarias, sin precios sorpresa.
           </div>

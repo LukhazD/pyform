@@ -2,7 +2,7 @@ import Link from "next/link";
 
 const CTA = () => {
   return (
-    <section className="relative bg-gradient-to-b from-gray-900 to-black text-white py-20 md:py-28 overflow-hidden">
+    <section className="relative py-20 md:py-28 overflow-hidden">
       {/* Subtle gradient orbs for depth */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />

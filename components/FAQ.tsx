@@ -173,7 +173,7 @@ const FaqItem = ({ item }: { item: FAQItemProps }) => {
 
 const FAQ = () => {
   return (
-    <section className="bg-gray-50 py-20 md:py-28" id="faq">
+    <section className="bg-gray-50 py-20 md:py-28 overflow-hidden" id="faq">
       <div className="max-w-3xl mx-auto px-6 md:px-8">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">

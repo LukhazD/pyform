@@ -1,7 +1,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { Suspense } from "react";
+import { Suspense, useEffect, useRef } from "react";
+import React from "react"; // Added React for React.Children.map
 
 // Critical components - load immediately
 import Header from "@/components/Header";
@@ -52,19 +53,87 @@ const Footer = dynamic(() => import("@/components/Footer"), {
   loading: () => <div className="min-h-[20vh] bg-base-200" />,
 });
 
+// Headless GSAP Controller to handle the overlapping parallax without wrapping React nodes
+const DeckController = (): null => {
+  useEffect(() => {
+    let ctx: any;
+
+    const initGsap = async () => {
+      const gsap = (await import("gsap")).default;
+      const { ScrollTrigger } = await import("gsap/ScrollTrigger");
+      gsap.registerPlugin(ScrollTrigger);
+
+      ctx = gsap.context(() => {
+        // 1. Pin Hero until Problem fully slides over it
+        ScrollTrigger.create({
+          trigger: "#deck-hero",
+          start: "top top",
+          endTrigger: "#deck-problem",
+          end: "top top",
+          pin: true,
+          pinSpacing: false,
+        });
+
+        // 2. Problem scrolls normally. Pin it when its bottom reaches the screen fold,
+        // allowing Features to slide up and cover it. Unpin when Features covers it completely.
+        ScrollTrigger.create({
+          trigger: "#deck-problem",
+          start: "bottom bottom",
+          endTrigger: "#deck-features",
+          end: "top top",
+          pin: true,
+          pinSpacing: false,
+        });
+      });
+    };
+
+    initGsap();
+    return () => {
+      if (ctx) ctx.revert();
+    };
+  }, []);
+
+  return null;
+};
+
 export default function Page() {
   return (
     <main>
       <Suspense fallback={<div className="h-16" />}>
         <Header />
       </Suspense>
-      <Hero />
-      <Problem />
-      <Features />
-      <Pricing />
-      <FAQ />
-      <CTA />
-      <Footer />
+
+      <DeckController />
+
+      <div className="relative w-full">
+        {/* GSAP Managed Deck purely for Hero -> Problem -> Features overlap */}
+
+        <div id="deck-hero" className="relative w-full z-10 min-h-screen">
+          <Hero />
+        </div>
+
+        <div id="deck-problem" className="relative w-full z-20 shadow-[0_-20px_40px_rgba(0,0,0,0.5)] bg-black">
+          <Problem />
+        </div>
+
+        <div id="deck-features" className="relative w-full z-30 shadow-[0_-20px_40px_rgba(0,0,0,0.3)] bg-base-100">
+          <Features />
+        </div>
+
+        {/* Normal scroll sections flow normally underneath */}
+        <div className="relative w-full z-40 bg-base-200">
+          <Pricing />
+        </div>
+        <div className="relative w-full z-40 bg-gray-50">
+          <FAQ />
+        </div>
+        <div className="relative w-full z-40 bg-gradient-to-b from-gray-900 to-black text-white">
+          <CTA />
+        </div>
+        <div className="relative w-full z-40 bg-base-200">
+          <Footer />
+        </div>
+      </div>
     </main>
   );
 }

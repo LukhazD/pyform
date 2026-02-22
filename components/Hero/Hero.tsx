@@ -5,16 +5,10 @@ import React from "react";
 import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import type { MobileThreadsHandle } from "./MobileThreads";
+import HeroAnimation from "./HeroAnimation";
 
 // Lazy load GSAP - only when needed for animations
 const loadGsap = () => import("gsap").then(mod => mod.default);
-
-// Dynamic import with SSR disabled - load after main content
-const MobileThreads = dynamic(() => import("./MobileThreads"), {
-    ssr: false,
-    loading: () => <div className="absolute inset-0 bg-white" />
-});
 
 // Profesiones que rotan en el hero
 const professions = [
@@ -31,7 +25,6 @@ export default function Hero() {
     const containerRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null);
     const professionRef = useRef<HTMLSpanElement>(null);
-    const threadsRef = useRef<MobileThreadsHandle>(null);
 
     const [currentProfession, setCurrentProfession] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
@@ -126,24 +119,13 @@ export default function Hero() {
         };
     }, [isLoaded, isAnimating]);
 
-    // Bridge events to MobileThreads
-    const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-        threadsRef.current?.handlePointerMove(e);
-    };
-
-    const handlePointerLeave = () => {
-        threadsRef.current?.handlePointerLeave();
-    };
-
     return (
         <div
             ref={containerRef}
-            className="relative w-full min-h-screen pointer-events-auto flex items-center overflow-hidden bg-white touch-pan-y"
-            onPointerMove={handlePointerMove}
-            onPointerLeave={handlePointerLeave}
+            className="relative w-full min-h-screen pointer-events-auto flex items-center justify-center overflow-hidden bg-[#FAFAFA]"
         >
-            {/* Animated Background - loads after content */}
-            <MobileThreads ref={threadsRef} />
+            {/* Animated 3D Grid Background */}
+            <HeroAnimation />
 
             {/* Content Container - visible immediately */}
             <div className="relative w-full max-w-7xl mx-auto px-6 sm:px-8 flex flex-col justify-center h-full pointer-events-auto">
