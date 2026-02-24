@@ -58,7 +58,7 @@ export default async function Dashboard() {
         />
         <StatsCard
           label="Tasa de Completado"
-          value={`${Math.max(stats.completionRate, 100)}%`}
+          value={`${Math.min(stats.completionRate, 100)}%`}
           icon={<BarChart3 size={24} />}
         />
       </div>
