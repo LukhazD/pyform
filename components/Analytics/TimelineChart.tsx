@@ -78,7 +78,7 @@ export default function TimelineChart({ data }: TimelineChartProps) {
                                     <div className="w-full flex justify-end flex-col items-center h-full relative z-10 group-hover:scale-x-110 transition-transform">
                                         {/* Bar */}
                                         <div
-                                            className="timeline-bar w-full max-w-[30px] bg-purple-500/80 hover:bg-purple-600 transition-all duration-300 rounded-t-sm"
+                                            className="timeline-bar w-full max-w-[30px] bg-gray-800 hover:bg-gray-900 transition-all duration-300 rounded-t-sm"
                                             style={{ height: `${heightPercentage}%`, minHeight: '4px' }}
                                         ></div>
                                     </div>

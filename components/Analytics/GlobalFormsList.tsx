@@ -44,14 +44,14 @@ export default function GlobalFormsList({ forms }: { forms: AnalyticsFormProps[]
                 {items.map((form) => (
                     <Card key={form.formId} className="p-5 flex flex-col justify-between gap-4 hover:shadow-md transition-shadow h-full border-none" shadow="sm" radius="md">
                         <div className="flex flex-row items-center gap-3 w-full">
-                            <div className="p-3 bg-purple-100 rounded-lg text-purple-600 w-fit">
+                            <div className="p-3 bg-gray-100 rounded-lg text-gray-900 w-fit">
                                 <BarChart3 size={20} />
                             </div>
                             <div className="w-full">
                                 <h4 className="font-semibold text-gray-900 truncate">{form.title}</h4>
                                 <div className="flex flex-row gap-1 text-sm text-gray-500 mt-2">
                                     <span className="truncate text-blue-500">{form.views} vistas</span>
-                                    <span className="truncate text-green-500">{form.completionRate}% completados</span>
+                                    <span className="truncate text-green-500">{Math.min(form.completionRate || 0, 100)}% completados</span>
                                 </div>
                             </div>
                         </div>
@@ -80,7 +80,7 @@ export default function GlobalFormsList({ forms }: { forms: AnalyticsFormProps[]
                         isCompact
                         showControls
                         showShadow
-                        color="secondary"
+                        color="primary"
                         page={page}
                         total={pages}
                         onChange={(page) => setPage(page)}

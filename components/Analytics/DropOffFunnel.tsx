@@ -83,7 +83,7 @@ export default function DropOffFunnel({ data }: DropOffFunnelProps) {
                                     {/* Progress Bar */}
                                     <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                                         <div
-                                            className="progress-bar-fill h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
+                                            className="progress-bar-fill h-full bg-gray-900 rounded-full"
                                             style={{ width: `${retentionRate}%` }}
                                         ></div>
                                     </div>

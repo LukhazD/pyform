@@ -65,7 +65,7 @@ export default async function FormDetailPage({
                         color="secondary"
                         radius="md"
                         startContent={<LayoutDashboard size={18} />}
-                        className="bg-purple-500 text-white font-medium"
+                        className="bg-gray-900 text-white font-medium"
                     >
                         Abrir Editor
                     </Button>

@@ -37,6 +37,13 @@ export default function FileUploadQuestion({ module, value, onChange, primaryCol
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        // Validar tamaño máximo de 10MB
+        if (file.size > 10 * 1024 * 1024) {
+            toast.error("El archivo supera el límite de 10MB");
+            return;
+        }
+
         await uploadFile(file);
     };
 
@@ -87,7 +94,14 @@ export default function FileUploadQuestion({ module, value, onChange, primaryCol
     const handleDrop = async (e: React.DragEvent) => {
         e.preventDefault();
         const file = e.dataTransfer.files?.[0];
-        if (file) await uploadFile(file);
+        if (file) {
+            // Validar tamaño máximo de 10MB en drag & drop
+            if (file.size > 10 * 1024 * 1024) {
+                toast.error("El archivo supera el límite de 10MB");
+                return;
+            }
+            await uploadFile(file);
+        }
     };
 
     // If value exists (it's a string key), we show "File uploaded"
@@ -112,7 +126,7 @@ export default function FileUploadQuestion({ module, value, onChange, primaryCol
                         ref={fileInputRef}
                         className="hidden"
                         onChange={handleFileSelect}
-                        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                        accept=".pdf,application/pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,.jpg,.jpeg,.png,image/jpeg,image/png,image/webp"
                     />
 
                     {!isUploaded ? (

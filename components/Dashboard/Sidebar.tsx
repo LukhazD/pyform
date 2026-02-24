@@ -25,7 +25,7 @@ interface NavItem {
 const navItems: NavItem[] = [
     { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={20} /> },
     { label: "Formularios", href: "/dashboard/forms", icon: <FileText size={20} /> },
-    { label: "Analíticas", href: "/dashboard/analytics", icon: <BarChart3 size={20} /> },
+    { label: "Estadísticas", href: "/dashboard/analytics", icon: <BarChart3 size={20} /> },
     { label: "Soporte", href: "/dashboard/support", icon: <LifeBuoy size={20} /> },
     { label: "Ajustes", href: "/dashboard/settings", icon: <Settings size={20} /> },
 ];

@@ -66,6 +66,15 @@ const Pricing = () => {
                     </p>
                   </div>
                 </div>
+                {plan.trialPeriodDays && (
+                  <div className="mb-2 w-fit bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-sm font-semibold flex items-center gap-2">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                    </span>
+                    ¡{plan.trialPeriodDays} días de prueba gratis!
+                  </div>
+                )}
                 {plan.features && (
                   <ul className="space-y-2.5 leading-relaxed text-base flex-1">
                     {plan.features.map((feature, i) => (
@@ -89,7 +98,7 @@ const Pricing = () => {
                   </ul>
                 )}
                 <div className="space-y-2">
-                  <ButtonCheckout priceId={plan.priceId} />
+                  <ButtonCheckout priceId={plan.priceId} trialPeriodDays={plan.trialPeriodDays} />
                 </div>
               </div>
             </div>

@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
 
     await connectMongo();
 
-    const { priceId, mode, successUrl, cancelUrl } = body;
+    const { priceId, mode, successUrl, cancelUrl, trialPeriodDays } = body;
 
     let user = null;
     if (session?.user?.id) {
@@ -48,6 +48,7 @@ export async function POST(req: NextRequest) {
       mode,
       successUrl,
       cancelUrl,
+      trialPeriodDays,
       // If user is logged in, it will pass the user ID to the Stripe Session so it can be retrieved in the webhook later
       clientReferenceId: user?._id?.toString(),
       // If user is logged in, this will automatically prefill Checkout data like email and/or credit card for faster checkout

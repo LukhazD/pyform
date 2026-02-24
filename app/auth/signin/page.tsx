@@ -42,9 +42,9 @@ export default function SigninPage() {
                         <Image src="/assets/icons/logo.png" alt="PyForm Logo" width={48} height={48} className="rounded-xl" />
                     </div>
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900">Bienvenido de nuevo</h1>
-                        <p className="text-gray-500 mt-2 text-sm">
-                            Inicia sesión para continuar en PyForm
+                        <h1 className="text-2xl font-bold text-gray-900">Crear cuenta o Iniciar sesión</h1>
+                        <p className="text-gray-500 mt-2 text-sm max-w-sm mx-auto">
+                            PyForm utiliza enlaces mágicos. No necesitas contraseña; te enviaremos un acceso seguro a tu correo para registrarte o entrar.
                         </p>
                     </div>
                 </CardHeader>
@@ -79,7 +79,7 @@ export default function SigninPage() {
                                 )
                             }
                         >
-                            Continuar con Google
+                            Registro / Ingreso con Google
                         </Button>
 
                         <div className="relative flex py-2 items-center">
@@ -112,8 +112,12 @@ export default function SigninPage() {
                                 isLoading={isLoading}
                                 className="w-full font-medium bg-gray-900 text-white hover:bg-gray-800 shadow-lg shadow-gray-900/10"
                             >
-                                {isLoading ? "Enviando enlace..." : "Enviar enlace mágico"}
+                                {isLoading ? "Enviando enlace..." : "Recibir enlace mágico"}
                             </Button>
+
+                            <p className="text-xs text-gray-500 text-center mt-2 px-4 leading-relaxed">
+                                Al continuar, aceptas nuestros <a href="#" className="underline hover:text-gray-900">Términos de Servicio</a> y <a href="#" className="underline hover:text-gray-900">Política de Privacidad</a>.
+                            </p>
                         </form>
                     </div>
                 </CardBody>

@@ -24,7 +24,7 @@ export default async function AnalyticsPage() {
                     <BarChart3 size={24} />
                 </div>
                 <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Analíticas Globales</h1>
+                    <h1 className="text-2xl font-bold text-gray-900">Estadísticas Globales</h1>
                     <p className="text-gray-500">Resumen de rendimiento de todos tus formularios active</p>
                 </div>
             </div>
