@@ -51,34 +51,34 @@ export default function FormDashboardClient({ formTitle, formShortId, questions 
     };
 
     return (
-        <div className="flex flex-col gap-6 w-full max-w-full overflow-hidden">
+        <div className="flex flex-col w-full max-w-full overflow-hidden">
             {/* Custom Tab Navigation */}
             <div className="flex items-center gap-6 border-b border-gray-200 overflow-x-auto overflow-y-hidden whitespace-nowrap pb-[1px] scrollbar-hide w-full">
                 <button
                     onClick={() => setActiveTab("overview")}
                     className={`pb-3 text-sm font-medium transition-colors relative ${activeTab === "overview"
-                        ? "text-purple-600"
+                        ? "text-gray-900"
                         : "text-gray-500 hover:text-gray-900"
                         }`}
                 >
                     Resumen
                     {activeTab === "overview" && (
-                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-600 rounded-t-full" />
+                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-900 rounded-t-full" />
                     )}
                 </button>
                 <button
                     onClick={() => setActiveTab("responses")}
                     className={`pb-3 text-sm font-medium transition-colors relative ${activeTab === "responses"
-                        ? "text-purple-600"
+                        ? "text-gray-900"
                         : "text-gray-500 hover:text-gray-900"
                         }`}
                 >
                     Respuestas
                     {activeTab === "responses" && (
-                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-600 rounded-t-full" />
+                        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-900 rounded-t-full" />
                     )}
                 </button>
-                <button
+                {/* <button
                     onClick={() => setActiveTab("settings")}
                     className={`pb-3 text-sm font-medium transition-colors relative ${activeTab === "settings"
                         ? "text-purple-600"
@@ -89,7 +89,7 @@ export default function FormDashboardClient({ formTitle, formShortId, questions 
                     {activeTab === "settings" && (
                         <div className="absolute bottom-0 left-0 w-full h-0.5 bg-purple-600 rounded-t-full" />
                     )}
-                </button>
+                </button> */}
             </div>
 
             {/* Content Area */}
@@ -100,10 +100,10 @@ export default function FormDashboardClient({ formTitle, formShortId, questions 
                         <p className="text-gray-500 mb-6">Comparte tu formulario en tus redes sociales para empezar a recibir respuestas.</p>
 
                         <div className="flex flex-wrap items-center justify-center gap-3">
-                            <Button variant="flat" color="primary" className="font-medium bg-blue-50 text-blue-600" onPress={handleShareNative} startContent={<Share2 size={16} />}>
+                            <Button variant="solid" className="font-medium bg-[#1a1a1a] text-white" onPress={handleShareNative} startContent={<Share2 size={16} />}>
                                 Compartir formulario
                             </Button>
-                            <Button variant="flat" color="secondary" className="font-medium bg-purple-50 text-purple-700" onPress={handleCopyLink} startContent={<LinkIcon size={16} />}>
+                            <Button variant="flat" className="font-medium bg-gray-100 text-gray-900" onPress={handleCopyLink} startContent={<LinkIcon size={16} />}>
                                 Copiar enlace
                             </Button>
                         </div>
@@ -120,7 +120,7 @@ export default function FormDashboardClient({ formTitle, formShortId, questions 
                             <p className="text-gray-500 max-w-md text-center mb-8">
                                 Comparte tu formulario con tu audiencia. Una vez que recibas respuestas, las verás aparecer aquí en tiempo real con gráficas y análisis detallados.
                             </p>
-                            <Button variant="flat" color="secondary" className="font-medium bg-purple-50 text-purple-700" onPress={handleCopyLink}>
+                            <Button variant="solid" className="font-medium bg-[#1a1a1a] text-white" onPress={handleCopyLink} startContent={<LinkIcon size={16} />}>
                                 Copiar enlace del formulario
                             </Button>
                         </div>

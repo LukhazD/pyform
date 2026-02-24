@@ -9,10 +9,8 @@ import connectMongo from "@/libs/mongoose";
 
 export async function POST(req: Request) {
     try {
-        const session = await auth();
-        if (!session?.user?.id) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        // Los respondents normalmente no tienen sesión activa.
+        // Permitimos la subida pública pero restringimos la carga a un formId existente y no cerrado.
 
         const body = await req.json();
         const { formId, fileType, fileName } = body;
@@ -33,9 +31,9 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Form not found" }, { status: 404 });
         }
 
-        // Security Check: Verify ownership
-        if (form.userId.toString() !== session.user.id) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+        // Security Check: Block if the builder explicitly closed the form to new submissions
+        if (form.status === "closed") {
+            return NextResponse.json({ error: "Form is closed to new submissions" }, { status: 403 });
         }
 
         // Clean filename to prevent weird chars

@@ -35,7 +35,10 @@ const config = {
         // A friendly description of the plan, displayed on the pricing page. Tip: explain why this plan and not others
         description: "Todo lo que necesitas para crear formularios profesionales",
         // The price you want to display, the one user will be charged on Stripe.
+        // The price you want to display, the one user will be charged on Stripe.
         price: 9.99,
+        // Offer a trial period
+        trialPeriodDays: 90,
         // If you have an anchor price (i.e. $29) that you want to display crossed out, put it here. Otherwise, leave it empty
         priceAnchor: 19,
         features: [
@@ -43,7 +46,7 @@ const config = {
           { name: "500 respuestas por formulario" },
           { name: "15 tipos de preguntas" },
           { name: "Editor Live en tiempo real" },
-          { name: "Analíticas avanzadas" },
+          { name: "Estadísticas avanzadas" },
           { name: "Exportación CSV" },
           { name: "Inicio de sesión con Google" },
           { name: "Soporte por email" },
@@ -65,7 +68,7 @@ const config = {
           { name: "500 respuestas por formulario" },
           { name: "15 tipos de preguntas" },
           { name: "Editor Live en tiempo real" },
-          { name: "Analíticas avanzadas" },
+          { name: "Estadísticas avanzadas" },
           { name: "Exportación CSV" },
           { name: "Inicio de sesión con Google" },
           { name: "Soporte prioritario por email" },

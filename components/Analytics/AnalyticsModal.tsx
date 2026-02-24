@@ -20,9 +20,9 @@ export default function AnalyticsModal({ data, formTitle }: AnalyticsModalProps)
                 color="secondary"
                 variant="flat"
                 startContent={<BarChart3 size={18} />}
-                className="bg-purple-100 text-purple-700 font-medium"
+                className="bg-gray-100 text-gray-900 font-medium"
             >
-                Ver Analíticas
+                Ver Estadísticas
             </Button>
 
             <Modal
@@ -36,7 +36,7 @@ export default function AnalyticsModal({ data, formTitle }: AnalyticsModalProps)
                     {(onClose) => (
                         <>
                             <ModalHeader className="flex flex-col gap-1">
-                                <span className="text-xl font-bold">Analíticas de {formTitle}</span>
+                                <span className="text-xl font-bold">Estadísticas de {formTitle}</span>
                                 <span className="text-sm text-gray-500 font-normal">Rendimiento detallado y estadísticas</span>
                             </ModalHeader>
                             <ModalBody className="pb-8">

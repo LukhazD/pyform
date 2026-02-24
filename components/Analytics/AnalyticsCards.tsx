@@ -29,7 +29,7 @@ export default function AnalyticsCards({ data }: AnalyticsCardsProps) {
                 const targets = [
                     { val: data.views, selector: ".stat-total" },
                     { val: data.completedSubmissions, selector: ".stat-completed" },
-                    { val: data.completionRate, selector: ".stat-rate", suffix: "%" },
+                    { val: Math.min(data.completionRate || 0, 100), selector: ".stat-rate", suffix: "%" },
                     { val: data.averageCompletionTimeMs / 1000, selector: ".stat-time", suffix: "s" },
                 ];
 
@@ -75,11 +75,11 @@ export default function AnalyticsCards({ data }: AnalyticsCardsProps) {
         },
         {
             title: "Tasa de Finalización",
-            value: (data?.completionRate || 0) + "%",
+            value: Math.min(data?.completionRate || 0, 100) + "%",
             icon: Percent,
             className: "stat-rate",
-            color: "text-purple-500",
-            bgColor: "bg-purple-50",
+            color: "text-gray-900",
+            bgColor: "bg-gray-100",
         },
         {
             title: "Tiempo Promedio",

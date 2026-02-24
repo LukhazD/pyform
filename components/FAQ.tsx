@@ -44,11 +44,11 @@ const faqList: FAQItemProps[] = [
     ),
   },
   {
-    question: "¿Qué analíticas están incluidas?",
+    question: "¿Qué estadísticas están incluidas?",
     answer: (
       <div className="space-y-2 leading-relaxed">
         <p>
-          Cada formulario incluye un panel completo de analíticas con: tasa de
+          Cada formulario incluye un panel completo de estadísticas con: tasa de
           finalización, tiempo promedio de respuesta, línea de tiempo de envíos
           y un <strong>funnel de abandono</strong> que te muestra exactamente en
           qué pregunta pierdes usuarios.

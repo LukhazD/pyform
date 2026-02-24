@@ -126,7 +126,7 @@ const features: {
       ),
     },
     {
-      name: "Analíticas",
+      name: "Estadísticas",
       description: (
         <>
           <ul className="space-y-2">

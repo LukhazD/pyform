@@ -12,9 +12,11 @@ import { Button } from "@heroui/button";
 const ButtonCheckout = ({
   priceId,
   mode = "subscription",
+  trialPeriodDays,
 }: {
   priceId: string;
   mode?: "payment" | "subscription";
+  trialPeriodDays?: number;
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -29,6 +31,7 @@ const ButtonCheckout = ({
           successUrl: `${window.location.origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: window.location.href,
           mode,
+          trialPeriodDays,
         }
       );
 
@@ -47,7 +50,7 @@ const ButtonCheckout = ({
       variant="solid"
       className="btn-block bg-primary hover:scale-105 transition-all duration-300 ease-in-out text-white"
       onPress={() => handlePayment()}>
-      Comprar ya
+      {trialPeriodDays ? `Probar ${trialPeriodDays} días gratis` : "Comprar ya"}
     </Button>
   );
 };

@@ -18,7 +18,7 @@ const CTA = () => {
 
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed mb-12">
-          Editor en vivo, analíticas incluidas y un precio que no cambia con el
+          Editor en vivo, estadísticas incluidas y un precio que no cambia con el
           éxito de tus formularios. Sin sorpresas.
         </p>
 

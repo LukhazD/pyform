@@ -2,8 +2,9 @@
 
 import { useState, useMemo } from "react";
 import {
-    Card, Select, SelectItem, Table, TableHeader, TableColumn, TableBody, TableRow, TableCell,
+    Card, Select, SelectItem,
     Chip, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure,
+    Tabs, Tab, Accordion, AccordionItem, Divider, Spinner
 } from "@heroui/react";
 import { IQuestion } from "@/models/Question";
 import { ISubmission } from "@/models/Submission";
@@ -31,8 +32,11 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
     const [previewFile, setPreviewFile] = useState<string | null>(null);
     const { isOpen: isPreviewOpen, onOpen: onPreviewOpen, onOpenChange: onPreviewChange } = useDisclosure();
 
+    const [isPreviewLoading, setIsPreviewLoading] = useState(true);
+
     const handlePreview = (key: string) => {
         setPreviewFile(key);
+        setIsPreviewLoading(true);
         onPreviewOpen();
     };
 
@@ -136,205 +140,329 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
     if (!analysis) return null;
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            {/* Question Analysis Section */}
-            <section>
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">Análisis Detallado</h3>
-                    <Select
-                        label="Pregunta"
-                        placeholder="Selecciona una pregunta"
-                        className="max-w-md"
-                        selectedKeys={selectedQuestionId ? [selectedQuestionId] : []}
-                        onChange={(e) => {
-                            if (e.target.value) setSelectedQuestionId(e.target.value);
-                        }}
-                        disallowEmptySelection
-                        startContent={<Search size={16} className="text-gray-400" />}
-                    >
-                        {questionsWithAnswers.map((q) => (
-                            <SelectItem key={String(q._id)} textValue={q.title}>
-                                <div className="flex flex-col">
-                                    <span className="text-sm font-medium">{q.title}</span>
-                                    <span className="text-xs text-gray-400 capitalize">{q.type.toLowerCase().replace("_", " ")}</span>
-                                </div>
-                            </SelectItem>
-                        ))}
-                    </Select>
-                </div>
-
-                <Card className="p-0 overflow-hidden border border-gray-100 shadow-sm">
-                    <div className="p-6 bg-white">
-                        <div className="flex items-start justify-between mb-6">
-                            <div>
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Chip size="sm" color="secondary" variant="flat" className="capitalize">
-                                        {analysis.question.type.toLowerCase().replace("_", " ")}
-                                    </Chip>
-                                    <span className="text-sm text-gray-500">{analysis.totalAnswers} respuestas</span>
-                                </div>
-                                <h4 className="text-xl font-bold text-gray-900 leading-tight">{analysis.question.title}</h4>
-                            </div>
+        <div className="animate-in fade-in duration-500">
+            <Tabs disableAnimation={true} aria-label="Opciones de Análisis" size="lg" color="primary" variant="underlined" classNames={{
+                tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+                cursor: "w-full bg-primary",
+                tab: "max-w-fit px-0 h-12",
+                tabContent: "group-data-[selected=true]:text-primary font-medium"
+            }}>
+                <Tab
+                    key="analysis"
+                    title={
+                        <div className="flex items-center space-x-2">
+                            <BarChart3 size={18} />
+                            <span>Por pregunta</span>
                         </div>
+                    }
+                >
+                    <div className="pt-2 space-y-8">
+                        {/* Question Analysis Section */}
+                        <section>
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                                <h3 className="text-xl font-bold text-gray-900">Análisis Detallado</h3>
+                                <Select
+                                    label="Pregunta"
+                                    placeholder="Selecciona una pregunta"
+                                    className="max-w-md"
+                                    selectedKeys={selectedQuestionId ? [selectedQuestionId] : []}
+                                    onChange={(e) => {
+                                        if (e.target.value) setSelectedQuestionId(e.target.value);
+                                    }}
+                                    disallowEmptySelection
+                                    startContent={<Search size={16} className="text-gray-400" />}
+                                >
+                                    {questionsWithAnswers.map((q) => (
+                                        <SelectItem key={String(q._id)} textValue={q.title}>
+                                            <div className="flex flex-col">
+                                                <span className="text-sm font-medium">{q.title}</span>
+                                                <span className="text-xs text-gray-400 capitalize">{q.type.toLowerCase().replace("_", " ")}</span>
+                                            </div>
+                                        </SelectItem>
+                                    ))}
+                                </Select>
+                            </div>
 
-                        {/* Visualization Logic */}
-                        <div className="mt-4">
-                            {analysis.isChoiceType ? (
-                                analysis.totalAnswers === 0 ? (
-                                    <div className="flex flex-col items-center justify-center py-12 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
-                                        <BarChart3 size={48} className="text-gray-300 mb-3" />
-                                        <p className="text-gray-500 font-medium">No hay datos para visualizar</p>
-                                        <p className="text-sm text-gray-400 mt-1">Las respuestas a esta pregunta aparecerán aquí como gráficas.</p>
+                            <Card className="p-0 overflow-hidden border border-gray-100 shadow-sm">
+                                <div className="p-6 bg-white">
+                                    <div className="flex items-start justify-between mb-6">
+                                        <div>
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <span className="text-sm text-gray-500">{analysis.totalAnswers} respuestas</span>
+                                            </div>
+                                            <h4 className="text-xl font-bold text-gray-900 leading-tight">{analysis.question.title}</h4>
+                                        </div>
                                     </div>
-                                ) : (
-                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                        {/* Chart Area */}
-                                        <div className="lg:col-span-2 space-y-4">
-                                            {Object.entries(analysis.distribution).map(([label, data]) => (
-                                                <div key={label} className="group">
-                                                    <div className="flex justify-between text-sm mb-1.5">
-                                                        <span className="font-medium text-gray-700">{label}</span>
-                                                        <span className="text-gray-500 font-mono">{data.percentage}%</span>
+
+                                    {/* Visualization Logic */}
+                                    <div className="mt-4">
+                                        {analysis.isChoiceType ? (
+                                            analysis.totalAnswers === 0 ? (
+                                                <div className="flex flex-col items-center justify-center py-12 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                                                    <BarChart3 size={48} className="text-gray-300 mb-3" />
+                                                    <p className="text-gray-500 font-medium">No hay datos para visualizar</p>
+                                                    <p className="text-sm text-gray-400 mt-1">Las respuestas a esta pregunta aparecerán aquí como gráficas.</p>
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                                    {/* Chart Area */}
+                                                    <div className="lg:col-span-2 space-y-4">
+                                                        {Object.entries(analysis.distribution).map(([label, data]) => (
+                                                            <div key={label} className="group">
+                                                                <div className="flex justify-between text-sm mb-1.5">
+                                                                    <span className="font-medium text-gray-700">{label}</span>
+                                                                    <span className="text-gray-500 font-mono">{data.percentage}%</span>
+                                                                </div>
+                                                                <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                                                                    <div
+                                                                        className="chart-bar h-full rounded-full transition-all duration-500"
+                                                                        style={{ width: `${data.percentage}%`, backgroundColor: data.color }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        ))}
                                                     </div>
-                                                    <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                                                        <div
-                                                            className="chart-bar h-full rounded-full transition-all duration-500"
-                                                            style={{ width: `${data.percentage}%`, backgroundColor: data.color }}
-                                                        />
+
+                                                    {/* Legend Area */}
+                                                    <div className="bg-gray-50 rounded-xl p-5 h-fit">
+                                                        <h5 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Leyenda</h5>
+                                                        <div className="space-y-3">
+                                                            {Object.entries(analysis.distribution).map(([label, data]) => (
+                                                                <div key={label} className="flex items-center justify-between text-sm">
+                                                                    <div className="flex items-center gap-2.5 overflow-hidden">
+                                                                        <div
+                                                                            className="w-3 h-3 rounded-full flex-shrink-0"
+                                                                            style={{ backgroundColor: data.color }}
+                                                                        />
+                                                                        <span className="truncate text-gray-600 font-medium">{label}</span>
+                                                                    </div>
+                                                                    <div className="flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-gray-200 shadow-sm">
+                                                                        <span className="font-bold text-gray-900">{data.count}</span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </div>
-
-                                        {/* Legend Area */}
-                                        <div className="bg-gray-50 rounded-xl p-5 h-fit">
-                                            <h5 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Leyenda</h5>
-                                            <div className="space-y-3">
-                                                {Object.entries(analysis.distribution).map(([label, data]) => (
-                                                    <div key={label} className="flex items-center justify-between text-sm">
-                                                        <div className="flex items-center gap-2.5 overflow-hidden">
-                                                            <div
-                                                                className="w-3 h-3 rounded-full flex-shrink-0"
-                                                                style={{ backgroundColor: data.color }}
-                                                            />
-                                                            <span className="truncate text-gray-600 font-medium">{label}</span>
+                                            )
+                                        ) : (
+                                            <div className="space-y-6">
+                                                {/* Text/List List Preview */}
+                                                <div className="grid gap-3">
+                                                    {analysis.answerData.slice(0, 5).map((item, idx) => (
+                                                        <div key={idx} className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-100 group">
+                                                            {analysis.question.type === "FILE_UPLOAD" ? (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="flat"
+                                                                    color="primary"
+                                                                    onPress={() => handlePreview(String(item.value))}
+                                                                    startContent={
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                                                    }
+                                                                >
+                                                                    Ver Archivo
+                                                                </Button>
+                                                            ) : (
+                                                                <p className="text-gray-800 font-medium mb-2">{String(item.value)}</p>
+                                                            )}
+                                                            <div className="flex items-center gap-3 text-xs text-gray-400">
+                                                                <div className="flex items-center gap-1 text-gray-700 bg-gray-100 px-2 py-0.5 rounded-full">
+                                                                    <UserIcon size={12} />
+                                                                    <span className="font-medium truncate max-w-[150px]">{item.respondent}</span>
+                                                                </div>
+                                                                <span>{new Date(item.submittedAt).toLocaleDateString()}</span>
+                                                            </div>
                                                         </div>
-                                                        <div className="flex items-center gap-1 bg-white px-2 py-0.5 rounded border border-gray-200 shadow-sm">
-                                                            <span className="font-bold text-gray-900">{data.count}</span>
+                                                    ))}
+                                                </div>
+
+                                                {analysis.totalAnswers > 5 && (
+                                                    <Button
+                                                        variant="flat"
+                                                        color="secondary"
+                                                        className="w-full font-medium"
+                                                        endContent={<ChevronRight size={16} />}
+                                                        onPress={onOpen}
+                                                    >
+                                                        Ver las {analysis.totalAnswers} respuestas
+                                                    </Button>
+                                                )}
+                                                {analysis.totalAnswers === 0 && (
+                                                    <div className="text-center py-8 text-gray-400">
+                                                        Sin respuestas aún
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </Card>
+                        </section>
+
+                        {/* Modal for Full List */}
+                        <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl" scrollBehavior="inside">
+                            <ModalContent>
+                                {(onClose) => (
+                                    <>
+                                        <ModalHeader className="flex flex-col gap-1">
+                                            <span className="text-xl">Respuestas: {analysis.question.title}</span>
+                                            <span className="text-sm text-gray-500 font-normal">Listado completo de {analysis.totalAnswers} respuestas</span>
+                                        </ModalHeader>
+                                        <ModalBody>
+                                            <div className="space-y-3 pb-4">
+                                                {analysis.answerData.map((item, idx) => (
+                                                    <div key={idx} className="p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                                        {analysis.question.type === "FILE_UPLOAD" ? (
+                                                            <div className="mb-2">
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="flat"
+                                                                    color="primary"
+                                                                    onPress={() => handlePreview(String(item.value))}
+                                                                    startContent={
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                                                    }
+                                                                >
+                                                                    Ver Archivo
+                                                                </Button>
+                                                            </div>
+                                                        ) : (
+                                                            <p className="text-gray-800 font-medium mb-2">{String(item.value)}</p>
+                                                        )}
+                                                        <div className="flex items-center justify-between text-xs text-gray-500">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="font-medium text-gray-900">{item.respondent}</span>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                {item.metadata?.deviceType === 'mobile' ? <Smartphone size={14} /> : <Monitor size={14} />}
+                                                                <span>{new Date(item.submittedAt).toLocaleString()}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 ))}
                                             </div>
-                                        </div>
-                                    </div>
-                                )
-                            ) : (
-                                <div className="space-y-6">
-                                    {/* Text/List List Preview */}
-                                    <div className="grid gap-3">
-                                        {analysis.answerData.slice(0, 5).map((item, idx) => (
-                                            <div key={idx} className="p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors border border-gray-100 group">
-                                                {analysis.question.type === "FILE_UPLOAD" ? (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="flat"
-                                                        color="primary"
-                                                        onPress={() => handlePreview(String(item.value))}
-                                                        startContent={
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
-                                                        }
-                                                    >
-                                                        Ver Archivo
-                                                    </Button>
-                                                ) : (
-                                                    <p className="text-gray-800 font-medium mb-2">{String(item.value)}</p>
-                                                )}
-                                                <div className="flex items-center gap-3 text-xs text-gray-400">
-                                                    <div className="flex items-center gap-1 text-purple-600/70 bg-purple-50 px-2 py-0.5 rounded-full">
-                                                        <UserIcon size={12} />
-                                                        <span className="font-medium truncate max-w-[150px]">{item.respondent}</span>
-                                                    </div>
-                                                    <span>{new Date(item.submittedAt).toLocaleDateString()}</span>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
+                                        </ModalBody>
+                                        <ModalFooter>
+                                            <Button color="danger" variant="light" onPress={onClose}>
+                                                Cerrar
+                                            </Button>
+                                        </ModalFooter>
+                                    </>
+                                )}
+                            </ModalContent>
+                        </Modal>
 
-                                    {analysis.totalAnswers > 5 && (
-                                        <Button
-                                            variant="flat"
-                                            color="secondary"
-                                            className="w-full font-medium"
-                                            endContent={<ChevronRight size={16} />}
-                                            onPress={onOpen}
-                                        >
-                                            Ver las {analysis.totalAnswers} respuestas
-                                        </Button>
-                                    )}
-                                    {analysis.totalAnswers === 0 && (
-                                        <div className="text-center py-8 text-gray-400">
-                                            Sin respuestas aún
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+
                     </div>
-                </Card>
-            </section>
+                </Tab>
 
-            {/* Modal for Full List */}
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="2xl" scrollBehavior="inside">
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1">
-                                <span className="text-xl">Respuestas: {analysis.question.title}</span>
-                                <span className="text-sm text-gray-500 font-normal">Listado completo de {analysis.totalAnswers} respuestas</span>
-                            </ModalHeader>
-                            <ModalBody>
-                                <div className="space-y-3 pb-4">
-                                    {analysis.answerData.map((item, idx) => (
-                                        <div key={idx} className="p-4 bg-gray-50 rounded-xl border border-gray-100">
-                                            {analysis.question.type === "FILE_UPLOAD" ? (
-                                                <div className="mb-2">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="flat"
-                                                        color="primary"
-                                                        onPress={() => handlePreview(String(item.value))}
-                                                        startContent={
-                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
-                                                        }
-                                                    >
-                                                        Ver Archivo
-                                                    </Button>
+                <Tab
+                    key="sessions"
+                    title={
+                        <div className="flex items-center space-x-2">
+                            <UserIcon size={18} />
+                            <span>Por sesión</span>
+                        </div>
+                    }
+                >
+                    <div className="pt-2">
+                        {submissions.length === 0 ? (
+                            <Card className="p-8 text-center bg-gray-50 border border-dashed border-gray-300 shadow-none">
+                                <p className="text-gray-500">Aún no hay respuestas registradas.</p>
+                            </Card>
+                        ) : (
+                            <Accordion variant="splitted" className="px-0">
+                                {submissions.map((sub) => {
+                                    const respondent = getRespondentLabel(sub);
+                                    const date = new Date(sub.submittedAt).toLocaleDateString();
+                                    const time = new Date(sub.submittedAt).toLocaleTimeString();
+                                    const isMobile = sub.metadata?.deviceType === 'mobile';
+                                    const isComplete = sub.status === 'completed';
+
+                                    // Map answers to their actual question titles, sorted by question order
+                                    const sessionAnswers = questionsWithAnswers.map(q => {
+                                        const ans = sub.answers.find(a => String(a.questionId) === String(q._id));
+                                        return {
+                                            questionTitle: q.title,
+                                            questionType: q.type,
+                                            value: ans?.value || null
+                                        };
+                                    }).filter(qa => qa.value !== null && qa.value !== "");
+
+                                    return (
+                                        <AccordionItem
+                                            key={String(sub._id)}
+                                            aria-label={`Sesión de ${respondent}`}
+                                            title={
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-1">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-900 flex items-center justify-center font-bold text-lg">
+                                                            {respondent.charAt(0).toUpperCase()}
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-bold text-gray-900">{respondent}</span>
+                                                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                                <Calendar size={12} /> {date} a las {time}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex items-center gap-1 text-gray-500 text-xs bg-gray-100 px-2 py-1 rounded-md">
+                                                            {isMobile ? <Smartphone size={14} /> : <Monitor size={14} />}
+                                                            <span className="capitalize">{sub.metadata?.deviceType?.toLowerCase() == 'mobile' ? 'Móvil' : sub.metadata?.deviceType?.toLowerCase() == 'tablet' ? 'Tablet' : 'Escritorio'}</span>
+                                                        </div>
+                                                        <Chip size="sm" color={isComplete ? "success" : "warning"} variant="flat" className="font-medium">
+                                                            {isComplete ? 'Completado' : 'Parcial'}
+                                                        </Chip>
+                                                    </div>
                                                 </div>
-                                            ) : (
-                                                <p className="text-gray-800 font-medium mb-2">{String(item.value)}</p>
-                                            )}
-                                            <div className="flex items-center justify-between text-xs text-gray-500">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="font-medium text-purple-600">{item.respondent}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    {item.metadata?.deviceType === 'mobile' ? <Smartphone size={14} /> : <Monitor size={14} />}
-                                                    <span>{new Date(item.submittedAt).toLocaleString()}</span>
-                                                </div>
+                                            }
+                                            className="bg-white border text-gray-800 border-gray-100 shadow-sm"
+                                        >
+                                            <Divider className="mb-4" />
+                                            <div className="space-y-6 pb-2">
+                                                {sessionAnswers.length === 0 ? (
+                                                    <p className="text-gray-400 italic text-sm">El usuario no respondió a ninguna pregunta rastreable.</p>
+                                                ) : (
+                                                    sessionAnswers.map((item, idx) => (
+                                                        <div key={idx} className="flex flex-col gap-1.5">
+                                                            <h5 className="text-sm font-medium text-gray-500 leading-tight">
+                                                                {item.questionTitle}
+                                                            </h5>
+                                                            {item.questionType === "FILE_UPLOAD" ? (
+                                                                <Button
+                                                                    size="sm"
+                                                                    variant="flat"
+                                                                    className="w-fit mt-1 bg-[#1a1a1a] text-white"
+                                                                    onPress={() => handlePreview(String(item.value))}
+                                                                    startContent={
+                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                                                    }
+                                                                >
+                                                                    Ver Archivo Adjunto
+                                                                </Button>
+                                                            ) : Array.isArray(item.value) ? (
+                                                                <ul className="list-disc list-inside text-base font-bold text-gray-900">
+                                                                    {item.value.map((v, i) => <li key={i}>{String(v)}</li>)}
+                                                                </ul>
+                                                            ) : (
+                                                                <p className="text-base font-bold text-gray-900 whitespace-pre-wrap leading-relaxed">
+                                                                    {String(item.value)}
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    ))
+                                                )}
                                             </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button color="danger" variant="light" onPress={onClose}>
-                                    Cerrar
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
+                                        </AccordionItem>
+                                    );
+                                })}
+                            </Accordion>
+                        )}
+                    </div>
+                </Tab>
+            </Tabs>
 
             {/* Preview Modal */}
             <Modal isOpen={isPreviewOpen} onOpenChange={onPreviewChange} size="3xl">
@@ -348,12 +476,27 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                 <ModalHeader className="flex flex-col gap-1">
                                     Vista Previa
                                 </ModalHeader>
-                                <ModalBody className="p-0 bg-gray-100 flex items-center justify-center min-h-[400px]">
+                                <ModalBody className="p-0 bg-gray-100 flex items-center relative justify-center min-h-[400px]">
+                                    {isPreviewLoading && fileType !== 'other' && (
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <Spinner color="primary" size="lg" />
+                                        </div>
+                                    )}
                                     {fileType === 'image' && (
-                                        <img src={fileUrl} alt="Preview" className="max-w-full max-h-[70vh] object-contain" />
+                                        <img
+                                            src={fileUrl}
+                                            alt="Preview"
+                                            className={`max-w-full max-h-[70vh] object-contain transition-opacity duration-300 ${isPreviewLoading ? 'opacity-0' : 'opacity-100'}`}
+                                            onLoad={() => setIsPreviewLoading(false)}
+                                        />
                                     )}
                                     {fileType === 'pdf' && (
-                                        <iframe src={fileUrl} className="w-full h-[70vh]" title="PDF Preview" />
+                                        <iframe
+                                            src={fileUrl}
+                                            className={`w-full h-[70vh] transition-opacity duration-300 ${isPreviewLoading ? 'opacity-0' : 'opacity-100'}`}
+                                            title="PDF Preview"
+                                            onLoad={() => setIsPreviewLoading(false)}
+                                        />
                                     )}
                                     {fileType === 'other' && (
                                         <div className="text-center p-8">
@@ -380,66 +523,6 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                     }}
                 </ModalContent>
             </Modal>
-
-            {/* Recent Submissions Table */}
-            <section>
-                <div className="flex items-center justify-between mb-6">
-                    <h3 className="text-xl font-bold text-gray-900">Registro de Actividad</h3>
-                </div>
-                {submissions.length === 0 ? (
-                    <Card className="p-8 text-center bg-gray-50 border border-dashed border-gray-300 shadow-none">
-                        <p className="text-gray-500">Aún no hay respuestas registradas.</p>
-                    </Card>
-                ) : (
-                    <Table aria-label="Tabla de respuestas recientes" selectionMode="none" classNames={{ wrapper: "shadow-sm border border-gray-100" }}>
-                        <TableHeader>
-                            <TableColumn>USUARIO</TableColumn>
-                            <TableColumn>FECHA</TableColumn>
-                            <TableColumn>DISPOSITIVO</TableColumn>
-                            <TableColumn>ESTADO</TableColumn>
-                        </TableHeader>
-                        <TableBody>
-                            {submissions.map((sub) => (
-                                <TableRow key={String(sub._id)}>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">
-                                                {getRespondentLabel(sub).charAt(0).toUpperCase()}
-                                            </div>
-                                            <span className="text-sm font-medium text-gray-700">{getRespondentLabel(sub)}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <Calendar size={16} className="text-gray-400" />
-                                            <div className="flex flex-col">
-                                                <span className="text-sm text-gray-700">{new Date(sub.submittedAt).toLocaleDateString()}</span>
-                                                <span className="text-xs text-gray-400">{new Date(sub.submittedAt).toLocaleTimeString()}</span>
-                                            </div>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            {sub.metadata?.deviceType === 'mobile' ? <Smartphone size={16} /> : <Monitor size={16} />}
-                                            <span className="capitalize text-gray-600">{sub.metadata?.deviceType || 'Web'}</span>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Chip
-                                            size="sm"
-                                            color={sub.status === 'completed' ? "success" : "warning"}
-                                            variant="flat"
-                                            className="font-medium"
-                                        >
-                                            {sub.status === 'completed' ? 'Completado' : 'Parcial'}
-                                        </Chip>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                )}
-            </section>
-        </div>
+        </div >
     );
 }

@@ -7,6 +7,7 @@ interface CreateCheckoutParams {
   cancelUrl: string;
   couponId?: string | null;
   clientReferenceId?: string;
+  trialPeriodDays?: number;
   user?: {
     customerId?: string;
     email?: string;
@@ -27,6 +28,7 @@ export const createCheckout = async ({
   cancelUrl,
   priceId,
   couponId,
+  trialPeriodDays,
 }: CreateCheckoutParams): Promise<string> => {
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: "2023-08-16", // TODO: update this when Stripe updates their API
@@ -40,6 +42,7 @@ export const createCheckout = async ({
     invoice_creation?: { enabled: boolean };
     payment_intent_data?: { setup_future_usage: "on_session" };
     tax_id_collection?: { enabled: boolean };
+    subscription_data?: { trial_period_days: number };
   } = {};
 
   if (user?.customerId) {
@@ -55,6 +58,12 @@ export const createCheckout = async ({
       extraParams.customer_email = user.email;
     }
     extraParams.tax_id_collection = { enabled: true };
+  }
+
+  if (mode === "subscription" && typeof trialPeriodDays === "number" && trialPeriodDays > 0) {
+    extraParams.subscription_data = {
+      trial_period_days: trialPeriodDays,
+    };
   }
 
   const stripeSession = await stripe.checkout.sessions.create({
