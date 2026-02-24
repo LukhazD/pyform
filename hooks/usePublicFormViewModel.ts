@@ -10,6 +10,7 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
     const [isLoaded, setIsLoaded] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [viewCounted, setViewCounted] = useState(false);
+    const [showDefaultGoodbye, setShowDefaultGoodbye] = useState(false);
 
     // For triggering UI effects like shake
     const [validationError, setValidationError] = useState<number>(0); // Increment to trigger effect
@@ -40,9 +41,11 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
                 const goodbyeIndex = questions.findIndex(q => q.type === "GOODBYE");
                 if (goodbyeIndex !== -1) {
                     setCurrentIndex(goodbyeIndex);
-                    setIsLoaded(true);
-                    return;
+                } else {
+                    setShowDefaultGoodbye(true);
                 }
+                setIsLoaded(true);
+                return;
             }
 
             // Restore progress
@@ -188,6 +191,7 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
                 setCurrentIndex(goodbyeIndex);
             } else {
                 toast.success("¡Gracias! Tu respuesta ha sido registrada.");
+                setShowDefaultGoodbye(true);
             }
         } catch (error) {
             console.error("Submission error:", error);
@@ -204,6 +208,7 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
         isLoaded,
         submitting,
         validationError,
+        showDefaultGoodbye,
         progress: questions.length > 0 ? Math.max(0, Math.min(100, ((currentIndex + 1) / questions.length) * 100)) : 0,
         handleAnswer,
         navigateNext,

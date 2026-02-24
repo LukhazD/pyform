@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import { Button, Progress } from "@heroui/react";
-import { ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronUp, ChevronDown, CheckCircle2, Share2 } from "lucide-react";
 import ModuleRenderer from "@/components/Modules/ModuleRenderer";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
@@ -31,6 +31,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
         navigateNext,
         navigatePrev,
         submitForm,
+        showDefaultGoodbye,
         currentModule: currentQuestion
     } = usePublicFormViewModel(form, questions, isPreview);
 
@@ -43,6 +44,8 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
         ...currentQuestion,
         id: currentQuestion._id
     } : null;
+
+    const isLastActionableModule = !questions[currentIndex + 1] || questions[currentIndex + 1].type === "GOODBYE";
 
     // GSAP Transition
     useGSAP(() => {
@@ -84,13 +87,17 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
             if (e.key === "Enter" && !e.shiftKey) {
                 if (document.activeElement?.tagName === 'TEXTAREA') return;
                 e.preventDefault();
-                navigateNext();
+                if (isLastActionableModule) {
+                    submitForm();
+                } else {
+                    navigateNext();
+                }
             }
         };
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [navigateNext]); // ViewModel's navigateNext is strict about dependencies
+    }, [navigateNext, isLastActionableModule, submitForm]); // ViewModel's navigateNext is strict about dependencies
 
     // Scroll navigation
     const { isNavigating, setNavigating, lastActionTime, setLastActionTime } = useNavigationStore();
@@ -107,7 +114,9 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
             if (e.deltaY > 0) {
                 // Scroll down -> Next
-                // We need to know if we can go next based on questions length to avoid triggering on last page if handled by button
+                // Prevent scrolling past the submit button (forcing the user to click it or press enter)
+                if (isLastActionableModule) return;
+
                 if (currentIndex < questions.length - 1) {
                     setNavigating(true);
                     setLastActionTime(now);
@@ -130,15 +139,75 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
         window.addEventListener("wheel", handleWheel, { passive: true });
         return () => window.removeEventListener("wheel", handleWheel);
-    }, [currentIndex, questions.length, isNavigating, lastActionTime, setNavigating, setLastActionTime, navigateNext, navigatePrev]);
+    }, [currentIndex, questions.length, isNavigating, lastActionTime, setNavigating, setLastActionTime, navigateNext, navigatePrev, isLastActionableModule]);
+
+    const handleShare = async () => {
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: form.title,
+                    text: 'Te invito a responder este formulario',
+                    url: window.location.href,
+                });
+            } catch (error) {
+                console.log('Error sharing:', error);
+            }
+        } else {
+            // Fallback to copy to clipboard
+            navigator.clipboard.writeText(window.location.href);
+            import("react-hot-toast").then((mod) => mod.default.success("Enlace copiado al portapapeles"));
+        }
+    };
+
+    const primaryColor = form.styling?.primaryColor || "#111827"; // Default to gray-900 if missing
+    const fontFamily = form.styling?.fontFamily ? `"${form.styling.fontFamily}", sans-serif` : "Inter, sans-serif";
+
+    // Handle generic goodbye screen
+    if (showDefaultGoodbye) {
+        return (
+            <div
+                className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 flex flex-col items-center justify-center p-4 transition-all duration-700"
+                style={{ fontFamily, /* @ts-ignore */ "--color-primary": primaryColor } as React.CSSProperties}
+            >
+                <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 sm:p-12 text-center animate-fadeIn transform transition-all">
+                    <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
+                        <CheckCircle2 className="w-10 h-10 text-green-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-3">¡Gracias! <br /> Respuesta enviada.</h2>
+                    <p className="text-gray-500 mb-8 text-sm">
+                        Tus respuestas han sido registradas correctamente de forma segura.
+                    </p>
+
+                    <Button
+                        onPress={handleShare}
+                        className="w-full font-medium shadow-md transition-transform hover:scale-105 mb-4 text-white"
+                        style={{ backgroundColor: primaryColor }}
+                        size="lg"
+                        radius="md"
+                        startContent={<Share2 size={18} />}
+                    >
+                        Compartir Formulario
+                    </Button>
+                </div>
+
+                {/* Pyform Watermark / CTA */}
+                <div className="mt-12 text-center">
+                    <a href="https://pyform.luidiaz.com" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 group-hover:text-gray-600">Desarrollado con</span>
+                        <div className="flex items-center gap-2 font-bold text-gray-900">
+                            <span className="text-lg">PyForm</span>
+                            <span className="bg-gray-900 text-white text-[10px] px-2 py-0.5 rounded-full">Gratis</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        );
+    }
 
 
     if (!isLoaded || !currentModule) {
         return <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100" />;
     }
-
-    const primaryColor = form.styling?.primaryColor || "#111827"; // Default to gray-900 if missing
-    const fontFamily = form.styling?.fontFamily ? `"${form.styling.fontFamily}", sans-serif` : "Inter, sans-serif";
 
     return (
         <div
@@ -212,12 +281,12 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
                     {/* Internal Navigation (for questions) */}
                     {currentModule.type !== "WELCOME" && currentModule.type !== "GOODBYE" && (
-                        <div className={`mt-8 max-w-2xl mx-auto animate-fadeIn ${(!questions[currentIndex + 1] || questions[currentIndex + 1].type === "GOODBYE")
+                        <div className={`mt-8 max-w-2xl mx-auto animate-fadeIn ${isLastActionableModule
                             ? "flex flex-col items-center gap-4"
                             : "flex justify-between items-center"
                             }`} style={{ animationDelay: '0.3s', animationFillMode: 'forwards' }}>
 
-                            {questions.length - 2 === currentIndex ? (
+                            {isLastActionableModule ? (
                                 <>
                                     <Button
                                         radius="md"
