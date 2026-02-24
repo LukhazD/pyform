@@ -104,6 +104,7 @@ class SubmissionService implements ISubmissionService {
             const timelineEntry = analytics.submissionTimeline.find(t => new Date(t.date).getTime() === today.getTime());
             if (timelineEntry) {
                 timelineEntry.count += 1;
+                analytics.markModified('submissionTimeline');
             } else {
                 analytics.submissionTimeline.push({ date: today, count: 1 });
             }
