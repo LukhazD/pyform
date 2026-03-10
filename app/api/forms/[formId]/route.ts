@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/libs/next-auth";
 import { formService } from "@/libs/services/formService";
+import Form from "@/models/Form";
 import { checkActiveSubscription, SUBSCRIPTION_INACTIVE_ERROR } from "@/libs/api/requireActiveSubscription";
 
 export async function GET(req: Request, props: { params: Promise<{ formId: string }> }) {
@@ -43,7 +44,23 @@ export async function PATCH(req: Request, props: { params: Promise<{ formId: str
         }
 
         const data = await req.json();
-        const updatedForm = await formService.updateForm(params.formId, data);
+
+        let updatedForm;
+        if (data.status === "published") {
+            // Atomically increment formVersion when publishing/re-publishing
+            const { status, ...rest } = data;
+            updatedForm = await Form.findByIdAndUpdate(
+                form._id,
+                {
+                    $set: { ...rest, status: "published" },
+                    $inc: { formVersion: 1 }
+                },
+                { new: true }
+            );
+        } else {
+            updatedForm = await formService.updateForm(params.formId, data);
+        }
+
         return NextResponse.json(updatedForm);
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });

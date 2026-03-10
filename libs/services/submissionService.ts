@@ -48,6 +48,7 @@ class SubmissionService implements ISubmissionService {
             status: "completed",
             completionTimeMs,
             submittedAt: new Date(),
+            formVersion: form.formVersion || 1,
         });
 
         // Update Analytics Atomically

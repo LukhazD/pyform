@@ -29,7 +29,6 @@ export default function MultipleChoiceQuestion({ module, value, onChange, primar
     const defaultOptions = [
         { id: "1", label: "Opción 1", value: "option1", order: 0 },
         { id: "2", label: "Opción 2", value: "option2", order: 1 },
-        { id: "3", label: "Opción 3", value: "option3", order: 2 },
     ];
 
     const options = module.options || defaultOptions;

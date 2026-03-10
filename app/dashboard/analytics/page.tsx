@@ -36,7 +36,7 @@ export default async function AnalyticsPage() {
                     <TimelineChart data={aggregated} />
                 </div>
                 <GlobalFormsList forms={formsWithStats} />
-            </div>
+            </div>   
         </div>
     );
 }

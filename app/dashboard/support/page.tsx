@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { toast } from "react-hot-toast";
 import { Send, Phone, MessageSquare, HelpCircle } from "lucide-react";
 import axios from "axios";
+import { Button } from "@heroui/button";
 
 // Common country codes for the region
 const countryCodes = [
@@ -182,15 +183,18 @@ export default function SupportPage() {
                         </div>
                     </div>
 
-                    <div className="pt-4">
-                        <button
+                    <div className="pt-4 w-full flex justify-center">
+
+                        <Button
                             type="submit"
-                            disabled={isLoading}
-                            className={`btn btn-primary w-full md:w-auto min-w-[200px] ${isLoading ? "loading" : ""}`}
+                            size="lg"
+                            radius="md"
+                            isLoading={isLoading}
+                            startContent={<Send className="h-4 w-4 mr-2" />}
+                            className="w-full md:w-auto bg-[#1a1a1a] text-white min-w-[200px]"
                         >
-                            {!isLoading && <Send className="h-4 w-4 mr-2" />}
-                            {isLoading ? "Enviando..." : "Enviar Ticket"}
-                        </button>
+                            Enviar Ticket
+                        </Button>
                     </div>
                 </form>
             </div>
@@ -247,7 +251,7 @@ export default function SupportPage() {
                         <div>
                             <h3 className="font-semibold mb-1 text-gray-900">Horario de Atención</h3>
                             <p className="text-sm text-gray-600">
-                                Lunes a Viernes: 9:00 - 18:00 (Hora España).
+                                Lunes a Viernes: 9:00 - 18:00 (UTC+2).
                                 <br />
                                 Respondemos lo antes posible.
                             </p>

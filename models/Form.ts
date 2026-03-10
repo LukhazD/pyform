@@ -62,6 +62,7 @@ export interface IForm extends mongoose.Document {
     description?: string;
     status: "draft" | "published" | "closed";
     shortId: string;
+    formVersion: number;
     settings: FormSettings;
     styling: FormStyling;
     publishedAt?: Date;
@@ -109,6 +110,10 @@ const formSchema = new Schema(
         styling: {
             type: formStylingSchema,
             default: () => ({}),
+        },
+        formVersion: {
+            type: Number,
+            default: 1,
         },
         publishedAt: {
             type: Date,

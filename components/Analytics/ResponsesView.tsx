@@ -63,14 +63,17 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
         return `Anon ${submission._id.toString().slice(-4)}`;
     };
 
-    // Derived state for the selected question analysis
+    // Derived state for the selected question analysis — all versions merged
     const analysis = useMemo(() => {
         if (!selectedQuestionId) return null;
 
         const question = questions.find(q => String(q._id) === selectedQuestionId);
         if (!question) return null;
 
-        const answerData = submissions.map(s => {
+        const isChoiceType = ["MULTIPLE_CHOICE", "DROPDOWN", "CHECKBOXES"].includes(question.type);
+
+        // Build answer data from ALL submissions regardless of form version
+        const allAnswerData = submissions.map(s => {
             const ans = s.answers.find(a => String(a.questionId) === selectedQuestionId);
             if (!ans || ans.value === null || ans.value === undefined || ans.value === "") return null;
             return {
@@ -78,32 +81,34 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                 value: ans.value,
                 submittedAt: s.submittedAt,
                 respondent: getRespondentLabel(s),
-                metadata: s.metadata
+                metadata: s.metadata,
             };
         }).filter((item): item is NonNullable<typeof item> => item !== null);
 
-        const totalAnswers = answerData.length;
+        const totalAnswers = allAnswerData.length;
 
-        // Grouping for charts
+        // Aggregate distribution across ALL versions
         const distribution: Record<string, { count: number; percentage: number; color: string }> = {};
-        const isChoiceType = ["MULTIPLE_CHOICE", "DROPDOWN", "CHECKBOXES"].includes(question.type);
 
         if (isChoiceType) {
             const rawCounts: Record<string, number> = {};
 
-            // Initialize counts for all defined options
+            // Build a value → label map so stored values (e.g. "comida_rápida")
+            // resolve to the option's display label (e.g. "Comida rápida")
+            const valueToLabel: Record<string, string> = {};
             if (question.options && Array.isArray(question.options)) {
                 question.options.forEach(opt => {
-                    rawCounts[opt.label] = 0;
+                    rawCounts[opt.label] = 0;          // pre-seed by label
+                    valueToLabel[opt.value] = opt.label; // map value → label
                 });
             }
 
-            answerData.forEach(item => {
+            allAnswerData.forEach(item => {
                 const vals = Array.isArray(item.value) ? item.value : [item.value];
                 vals.forEach(v => {
-                    const key = String(v);
-                    // Only count if it's a known option or if we want to support "Other" (dynamic)
-                    // For now, we add it if it didn't exist (handling dynamic/other values)
+                    const raw = String(v);
+                    // Resolve stored value to its label; fall back to raw if unknown
+                    const key = valueToLabel[raw] ?? raw;
                     rawCounts[key] = (rawCounts[key] || 0) + 1;
                 });
             });
@@ -111,7 +116,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
             Object.entries(rawCounts).forEach(([label, count], index) => {
                 distribution[label] = {
                     count,
-                    percentage: Math.round((count / totalAnswers) * 100),
+                    percentage: totalAnswers > 0 ? Math.round((count / totalAnswers) * 100) : 0,
                     color: CHART_COLORS[index % CHART_COLORS.length]
                 };
             });
@@ -120,9 +125,9 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
         return {
             question,
             totalAnswers,
-            answerData,
+            answerData: allAnswerData,
             distribution,
-            isChoiceType
+            isChoiceType,
         };
     }, [selectedQuestionId, submissions, questions]);
 
@@ -295,6 +300,8 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                                 )}
                                             </div>
                                         )}
+
+
                                     </div>
                                 </div>
                             </Card>
@@ -372,93 +379,221 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                 <p className="text-gray-500">Aún no hay respuestas registradas.</p>
                             </Card>
                         ) : (
-                            <Accordion variant="splitted" className="px-0">
-                                {submissions.map((sub) => {
-                                    const respondent = getRespondentLabel(sub);
-                                    const date = new Date(sub.submittedAt).toLocaleDateString();
-                                    const time = new Date(sub.submittedAt).toLocaleTimeString();
-                                    const isMobile = sub.metadata?.deviceType === 'mobile';
-                                    const isComplete = sub.status === 'completed';
-
-                                    // Map answers to their actual question titles, sorted by question order
-                                    const sessionAnswers = questionsWithAnswers.map(q => {
-                                        const ans = sub.answers.find(a => String(a.questionId) === String(q._id));
-                                        return {
-                                            questionTitle: q.title,
-                                            questionType: q.type,
-                                            value: ans?.value || null
-                                        };
-                                    }).filter(qa => qa.value !== null && qa.value !== "");
-
-                                    return (
-                                        <AccordionItem
-                                            key={String(sub._id)}
-                                            aria-label={`Sesión de ${respondent}`}
-                                            title={
-                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-1">
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-900 flex items-center justify-center font-bold text-lg">
-                                                            {respondent.charAt(0).toUpperCase()}
+                            <>
+                                {/* ── Desktop: scrollable table ─────────────────────────── */}
+                                <div className="hidden md:block overflow-x-auto rounded-xl border border-gray-200 shadow-sm">
+                                    <table className="w-full text-sm border-collapse min-w-max">
+                                        <thead>
+                                            <tr className="bg-gray-50 border-b border-gray-200">
+                                                {/* Fixed meta columns */}
+                                                <th className="text-left px-4 py-3 font-semibold text-gray-500 uppercase tracking-wider text-xs whitespace-nowrap">
+                                                    Estado
+                                                </th>
+                                                <th className="text-left px-4 py-3 font-semibold text-gray-500 uppercase tracking-wider text-xs whitespace-nowrap">
+                                                    Respondente
+                                                </th>
+                                                <th className="text-left px-4 py-3 font-semibold text-gray-500 uppercase tracking-wider text-xs whitespace-nowrap">
+                                                    Fecha
+                                                </th>
+                                                <th className="text-left px-4 py-3 font-semibold text-gray-500 uppercase tracking-wider text-xs whitespace-nowrap">
+                                                    Dispositivo
+                                                </th>
+                                                {/* One column per question */}
+                                                {questionsWithAnswers.map((q) => (
+                                                    <th
+                                                        key={String(q._id)}
+                                                        className="text-left px-4 py-3 font-semibold text-gray-600 text-xs max-w-[180px] whitespace-normal leading-tight"
+                                                    >
+                                                        <div className="flex items-center gap-1.5">
+                                                            <span className="line-clamp-2">{q.title}</span>
                                                         </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="font-bold text-gray-900">{respondent}</span>
-                                                            <div className="flex items-center gap-2 text-xs text-gray-500">
-                                                                <Calendar size={12} /> {date} a las {time}
+                                                    </th>
+                                                ))}
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100">
+                                            {submissions.map((sub) => {
+                                                const respondent = getRespondentLabel(sub);
+                                                const isComplete = sub.status === 'completed';
+                                                const isMobile = sub.metadata?.deviceType === 'mobile';
+                                                const isTablet = sub.metadata?.deviceType === 'tablet';
+                                                const dateStr = new Date(sub.submittedAt).toLocaleDateString();
+
+                                                return (
+                                                    <tr key={String(sub._id)} className="bg-white hover:bg-gray-50 transition-colors">
+                                                        {/* Status */}
+                                                        <td className="px-4 py-3 whitespace-nowrap">
+                                                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${isComplete
+                                                                ? 'bg-green-100 text-green-700'
+                                                                : 'bg-amber-100 text-amber-700'
+                                                                }`}>
+                                                                {isComplete ? 'Completado' : 'Parcial'}
+                                                            </span>
+                                                        </td>
+                                                        {/* Respondent */}
+                                                        <td className="px-4 py-3 whitespace-nowrap">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-7 h-7 rounded-full bg-gray-100 text-gray-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
+                                                                    {respondent.charAt(0).toUpperCase()}
+                                                                </div>
+                                                                <span className="font-medium text-gray-800 max-w-[140px] truncate">{respondent}</span>
+                                                            </div>
+                                                        </td>
+                                                        {/* Date */}
+                                                        <td className="px-4 py-3 whitespace-nowrap text-gray-500 text-xs">
+                                                            <div className="flex items-center gap-1">
+                                                                <Calendar size={12} />
+                                                                {dateStr}
+                                                            </div>
+                                                        </td>
+                                                        {/* Device */}
+                                                        <td className="px-4 py-3 whitespace-nowrap text-gray-500 text-xs">
+                                                            <div className="flex items-center gap-1">
+                                                                {isMobile ? <Smartphone size={13} /> : <Monitor size={13} />}
+                                                                <span>{isMobile ? 'Móvil' : isTablet ? 'Tablet' : 'Escritorio'}</span>
+                                                            </div>
+                                                        </td>
+                                                        {/* One cell per question */}
+                                                        {questionsWithAnswers.map((q) => {
+                                                            const ans = sub.answers.find(a => String(a.questionId) === String(q._id));
+                                                            const raw = ans?.value ?? null;
+
+                                                            // Resolve stored option values → display labels
+                                                            const vToL: Record<string, string> = {};
+                                                            if (q.options && Array.isArray(q.options)) {
+                                                                q.options.forEach((opt: any) => { vToL[opt.value] = opt.label; });
+                                                            }
+                                                            const resolveVal = (v: string) => vToL[v] ?? v;
+                                                            const val = Array.isArray(raw)
+                                                                ? (raw as string[]).map(resolveVal)
+                                                                : raw !== null ? resolveVal(String(raw)) : null;
+
+                                                            return (
+                                                                <td key={String(q._id)} className="px-4 py-3 max-w-[200px]">
+                                                                    {val === null || val === '' ? (
+                                                                        <span className="text-gray-300 text-xs">—</span>
+                                                                    ) : q.type === 'FILE_UPLOAD' ? (
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="flat"
+                                                                            className="bg-gray-900 text-white text-xs px-2 h-7"
+                                                                            onPress={() => handlePreview(String(raw))}
+                                                                        >
+                                                                            Ver archivo
+                                                                        </Button>
+                                                                    ) : Array.isArray(val) ? (
+                                                                        <div className="flex flex-wrap gap-1">
+                                                                            {val.map((v, i) => (
+                                                                                <span key={i} className="inline-block bg-gray-100 text-gray-700 rounded-md px-2 py-0.5 text-xs font-medium">
+                                                                                    {v}
+                                                                                </span>
+                                                                            ))}
+                                                                        </div>
+                                                                    ) : (
+                                                                        <span className="inline-block bg-gray-100 text-gray-700 rounded-md px-2 py-0.5 text-xs font-medium max-w-full truncate">
+                                                                            {val}
+                                                                        </span>
+                                                                    )}
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </tr>
+                                                );
+                                            })}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* ── Mobile: accordion (unchanged) ────────────────────── */}
+                                <div className="md:hidden">
+                                    <Accordion variant="splitted" className="px-0">
+                                        {submissions.map((sub) => {
+                                            const respondent = getRespondentLabel(sub);
+                                            const date = new Date(sub.submittedAt).toLocaleDateString();
+                                            const time = new Date(sub.submittedAt).toLocaleTimeString();
+                                            const isMobile = sub.metadata?.deviceType === 'mobile';
+                                            const isComplete = sub.status === 'completed';
+
+                                            const sessionAnswers = questionsWithAnswers.map(q => {
+                                                const ans = sub.answers.find(a => String(a.questionId) === String(q._id));
+                                                return {
+                                                    questionTitle: q.title,
+                                                    questionType: q.type,
+                                                    value: ans?.value || null
+                                                };
+                                            }).filter(qa => qa.value !== null && qa.value !== "");
+
+                                            return (
+                                                <AccordionItem
+                                                    key={String(sub._id)}
+                                                    aria-label={`Sesión de ${respondent}`}
+                                                    title={
+                                                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-1">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-10 h-10 rounded-full bg-gray-100 text-gray-900 flex items-center justify-center font-bold text-lg">
+                                                                    {respondent.charAt(0).toUpperCase()}
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <span className="font-bold text-gray-900">{respondent}</span>
+                                                                    <div className="flex items-center gap-2 text-xs text-gray-500">
+                                                                        <Calendar size={12} /> {date} a las {time}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex items-center gap-1 text-gray-500 text-xs bg-gray-100 px-2 py-1 rounded-md">
+                                                                    {isMobile ? <Smartphone size={14} /> : <Monitor size={14} />}
+                                                                    <span className="capitalize">{sub.metadata?.deviceType?.toLowerCase() == 'mobile' ? 'Móvil' : sub.metadata?.deviceType?.toLowerCase() == 'tablet' ? 'Tablet' : 'Escritorio'}</span>
+                                                                </div>
+                                                                <Chip size="sm" color={isComplete ? "success" : "warning"} variant="flat" className="font-medium">
+                                                                    {isComplete ? 'Completado' : 'Parcial'}
+                                                                </Chip>
                                                             </div>
                                                         </div>
+                                                    }
+                                                    className="bg-white border text-gray-800 border-gray-100 shadow-sm"
+                                                >
+                                                    <Divider className="mb-4" />
+                                                    <div className="space-y-6 pb-2">
+                                                        {sessionAnswers.length === 0 ? (
+                                                            <p className="text-gray-400 italic text-sm">El usuario no respondió a ninguna pregunta rastreable.</p>
+                                                        ) : (
+                                                            sessionAnswers.map((item, idx) => (
+                                                                <div key={idx} className="flex flex-col gap-1.5">
+                                                                    <h5 className="text-sm font-medium text-gray-500 leading-tight">
+                                                                        {item.questionTitle}
+                                                                    </h5>
+                                                                    {item.questionType === "FILE_UPLOAD" ? (
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="flat"
+                                                                            className="w-fit mt-1 bg-[#1a1a1a] text-white"
+                                                                            onPress={() => handlePreview(String(item.value))}
+                                                                            startContent={
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
+                                                                            }
+                                                                        >
+                                                                            Ver Archivo Adjunto
+                                                                        </Button>
+                                                                    ) : Array.isArray(item.value) ? (
+                                                                        <ul className="list-disc list-inside text-base font-bold text-gray-900">
+                                                                            {item.value.map((v, i) => <li key={i}>{String(v)}</li>)}
+                                                                        </ul>
+                                                                    ) : (
+                                                                        <p className="text-base font-bold text-gray-900 whitespace-pre-wrap leading-relaxed">
+                                                                            {String(item.value)}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            ))
+                                                        )}
                                                     </div>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="flex items-center gap-1 text-gray-500 text-xs bg-gray-100 px-2 py-1 rounded-md">
-                                                            {isMobile ? <Smartphone size={14} /> : <Monitor size={14} />}
-                                                            <span className="capitalize">{sub.metadata?.deviceType?.toLowerCase() == 'mobile' ? 'Móvil' : sub.metadata?.deviceType?.toLowerCase() == 'tablet' ? 'Tablet' : 'Escritorio'}</span>
-                                                        </div>
-                                                        <Chip size="sm" color={isComplete ? "success" : "warning"} variant="flat" className="font-medium">
-                                                            {isComplete ? 'Completado' : 'Parcial'}
-                                                        </Chip>
-                                                    </div>
-                                                </div>
-                                            }
-                                            className="bg-white border text-gray-800 border-gray-100 shadow-sm"
-                                        >
-                                            <Divider className="mb-4" />
-                                            <div className="space-y-6 pb-2">
-                                                {sessionAnswers.length === 0 ? (
-                                                    <p className="text-gray-400 italic text-sm">El usuario no respondió a ninguna pregunta rastreable.</p>
-                                                ) : (
-                                                    sessionAnswers.map((item, idx) => (
-                                                        <div key={idx} className="flex flex-col gap-1.5">
-                                                            <h5 className="text-sm font-medium text-gray-500 leading-tight">
-                                                                {item.questionTitle}
-                                                            </h5>
-                                                            {item.questionType === "FILE_UPLOAD" ? (
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="flat"
-                                                                    className="w-fit mt-1 bg-[#1a1a1a] text-white"
-                                                                    onPress={() => handlePreview(String(item.value))}
-                                                                    startContent={
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
-                                                                    }
-                                                                >
-                                                                    Ver Archivo Adjunto
-                                                                </Button>
-                                                            ) : Array.isArray(item.value) ? (
-                                                                <ul className="list-disc list-inside text-base font-bold text-gray-900">
-                                                                    {item.value.map((v, i) => <li key={i}>{String(v)}</li>)}
-                                                                </ul>
-                                                            ) : (
-                                                                <p className="text-base font-bold text-gray-900 whitespace-pre-wrap leading-relaxed">
-                                                                    {String(item.value)}
-                                                                </p>
-                                                            )}
-                                                        </div>
-                                                    ))
-                                                )}
-                                            </div>
-                                        </AccordionItem>
-                                    );
-                                })}
-                            </Accordion>
+                                                </AccordionItem>
+                                            );
+                                        })}
+                                    </Accordion>
+                                </div>
+                            </>
                         )}
                     </div>
                 </Tab>

@@ -34,20 +34,21 @@ export async function POST(req: NextRequest) {
 
         const { name, email, phone, subject, message } = validation.data;
 
-        const supportEmail = config.resend.supportEmail;
+        const supportEmail = process.env.SUPPORT_EMAIL || config.resend.supportEmail;
         if (!supportEmail) {
-            console.error("Support email not configured in config.ts");
+            console.error("Support email not configured. Set SUPPORT_EMAIL in .env");
             return NextResponse.json(
                 { error: "Support configuration missing" },
                 { status: 500 }
             );
         }
 
-        // Clean up support email string (remove < > if present)
-        const toEmail = supportEmail.replace(/[<>]/g, "");
+        // Normalize both addresses — strip angle brackets if present
+        const toEmail = supportEmail.replace(/[<>]/g, "").trim();
+        const fromEmail = config.resend.fromAdmin.replace(/[<>]/g, "").trim();
 
         const { data, error } = await resend.emails.send({
-            from: config.resend.fromAdmin,
+            from: fromEmail,
             to: toEmail,
             replyTo: email,
             subject: `[Soporte] ${subject}`,

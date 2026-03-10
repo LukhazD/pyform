@@ -2,11 +2,13 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
+import nodemailer from "nodemailer";
 import config from "@/config";
 import connectMongo from "./mongo";
 import User from "@/models/User";
 import connectMongoose from "@/libs/mongoose";
 import { authConfig } from "./auth.config";
+import { getMagicLinkEmailHTML, getMagicLinkEmailText } from "./emailTemplate";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
@@ -36,6 +38,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             },
           },
           from: config.resend.fromNoReply,
+          async sendVerificationRequest({ identifier: email, url, provider }) {
+            const transport = nodemailer.createTransport(provider.server as nodemailer.TransportOptions);
+            await transport.sendMail({
+              to: email,
+              from: provider.from,
+              subject: "Tu enlace para acceder a PyForm",
+              text: getMagicLinkEmailText(url),
+              html: getMagicLinkEmailHTML(url),
+            });
+          },
         }),
       ]
       : []),

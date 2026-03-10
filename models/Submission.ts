@@ -75,6 +75,7 @@ export interface ISubmission extends mongoose.Document {
     answers: Answer[];
     metadata: SubmissionMetadata;
     status: "completed" | "partial";
+    formVersion: number;
     submittedAt: Date;
     completionTimeMs: number;
 
@@ -104,6 +105,10 @@ const submissionSchema = new Schema(
             enum: ["completed", "partial"],
             required: true,
             index: true,
+        },
+        formVersion: {
+            type: Number,
+            default: 1,
         },
         submittedAt: {
             type: Date,

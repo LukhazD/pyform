@@ -192,7 +192,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
                 {/* Pyform Watermark / CTA */}
                 <div className="mt-12 text-center">
-                    <a href="https://pyform.luidiaz.com" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
+                    <a href="https://pyform.app" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
                         <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 group-hover:text-gray-600">Desarrollado con</span>
                         <div className="flex items-center gap-2 font-bold text-gray-900">
                             <span className="text-lg">PyForm</span>

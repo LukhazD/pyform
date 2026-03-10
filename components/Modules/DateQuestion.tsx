@@ -57,6 +57,7 @@ export default function DateQuestion({ module, value, onChange, primaryColor, ra
                         size="lg"
                         value={dateValue}
                         onChange={handleDateChange}
+                        shouldForceLeadingZeros
                         classNames={{
                             base: "w-full",
                             inputWrapper: "border-2 border-gray-300 focus-within:border-primary",
