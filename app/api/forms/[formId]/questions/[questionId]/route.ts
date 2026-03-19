@@ -21,11 +21,20 @@ export async function PATCH(req: Request, props: { params: Promise<{ formId: str
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        const data = await req.json();
+        const body = await req.json();
+
+        // Whitelist allowed fields to prevent mass assignment (C-4)
+        const ALLOWED_QUESTION_FIELDS = ["type", "order", "title", "description", "isRequired", "validation", "options", "placeholder", "showConfetti"];
+        const data: Record<string, unknown> = {};
+        for (const key of ALLOWED_QUESTION_FIELDS) {
+            if (key in body) {
+                data[key] = body[key];
+            }
+        }
 
         const question = await Question.findOneAndUpdate(
             { _id: params.questionId, formId: params.formId },
-            data,
+            { $set: data },
             { new: true }
         );
 

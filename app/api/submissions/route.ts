@@ -1,9 +1,34 @@
 import { NextResponse } from "next/server";
 import { submissionService } from "@/libs/services/submissionService";
+import { checkRateLimit } from "@/libs/rateLimit";
+
+// Rate limits: 5 submissions per minute per IP, 20 per minute per formId
+const IP_LIMIT = 5;
+const FORM_LIMIT = 20;
+const WINDOW_MS = 60_000;
 
 export async function POST(req: Request) {
     try {
+        // Rate limiting by IP
+        const forwarded = req.headers.get("x-forwarded-for");
+        const ip = forwarded?.split(",")[0]?.trim() || "unknown";
+
+        if (!checkRateLimit(`sub:ip:${ip}`, IP_LIMIT, WINDOW_MS)) {
+            return NextResponse.json(
+                { error: "Too many submissions. Please try again later." },
+                { status: 429 }
+            );
+        }
+
         const { formId, answers, metadata, completionTimeMs } = await req.json();
+
+        // Rate limiting by formId
+        if (!checkRateLimit(`sub:form:${formId}`, FORM_LIMIT, WINDOW_MS)) {
+            return NextResponse.json(
+                { error: "This form is receiving too many submissions. Please try again later." },
+                { status: 429 }
+            );
+        }
 
         // Refine metadata
         const userAgent = metadata.userAgent || "";
@@ -38,6 +63,13 @@ export async function POST(req: Request) {
         return NextResponse.json(submission, { status: 201 });
     } catch (error: any) {
         console.error("Submission Error:", error);
-        return NextResponse.json({ error: error.message || "Internal Server Error", details: error.errors }, { status: 500 });
+        // Only expose safe error messages to the client
+        const safeMessages = [
+            "Formulario no encontrado",
+            "Este formulario no está disponible temporalmente",
+        ];
+        const message = safeMessages.find(m => error.message?.includes(m))
+            || (error.message?.startsWith("Este formulario ha alcanzado") ? error.message : "Error al enviar respuesta");
+        return NextResponse.json({ error: message }, { status: error.message?.includes("no encontrado") ? 404 : 500 });
     }
 }

@@ -43,7 +43,16 @@ export async function PATCH(req: Request, props: { params: Promise<{ formId: str
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        const data = await req.json();
+        const body = await req.json();
+
+        // Whitelist allowed fields to prevent mass assignment (C-3)
+        const ALLOWED_FIELDS = ["title", "description", "status", "settings", "styling", "publishedAt"];
+        const data: Record<string, unknown> = {};
+        for (const key of ALLOWED_FIELDS) {
+            if (key in body) {
+                data[key] = body[key];
+            }
+        }
 
         let updatedForm;
         if (data.status === "published") {

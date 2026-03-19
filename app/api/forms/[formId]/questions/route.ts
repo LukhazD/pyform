@@ -22,11 +22,20 @@ export async function POST(req: Request, props: { params: Promise<{ formId: stri
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
-        const data = await req.json();
+        const body = await req.json();
+
+        // Whitelist allowed fields to prevent mass assignment (C-4)
+        const ALLOWED_QUESTION_FIELDS = ["type", "order", "title", "description", "isRequired", "validation", "options", "placeholder", "showConfetti", "id"];
+        const data: Record<string, unknown> = {};
+        for (const key of ALLOWED_QUESTION_FIELDS) {
+            if (key in body) {
+                data[key] = body[key];
+            }
+        }
 
         const question = await Question.create({
             ...data,
-            formId: form._id, // Ensure we use the ObjectId
+            formId: form._id, // Always set by server, never from client
         });
 
         return NextResponse.json(question, { status: 201 });

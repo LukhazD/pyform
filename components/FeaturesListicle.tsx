@@ -134,7 +134,6 @@ const features: {
               "Métricas claras: respuestas, tasa de finalización, tiempo promedio",
               "Identifica en qué pregunta abandonan los usuarios",
               "Línea de tiempo de respuestas en tiempo real",
-              "Exporta a CSV con un clic",
             ].map((item) => (
               <li key={item} className="flex items-center gap-3">
                 <CheckIcon />

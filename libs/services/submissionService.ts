@@ -29,10 +29,10 @@ class SubmissionService implements ISubmissionService {
             throw new Error("Este formulario no está disponible temporalmente");
         }
 
-        // Enforce response-per-form limit
-        const analytics = await FormAnalytics.findOne({ formId });
-        const currentResponses = analytics?.completedSubmissions ?? 0;
-        if (currentResponses >= RESPONSES_PER_FORM_LIMIT) {
+        // Enforce response-per-form limit atomically (C-5: prevent TOCTOU race)
+        // Use actual submission count as source of truth instead of analytics counter
+        const currentCount = await Submission.countDocuments({ formId: new mongoose.Types.ObjectId(formId) });
+        if (currentCount >= RESPONSES_PER_FORM_LIMIT) {
             throw new Error(`Este formulario ha alcanzado el límite de ${RESPONSES_PER_FORM_LIMIT} respuestas.`);
         }
 

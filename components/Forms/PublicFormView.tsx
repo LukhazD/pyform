@@ -9,6 +9,7 @@ import { useGSAP } from "@gsap/react";
 import { useNavigationStore } from "@/hooks/useNavigationStore";
 import { usePublicFormViewModel } from "@/hooks/usePublicFormViewModel";
 import { Form, Question } from "@/types/Form";
+import { sanitizeCSS } from "@/libs/sanitizeCSS";
 
 gsap.registerPlugin(useGSAP);
 
@@ -219,9 +220,9 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                 "--color-primary": primaryColor,
             } as React.CSSProperties}
         >
-            {/* Custom CSS Injection */}
+            {/* Custom CSS — sanitized to prevent XSS (C-8) */}
             {form.styling?.customCSS && (
-                <style dangerouslySetInnerHTML={{ __html: form.styling.customCSS }} />
+                <style dangerouslySetInnerHTML={{ __html: sanitizeCSS(form.styling.customCSS) }} />
             )}
 
             {/* Preview mode banner */}

@@ -11,6 +11,20 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
+// In-memory idempotency cache (for production, use Redis or a DB collection)
+const processedEvents = new Map<string, number>();
+const IDEMPOTENCY_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+// Cleanup old entries periodically
+if (typeof setInterval !== "undefined") {
+    setInterval(() => {
+        const now = Date.now();
+        for (const [id, ts] of processedEvents.entries()) {
+            if (now - ts > IDEMPOTENCY_TTL_MS) processedEvents.delete(id);
+        }
+    }, 60_000).unref?.();
+}
+
 export async function POST(req: NextRequest) {
     const body = await req.text();
     const signature = req.headers.get("stripe-signature")!;
@@ -22,6 +36,11 @@ export async function POST(req: NextRequest) {
     } catch (err: any) {
         console.error(`Webhook signature verification failed: ${err.message}`);
         return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+    }
+
+    // Idempotency: skip already-processed events
+    if (processedEvents.has(event.id)) {
+        return NextResponse.json({ received: true, deduplicated: true });
     }
 
     await connectMongo();
@@ -214,9 +233,13 @@ export async function POST(req: NextRequest) {
                 console.log(`[WEBHOOK] Unhandled event type: ${event.type}`);
         }
 
+        // Mark event as processed after successful handling
+        processedEvents.set(event.id, Date.now());
+
         return NextResponse.json({ received: true });
     } catch (error) {
         console.error("[WEBHOOK] Error processing webhook:", error);
+        // Return 500 so Stripe retries the event
         return NextResponse.json(
             { error: "Webhook processing failed" },
             { status: 500 }
