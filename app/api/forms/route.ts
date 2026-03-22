@@ -37,7 +37,7 @@ export async function POST(req: Request) {
                 title: adapted.title,
                 description: adapted.description,
                 shortId,
-                status: "draft",
+                status: "published",
                 settings: adapted.settings,
                 styling: adapted.styling,
             });
