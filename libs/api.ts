@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosRetry from "axios-retry";
 import { toast } from "react-hot-toast";
 import { signIn } from "next-auth/react";
 import config from "@/config";
@@ -7,6 +8,16 @@ import config from "@/config";
 // See https://shipfa.st/docs/tutorials/api-call
 const apiClient = axios.create({
   baseURL: "/api",
+  timeout: 5000,
+});
+
+// Retry policy: 3 retries with exponential backoff on network errors & 5xx
+axiosRetry(apiClient, {
+  retries: 3,
+  retryDelay: axiosRetry.exponentialDelay,
+  retryCondition: (error) =>
+    axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+    (error.response?.status !== undefined && error.response.status >= 500),
 });
 
 apiClient.interceptors.response.use(

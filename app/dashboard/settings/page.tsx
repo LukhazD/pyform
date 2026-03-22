@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import config from "@/config";
 import SubscriptionCard from "@/components/Dashboard/SubscriptionCard";
+import ApiKeysCard from "@/components/Dashboard/ApiKeysCard";
 
 export default async function SettingsPage() {
     const session = await auth();
@@ -106,6 +107,9 @@ export default async function SettingsPage() {
 
                 {/* Subscription Card */}
                 <SubscriptionCard session={session} />
+
+                {/* API Keys Card */}
+                <ApiKeysCard />
 
                 {/* Logout Button */}
                 <div className="flex justify-center pt-8">
