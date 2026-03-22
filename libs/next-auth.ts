@@ -2,7 +2,6 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import EmailProvider from "next-auth/providers/email";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import nodemailer from "nodemailer";
 import config from "@/config";
 import connectMongo from "./mongo";
 import User from "@/models/User";
@@ -30,23 +29,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       ? [
         EmailProvider({
           server: {
-            host: "smtp.resend.com",
-            port: 465,
+            host: "",
+            port: 0,
             auth: {
-              user: "resend",
-              pass: process.env.RESEND_API_KEY,
+              user: "",
+              pass: "",
             },
           },
           from: config.resend.fromNoReply,
           async sendVerificationRequest({ identifier: email, url, provider }) {
-            const transport = nodemailer.createTransport(provider.server as nodemailer.TransportOptions);
-            await transport.sendMail({
+            const { Resend } = await import("resend");
+            const resend = new Resend(process.env.RESEND_API_KEY!);
+            
+            const result = await resend.emails.send({
               to: email,
-              from: provider.from,
+              from: provider.from as string,
               subject: "Tu enlace para acceder a PyForm",
               text: getMagicLinkEmailText(url),
               html: getMagicLinkEmailHTML(url),
             });
+
+            if (result.error) {
+              console.error("Resend error:", result.error);
+              throw new Error(`Resend error: ${result.error.message}`);
+            }
           },
         }),
       ]

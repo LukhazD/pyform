@@ -84,11 +84,11 @@ const config = {
   },
   resend: {
     // REQUIRED — Email 'From' field to be used when sending magic login links
-    fromNoReply: `<noreply@pyform.app>`,
+    fromNoReply: "Pyform <noreply@pyform.app>",
     // REQUIRED — Email 'From' field to be used when sending other emails, like abandoned carts, updates etc..
-    fromAdmin: `<admin@pyform.app>`,
+    fromAdmin: "Pyform Admin <admin@pyform.app>",
     // Email shown to customer if they need support. Leave empty if not needed => if empty, set up Crisp above, otherwise you won't be able to offer customer support."
-    supportEmail: "<io@pyform.app>",
+    supportEmail: "Pyform Support <io@pyform.app>",
   },
   colors: {
     // REQUIRED — The DaisyUI theme to use (added to the main layout.js). Leave blank for default (light & dark mode). If you use any theme other than light/dark, you need to add it in config.tailwind.js in daisyui.themes.
