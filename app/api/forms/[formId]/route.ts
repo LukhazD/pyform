@@ -1,20 +1,20 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/libs/next-auth";
 import { formService } from "@/libs/services/formService";
 import Form from "@/models/Form";
-import { checkActiveSubscription, SUBSCRIPTION_INACTIVE_ERROR } from "@/libs/api/requireActiveSubscription";
+import { resolveUserId } from "@/libs/api/resolveUserId";
 
 export async function GET(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
-    const session = await auth();
-    if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userIdOrError = await resolveUserId(req);
+    if (userIdOrError instanceof NextResponse) return userIdOrError;
+    const userId = userIdOrError;
 
     try {
         const form = await formService.getForm(params.formId);
         if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
 
         // Security Check: Ensure user owns the form
-        if (form.userId.toString() !== session.user.id) {
+        if (form.userId.toString() !== userId) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -26,20 +26,16 @@ export async function GET(req: Request, props: { params: Promise<{ formId: strin
 
 export async function PATCH(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
-    const session = await auth();
-    if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    // Check subscription status
-    if (!checkActiveSubscription(session)) {
-        return NextResponse.json(SUBSCRIPTION_INACTIVE_ERROR, { status: 403 });
-    }
+    const userIdOrError = await resolveUserId(req);
+    if (userIdOrError instanceof NextResponse) return userIdOrError;
+    const userId = userIdOrError;
 
     try {
         const form = await formService.getForm(params.formId);
         if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
 
         // Security Check: Ensure user owns the form
-        if (form.userId.toString() !== session.user.id) {
+        if (form.userId.toString() !== userId) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -78,20 +74,16 @@ export async function PATCH(req: Request, props: { params: Promise<{ formId: str
 
 export async function DELETE(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
-    const session = await auth();
-    if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    // Check subscription status
-    if (!checkActiveSubscription(session)) {
-        return NextResponse.json(SUBSCRIPTION_INACTIVE_ERROR, { status: 403 });
-    }
+    const userIdOrError = await resolveUserId(req);
+    if (userIdOrError instanceof NextResponse) return userIdOrError;
+    const userId = userIdOrError;
 
     try {
         const form = await formService.getForm(params.formId);
         if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
 
         // Security Check: Ensure user owns the form
-        if (form.userId.toString() !== session.user.id) {
+        if (form.userId.toString() !== userId) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 

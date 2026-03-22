@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/libs/next-auth";
-// import { authOptions } from "@/libs/next-auth";
 import Question from "@/models/Question";
 import connectMongo from "@/libs/mongoose";
 import { formService } from "@/libs/services/formService";
+import { resolveUserId } from "@/libs/api/resolveUserId";
 
 export async function POST(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
-    const session = await auth();
-    if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userIdOrError = await resolveUserId(req);
+    if (userIdOrError instanceof NextResponse) return userIdOrError;
+    const userId = userIdOrError;
 
     try {
         await connectMongo();
@@ -18,7 +18,7 @@ export async function POST(req: Request, props: { params: Promise<{ formId: stri
         if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
 
         // Security Check
-        if (form.userId.toString() !== session.user.id) {
+        if (form.userId.toString() !== userId) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -46,8 +46,9 @@ export async function POST(req: Request, props: { params: Promise<{ formId: stri
 
 export async function GET(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
-    const session = await auth();
-    if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userIdOrError = await resolveUserId(req);
+    if (userIdOrError instanceof NextResponse) return userIdOrError;
+    const userId = userIdOrError;
 
     try {
         await connectMongo();
@@ -56,8 +57,7 @@ export async function GET(req: Request, props: { params: Promise<{ formId: strin
         if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
 
         // Security Check
-        if (form.userId.toString() !== session.user.id) {
-            console.log(`Forbidden access attempt: Form owner ${form.userId} vs Session user ${session.user.id}`);
+        if (form.userId.toString() !== userId) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
@@ -70,8 +70,9 @@ export async function GET(req: Request, props: { params: Promise<{ formId: strin
 
 export async function PUT(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
-    const session = await auth();
-    if (!session || !session.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const userIdOrError = await resolveUserId(req);
+    if (userIdOrError instanceof NextResponse) return userIdOrError;
+    const userId = userIdOrError;
 
     try {
         await connectMongo();
@@ -81,7 +82,7 @@ export async function PUT(req: Request, props: { params: Promise<{ formId: strin
         if (!form) return NextResponse.json({ error: "Form not found" }, { status: 404 });
 
         // Security Check
-        if (form.userId.toString() !== session.user.id) {
+        if (form.userId.toString() !== userId) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
