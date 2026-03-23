@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import s3Client from "@/libs/s3";
-import { auth } from "@/libs/next-auth";
+import { resolveUserId } from "@/libs/api/resolveUserId";
 import Form from "@/models/Form";
 import connectMongo from "@/libs/mongoose";
 
@@ -15,10 +15,9 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: "Missing key" }, { status: 400 });
         }
 
-        const session = await auth();
-        if (!session?.user?.id) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const userIdOrError = await resolveUserId(req);
+        if (userIdOrError instanceof NextResponse) return userIdOrError;
+        const userId = userIdOrError;
 
         // Security Check: Key format should be "uploads/FORM_ID/..."
         const parts = key.split("/");
@@ -31,7 +30,7 @@ export async function GET(req: Request) {
         await connectMongo();
         const form = await Form.findById(formId);
 
-        if (!form || String(form.userId) !== session.user.id) {
+        if (!form || String(form.userId) !== userId) {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
 
