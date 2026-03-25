@@ -39,8 +39,17 @@ export function hasActiveProAccess(user: SubscriptionUser): boolean {
         return new Date() < endDate;
     }
 
-    // Past due - still has access while Stripe retries payment
+    // Past due - grant access only within a grace window (7 days after billing period end)
     if (user.subscriptionStatus === "past_due") {
+        if (user.currentPeriodEnd) {
+            const endDate = typeof user.currentPeriodEnd === "string"
+                ? new Date(user.currentPeriodEnd)
+                : user.currentPeriodEnd;
+            const PAST_DUE_GRACE_DAYS = 7;
+            const graceDeadline = new Date(endDate.getTime() + PAST_DUE_GRACE_DAYS * 24 * 60 * 60 * 1000);
+            return new Date() < graceDeadline;
+        }
+        // No period end date — allow short grace (shouldn't happen in practice)
         return true;
     }
 

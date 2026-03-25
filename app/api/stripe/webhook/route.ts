@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import connectMongo from "@/libs/mongoose";
 import User from "@/models/User";
 import Subscription from "@/models/Subscription";
+import ApiKey from "@/models/ApiKey";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
     apiVersion: "2023-08-16",
@@ -162,13 +163,25 @@ export async function POST(req: NextRequest) {
                     { status: "canceled" }
                 );
                 // Sync to User (remove tier)
-                await User.findOneAndUpdate(
+                const canceledUser = await User.findOneAndUpdate(
                     { stripeSubscriptionId: subscription.id },
                     {
                         subscriptionStatus: "canceled",
                         subscriptionTier: undefined,
                     }
                 );
+
+                // Auto-revoke all active API keys for this user
+                if (canceledUser) {
+                    const revokeResult = await ApiKey.updateMany(
+                        { userId: canceledUser._id, revokedAt: null },
+                        { $set: { revokedAt: new Date() } }
+                    );
+                    if (revokeResult.modifiedCount > 0) {
+                        console.log(`[WEBHOOK] Revoked ${revokeResult.modifiedCount} API key(s) for user ${canceledUser.email}`);
+                    }
+                }
+
                 console.log(`[WEBHOOK] Subscription canceled - synced: ${subscription.id}`);
                 break;
             }
@@ -226,6 +239,74 @@ export async function POST(req: NextRequest) {
                     userUpdate
                 );
                 console.log(`[WEBHOOK] Subscription updated - synced: ${subscription.id} -> ${mappedStatus}`);
+                break;
+            }
+
+            case "charge.dispute.created": {
+                const dispute = event.data.object as Stripe.Dispute;
+                // Resolve the charge to get the customer ID
+                const disputeCharge = typeof dispute.charge === "string"
+                    ? await stripe.charges.retrieve(dispute.charge)
+                    : dispute.charge;
+                const disputeCustomerId = disputeCharge?.customer as string | null;
+
+                if (disputeCustomerId) {
+                    // Immediately revoke access — chargebacks are a strong fraud signal
+                    const disputedUser = await User.findOneAndUpdate(
+                        { stripeCustomerId: disputeCustomerId },
+                        {
+                            subscriptionStatus: "canceled",
+                            subscriptionTier: undefined,
+                        }
+                    );
+
+                    if (disputedUser) {
+                        await Subscription.findOneAndUpdate(
+                            { userId: disputedUser._id },
+                            { status: "canceled" }
+                        );
+
+                        // Revoke all API keys
+                        await ApiKey.updateMany(
+                            { userId: disputedUser._id, revokedAt: null },
+                            { $set: { revokedAt: new Date() } }
+                        );
+
+                        console.log(`[WEBHOOK] Dispute detected — access revoked for user ${disputedUser.email} (customer ${disputeCustomerId})`);
+                    }
+                }
+                break;
+            }
+
+            case "charge.refunded": {
+                const refundedCharge = event.data.object as Stripe.Charge;
+                const refundCustomerId = refundedCharge.customer as string;
+
+                // Only revoke on full refund (amount_refunded >= amount)
+                if (refundCustomerId && refundedCharge.amount_captured > 0 && refundedCharge.amount_refunded >= refundedCharge.amount_captured) {
+                    const refundedUser = await User.findOneAndUpdate(
+                        { stripeCustomerId: refundCustomerId },
+                        {
+                            subscriptionStatus: "canceled",
+                            subscriptionTier: undefined,
+                        }
+                    );
+
+                    if (refundedUser) {
+                        await Subscription.findOneAndUpdate(
+                            { userId: refundedUser._id },
+                            { status: "canceled" }
+                        );
+
+                        // Revoke all API keys
+                        await ApiKey.updateMany(
+                            { userId: refundedUser._id, revokedAt: null },
+                            { $set: { revokedAt: new Date() } }
+                        );
+
+                        console.log(`[WEBHOOK] Full refund — access revoked for user ${refundedUser.email} (customer ${refundCustomerId})`);
+                    }
+                }
                 break;
             }
 
