@@ -7,8 +7,8 @@ import connectMongo from "@/libs/mongoose";
 import User from "@/models/User";
 import { hasActiveProAccess } from "@/libs/subscriptionUtils";
 
-// This is a server-side component to ensure the user is logged in.
-// If not, it will redirect to the login page.
+// Server-side component — all redirect decisions use the DB (source of truth),
+// never the JWT token, to avoid stale-session loops.
 export default async function LayoutPrivate({
   children,
 }: {
@@ -23,7 +23,15 @@ export default async function LayoutPrivate({
   await connectMongo();
   const user = await User.findById(session.user.id);
 
-  if (!user || !hasActiveProAccess(user)) {
+  if (!user) {
+    redirect(config.auth.loginUrl);
+  }
+
+  if (!user.onboardingCompleted) {
+    redirect("/onboarding");
+  }
+
+  if (!hasActiveProAccess(user)) {
     redirect("/subscribe");
   }
 

@@ -27,6 +27,8 @@ export function usePaymentSuccessViewModel() {
                     await update({
                         subscriptionTier: freshData.subscriptionTier,
                         subscriptionStatus: freshData.subscriptionStatus,
+                        cancelAtPeriodEnd: freshData.cancelAtPeriodEnd,
+                        currentPeriodEnd: freshData.currentPeriodEnd,
                         onboardingCompleted: freshData.onboardingCompleted,
                         role: freshData.role,
                     });
