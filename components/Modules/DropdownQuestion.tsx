@@ -19,13 +19,14 @@ interface DropdownQuestionProps {
     module: Module;
     value?: string;
     onChange?: (_v: string) => void;
+    onAutoAdvance?: () => void;
     isPreview?: boolean;
     primaryColor?: string;
     radius?: FormStyling["heroUIRadius"];
     shadow?: FormStyling["heroUIShadow"];
 }
 
-export default function DropdownQuestion({ module, value, onChange, primaryColor, radius = "lg", shadow = "sm" }: DropdownQuestionProps) {
+export default function DropdownQuestion({ module, value, onChange, onAutoAdvance, primaryColor, radius = "lg", shadow = "sm" }: DropdownQuestionProps) {
     const defaultOptions = [
         { id: "1", label: "Opción 1", value: "option1", order: 0 },
         { id: "2", label: "Opción 2", value: "option2", order: 1 },
@@ -36,7 +37,11 @@ export default function DropdownQuestion({ module, value, onChange, primaryColor
     // Handle selection change - Select returns a Set or comma separated string depending on mode
     // For single selection, it's usually a Set with one item or a string key
     const handleSelectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        if (onChange) onChange(e.target.value);
+        const selectedValue = e.target.value;
+        if (onChange) onChange(selectedValue);
+        if (selectedValue) {
+            setTimeout(() => onAutoAdvance?.(), 600);
+        }
     };
 
     return (

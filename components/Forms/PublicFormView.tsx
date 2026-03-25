@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useRef, useCallback } from "react";
 import { Button, Progress } from "@heroui/react";
 import { ChevronUp, ChevronDown, CheckCircle2, Share2 } from "lucide-react";
 import ModuleRenderer from "@/components/Modules/ModuleRenderer";
@@ -47,6 +47,13 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
     } : null;
 
     const isLastActionableModule = !questions[currentIndex + 1] || questions[currentIndex + 1].type === "GOODBYE";
+
+    // Auto-advance: navigate next for selection/completion modules, but never auto-submit on the last module
+    const handleAutoAdvance = useCallback(() => {
+        if (!isLastActionableModule) {
+            navigateNext();
+        }
+    }, [isLastActionableModule, navigateNext]);
 
     // GSAP Transition
     useGSAP(() => {
@@ -274,10 +281,11 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                         value={responses[currentModule.id] || ""}
                         onChange={handleAnswer}
                         onNext={navigateNext}
-                        primaryColor={primaryColor} // Pass color to renderer if it accepts it
+                        onAutoAdvance={handleAutoAdvance}
+                        primaryColor={primaryColor}
                         radius={form.styling?.heroUIRadius === "full" ? "lg" : form.styling?.heroUIRadius}
                         shadow={form.styling?.heroUIShadow}
-                        formId={form._id} // Pass form ID
+                        formId={form._id}
                     />
 
                     {/* Internal Navigation (for questions) */}

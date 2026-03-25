@@ -109,7 +109,7 @@ export default function ApiKeysCard() {
                     <div>
                         <h2 className="text-lg font-semibold text-gray-900">API Keys</h2>
                         <p className="text-gray-500 text-sm">
-                            Conecta herramientas externas como Claude Code
+                            Conecta herramientas externas como Claude Cowork
                         </p>
                     </div>
                 </div>

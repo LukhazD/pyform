@@ -19,13 +19,14 @@ interface MultipleChoiceQuestionProps {
     module: Module;
     value?: string;
     onChange?: (_v: string) => void;
+    onAutoAdvance?: () => void;
     isPreview?: boolean;
     primaryColor?: string;
     radius?: FormStyling["heroUIRadius"];
     shadow?: FormStyling["heroUIShadow"];
 }
 
-export default function MultipleChoiceQuestion({ module, value, onChange, primaryColor, radius = "lg", shadow = "sm" }: MultipleChoiceQuestionProps) {
+export default function MultipleChoiceQuestion({ module, value, onChange, onAutoAdvance, primaryColor, radius = "lg", shadow = "sm" }: MultipleChoiceQuestionProps) {
     const defaultOptions = [
         { id: "1", label: "Opción 1", value: "option1", order: 0 },
         { id: "2", label: "Opción 2", value: "option2", order: 1 },
@@ -50,7 +51,10 @@ export default function MultipleChoiceQuestion({ module, value, onChange, primar
                     <RadioGroup
                         classNames={{ wrapper: "gap-3" }}
                         value={value || ""}
-                        onValueChange={onChange}
+                        onValueChange={(v) => {
+                            onChange?.(v);
+                            if (v) setTimeout(() => onAutoAdvance?.(), 600);
+                        }}
                     >
                         {options.map((option, index) => (
                             <Radio

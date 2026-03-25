@@ -3,7 +3,7 @@ import config from "@/config";
 
 export const authConfig = {
     // Set any random key in .env.local
-    secret: process.env.NEXTAUTH_SECRET,
+    secret: process.env.AUTH_SECRET,
     // Trust the host in production (required for custom domains)
     trustHost: true,
     // Providers are defined here to be available for middleware if needed, although mostly for signin page detection

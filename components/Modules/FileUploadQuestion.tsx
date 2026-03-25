@@ -21,6 +21,7 @@ interface FileUploadQuestionProps {
     module: Module;
     value?: string | File;
     onChange?: (_v: string | File) => void;
+    onAutoAdvance?: () => void;
     isPreview?: boolean;
     primaryColor?: string;
     radius?: FormStyling["heroUIRadius"];
@@ -28,7 +29,7 @@ interface FileUploadQuestionProps {
     formId?: string;
 }
 
-export default function FileUploadQuestion({ module, value, onChange, primaryColor, radius = "lg", shadow = "sm", formId }: FileUploadQuestionProps) {
+export default function FileUploadQuestion({ module, value, onChange, onAutoAdvance, primaryColor, radius = "lg", shadow = "sm", formId }: FileUploadQuestionProps) {
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [fileName, setFileName] = useState<string>("");
@@ -82,6 +83,7 @@ export default function FileUploadQuestion({ module, value, onChange, primaryCol
             }
             setFileName(file.name);
             toast.success("Archivo subido correctamente");
+            setTimeout(() => onAutoAdvance?.(), 800);
 
         } catch (err) {
             console.error("Upload error:", err);

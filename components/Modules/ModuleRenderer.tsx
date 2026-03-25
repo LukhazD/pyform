@@ -39,13 +39,14 @@ interface ModuleRendererProps {
     value?: any;
     onChange?: (_val: any) => void;
     onNext?: () => void;
+    onAutoAdvance?: () => void;
     primaryColor?: string;
     radius?: FormStyling["heroUIRadius"];
     shadow?: FormStyling["heroUIShadow"];
     formId?: string; // Added for file uploads
 }
 
-export default function ModuleRenderer({ module, isPreview, value, onChange, onNext, primaryColor, radius, shadow, formId }: ModuleRendererProps) {
+export default function ModuleRenderer({ module, isPreview, value, onChange, onNext, onAutoAdvance, primaryColor, radius, shadow, formId }: ModuleRendererProps) {
     const commonProps = {
         module,
         value,
@@ -76,15 +77,15 @@ export default function ModuleRenderer({ module, isPreview, value, onChange, onN
         case "TEXTAREA":
             return <TextareaQuestion {...commonProps} />;
         case "MULTIPLE_CHOICE":
-            return <MultipleChoiceQuestion {...commonProps} />;
+            return <MultipleChoiceQuestion {...commonProps} onAutoAdvance={onAutoAdvance} />;
         case "CHECKBOXES":
             return <CheckboxesQuestion {...commonProps} />;
         case "DROPDOWN":
-            return <DropdownQuestion {...commonProps} />;
+            return <DropdownQuestion {...commonProps} onAutoAdvance={onAutoAdvance} />;
         case "DATE":
-            return <DateQuestion {...commonProps} />;
+            return <DateQuestion {...commonProps} onAutoAdvance={onAutoAdvance} />;
         case "FILE_UPLOAD":
-            return <FileUploadQuestion {...commonProps} formId={formId} />;
+            return <FileUploadQuestion {...commonProps} formId={formId} onAutoAdvance={onAutoAdvance} />;
         default:
             return (
                 <div className="p-6 bg-gray-100 rounded-lg text-center text-gray-500">

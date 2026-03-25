@@ -19,20 +19,21 @@ interface DateQuestionProps {
     module: Module;
     value?: string;
     onChange?: (_v: string) => void;
+    onAutoAdvance?: () => void;
     isPreview?: boolean;
     primaryColor?: string;
     radius?: FormStyling["heroUIRadius"];
     shadow?: FormStyling["heroUIShadow"];
 }
 
-export default function DateQuestion({ module, value, onChange, primaryColor, radius = "lg", shadow = "sm" }: DateQuestionProps) {
+export default function DateQuestion({ module, value, onChange, onAutoAdvance, primaryColor, radius = "lg", shadow = "sm" }: DateQuestionProps) {
     // Convert string value (YYYY-MM-DD) to CalendarDate object
     const dateValue = value ? parseDate(value) : null;
 
     const handleDateChange = (date: any) => {
         if (date) {
-            // Convert CalendarDate to string (YYYY-MM-DD)
             onChange?.(date.toString());
+            setTimeout(() => onAutoAdvance?.(), 600);
         } else {
             onChange?.("");
         }
