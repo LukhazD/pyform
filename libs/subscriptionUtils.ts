@@ -1,5 +1,11 @@
 /**
- * Subscription utility functions for checking access and status
+ * Subscription utility functions for checking access and status.
+ *
+ * Access decision aligns with Stripe's own status semantics:
+ *   - "active"   → paid & usable right now (even if cancel_at_period_end is true)
+ *   - "trialing" → in trial, usable
+ *   - "past_due" → Stripe is retrying payment — grace window applies
+ *   - "canceled" → no access
  */
 
 export interface SubscriptionUser {
@@ -10,37 +16,38 @@ export interface SubscriptionUser {
 }
 
 /**
- * Check if a user has active Pro access, including grace period after cancellation
- * 
- * @param user - User object with subscription fields
- * @returns true if user has active Pro access
+ * Check if a user has active Pro access.
+ *
+ * Stripe keeps `status: "active"` for the entire paid period, even when the
+ * customer has scheduled cancellation (`cancel_at_period_end: true`).  When
+ * the period actually ends Stripe fires `customer.subscription.deleted` and
+ * sets the status to `"canceled"`.  So we should trust the status field —
+ * "active" always means the user has paid access right now.
  */
 export function hasActiveProAccess(user: SubscriptionUser): boolean {
-    // No subscription at all
+    // No subscription tier at all
     if (!user.subscriptionTier || user.subscriptionTier !== "pro") {
         return false;
     }
 
-    // Fully active subscription (not canceling)
-    if (user.subscriptionStatus === "active" && !user.cancelAtPeriodEnd) {
+    const status = user.subscriptionStatus;
+
+    // Active subscription — user has paid for the current period.
+    // This includes users who scheduled cancellation (cancelAtPeriodEnd=true)
+    // because Stripe keeps the status "active" until the period actually ends.
+    if (status === "active") {
         return true;
     }
 
     // Trialing subscription
-    if (user.subscriptionStatus === "trialing") {
+    if (status === "trialing") {
         return true;
     }
 
-    // Canceling but still within paid period (grace period)
-    if (user.cancelAtPeriodEnd && user.currentPeriodEnd) {
-        const endDate = typeof user.currentPeriodEnd === "string"
-            ? new Date(user.currentPeriodEnd)
-            : user.currentPeriodEnd;
-        return new Date() < endDate;
-    }
-
-    // Past due - grant access only within a grace window (7 days after billing period end)
-    if (user.subscriptionStatus === "past_due") {
+    // Past due — Stripe is retrying payment. Grant a grace window of 7 days
+    // after the billing period end to avoid locking out users with transient
+    // payment issues, while still preventing indefinite free access.
+    if (status === "past_due") {
         if (user.currentPeriodEnd) {
             const endDate = typeof user.currentPeriodEnd === "string"
                 ? new Date(user.currentPeriodEnd)
@@ -49,18 +56,16 @@ export function hasActiveProAccess(user: SubscriptionUser): boolean {
             const graceDeadline = new Date(endDate.getTime() + PAST_DUE_GRACE_DAYS * 24 * 60 * 60 * 1000);
             return new Date() < graceDeadline;
         }
-        // No period end date — allow short grace (shouldn't happen in practice)
+        // No period end date — allow access (shouldn't happen in practice)
         return true;
     }
 
+    // Everything else (canceled, unpaid, incomplete, paused, etc.) → no access
     return false;
 }
 
 /**
  * Get a human-readable subscription status for display
- * 
- * @param user - User object with subscription fields
- * @returns Status object with label, variant, and optional end date
  */
 export function getSubscriptionDisplayStatus(user: SubscriptionUser): {
     label: string;
@@ -83,7 +88,7 @@ export function getSubscriptionDisplayStatus(user: SubscriptionUser): {
         return { label: "Período de prueba", variant: "active" };
     }
 
-    if (user.cancelAtPeriodEnd && user.currentPeriodEnd) {
+    if (user.subscriptionStatus === "active" && user.cancelAtPeriodEnd && user.currentPeriodEnd) {
         const endDate = typeof user.currentPeriodEnd === "string"
             ? new Date(user.currentPeriodEnd)
             : user.currentPeriodEnd;
@@ -99,9 +104,6 @@ export function getSubscriptionDisplayStatus(user: SubscriptionUser): {
 
 /**
  * Format a date for display in Spanish
- * 
- * @param date - Date to format
- * @returns Formatted date string
  */
 export function formatSubscriptionDate(date: Date | string | null | undefined): string {
     if (!date) return "";

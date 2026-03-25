@@ -122,12 +122,13 @@ export async function POST(req: NextRequest) {
                     // Update Subscription
                     await Subscription.findOneAndUpdate(
                         { stripeSubscriptionId: subscriptionId },
-                        { status: "active" }
+                        { status: "active", tier: "pro" }
                     );
-                    // Sync to User
+                    // Sync to User — always restore tier (may have been $unset
+                    // if user previously canceled and then resubscribed)
                     await User.findOneAndUpdate(
                         { stripeSubscriptionId: subscriptionId },
-                        { subscriptionStatus: "active" }
+                        { subscriptionStatus: "active", subscriptionTier: "pro" }
                     );
                     console.log(`[WEBHOOK] Invoice paid (${event.type}) - synced: ${subscriptionId}`);
                 }
@@ -199,44 +200,51 @@ export async function POST(req: NextRequest) {
                     mappedStatus = "canceled";
                 }
 
-                // Build update object with null checks for dates
-                const updateData: Record<string, unknown> = {
+                const isActive = mappedStatus === "active" || mappedStatus === "trialing";
+
+                // Always compute period dates from Stripe (they are always present on active subs)
+                const currentPeriodStart = subscription.current_period_start
+                    ? new Date(subscription.current_period_start * 1000)
+                    : undefined;
+                const currentPeriodEnd = subscription.current_period_end
+                    ? new Date(subscription.current_period_end * 1000)
+                    : undefined;
+
+                // Update Subscription document (source of truth)
+                const subUpdate: Record<string, unknown> = {
                     status: mappedStatus,
                     stripePriceId: subscription.items.data[0]?.price.id,
                     cancelAtPeriodEnd: subscription.cancel_at_period_end,
                 };
+                if (currentPeriodStart) subUpdate.currentPeriodStart = currentPeriodStart;
+                if (currentPeriodEnd) subUpdate.currentPeriodEnd = currentPeriodEnd;
+                if (isActive) subUpdate.tier = "pro";
 
-                let currentPeriodStart: Date | undefined;
-                if (subscription.current_period_start) {
-                    currentPeriodStart = new Date(subscription.current_period_start * 1000);
-                    updateData.currentPeriodStart = currentPeriodStart;
-                }
-
-                let currentPeriodEnd: Date | undefined;
-                if (subscription.current_period_end) {
-                    currentPeriodEnd = new Date(subscription.current_period_end * 1000);
-                    updateData.currentPeriodEnd = currentPeriodEnd;
-                }
-
-                // Update Subscription
                 await Subscription.findOneAndUpdate(
                     { stripeSubscriptionId: subscription.id },
-                    updateData
+                    subUpdate
                 );
-                // Sync to User
+
+                // Sync to User — always include tier and currentPeriodEnd to
+                // prevent stale data from previous events causing access issues
                 const userUpdate: Record<string, unknown> = {
                     subscriptionStatus: mappedStatus,
                     stripePriceId: subscription.items.data[0]?.price.id,
                     cancelAtPeriodEnd: subscription.cancel_at_period_end,
                 };
+                if (currentPeriodEnd) userUpdate.currentPeriodEnd = currentPeriodEnd;
 
-                if (currentPeriodEnd) {
-                    userUpdate.currentPeriodEnd = currentPeriodEnd;
+                if (isActive) {
+                    // Restore tier (may have been $unset by a prior cancellation)
+                    userUpdate.subscriptionTier = "pro";
                 }
 
                 await User.findOneAndUpdate(
                     { stripeSubscriptionId: subscription.id },
-                    userUpdate
+                    isActive ? userUpdate : {
+                        $set: { subscriptionStatus: mappedStatus, stripePriceId: userUpdate.stripePriceId, cancelAtPeriodEnd: userUpdate.cancelAtPeriodEnd, ...(currentPeriodEnd ? { currentPeriodEnd } : {}) },
+                        $unset: { subscriptionTier: 1 },
+                    }
                 );
                 console.log(`[WEBHOOK] Subscription updated - synced: ${subscription.id} -> ${mappedStatus}`);
                 break;
