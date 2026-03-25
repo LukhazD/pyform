@@ -151,16 +151,45 @@ function adaptValidation(
 // Options mapping
 // ---------------------------------------------------------------------------
 
+/** Turns a label into a URL-safe slug suitable as option value. */
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "") // strip diacritics
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_|_$/g, "");
+}
+
 function adaptOptions(
   rawOptions: { label: string; value: string }[] | undefined
 ): QuestionOption[] | undefined {
   if (!rawOptions || rawOptions.length === 0) return undefined;
-  return rawOptions.map((opt, index) => ({
-    id: `opt_${index}`,
-    label: opt.label,
-    value: opt.value,
-    order: index,
-  }));
+
+  const seen = new Set<string>();
+
+  return rawOptions.map((opt, index) => {
+    // Defensive: fall back to slugified label when value is missing/empty
+    let value =
+      typeof opt.value === "string" && opt.value.trim() !== ""
+        ? opt.value
+        : slugify(opt.label || `option_${index}`);
+
+    // Ensure uniqueness — duplicate values break RadioGroup selection
+    const base = value;
+    let suffix = 2;
+    while (seen.has(value)) {
+      value = `${base}_${suffix++}`;
+    }
+    seen.add(value);
+
+    return {
+      id: `opt_${index}`,
+      label: opt.label,
+      value,
+      order: index,
+    };
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -240,11 +269,27 @@ export function parsePyformPayload(raw: unknown): ParseResult {
   if (!Array.isArray(obj.fields)) {
     errors.push("fields must be an array");
   } else {
+    const OPTION_TYPES = new Set(["MULTIPLE_CHOICE", "multiple_choice", "radio", "CHECKBOXES", "checkboxes", "checkbox", "multi_select", "DROPDOWN", "dropdown", "select"]);
+
     for (let i = 0; i < obj.fields.length; i++) {
       const f = obj.fields[i] as Record<string, unknown>;
       if (typeof f.id !== "string") errors.push(`fields[${i}].id must be a string`);
       if (typeof f.type !== "string") errors.push(`fields[${i}].type must be a string`);
       if (typeof f.label !== "string") errors.push(`fields[${i}].label must be a string`);
+
+      // Validate options for types that require them
+      if (typeof f.type === "string" && OPTION_TYPES.has(f.type)) {
+        if (!Array.isArray(f.options) || f.options.length === 0) {
+          errors.push(`fields[${i}] (${f.type}) requires a non-empty options array`);
+        } else {
+          for (let j = 0; j < (f.options as unknown[]).length; j++) {
+            const opt = (f.options as Record<string, unknown>[])[j];
+            if (typeof opt.label !== "string" || opt.label.trim() === "") {
+              errors.push(`fields[${i}].options[${j}].label must be a non-empty string`);
+            }
+          }
+        }
+      }
     }
   }
 

@@ -43,15 +43,25 @@ export async function POST(req: Request) {
             });
 
             // Bulk-insert questions linked to the new form
+            // If this fails, clean up the orphaned form to avoid drafts without questions
             if (adapted.questions.length > 0) {
                 const questionDocs = adapted.questions.map((q) => ({
                     ...q,
                     formId: form._id,
                 }));
-                await Question.insertMany(questionDocs);
+                try {
+                    await Question.insertMany(questionDocs);
+                } catch (insertError) {
+                    await Form.findByIdAndDelete(form._id);
+                    throw insertError;
+                }
             }
 
+            const shareUrl = `https://pyform.app/f/${shortId}`;
+
             return NextResponse.json({
+                id: form._id,
+                shareUrl,
                 form,
                 questionsCreated: adapted.questions.length,
                 unmappedFields: adapted.unmappedFields,

@@ -4,6 +4,66 @@ import connectMongo from "@/libs/mongoose";
 import { formService } from "@/libs/services/formService";
 import { resolveUserId } from "@/libs/api/resolveUserId";
 
+/**
+ * Normalizes a question object so that data arriving in the pyform plugin
+ * field format (label, options without id/value) is converted to the internal
+ * Mongoose schema format (title, options with id/value/order).
+ *
+ * This is necessary because external tools (Cowork, API keys) may send
+ * questions via PUT using the raw pyform schema instead of the editor format.
+ */
+function normalizeQuestion(q: Record<string, any>): Record<string, any> {
+    const out = { ...q };
+
+    // Map `label` → `title` when title is absent (pyform schema uses `label`)
+    if (!out.title && out.label) {
+        out.title = out.label;
+        delete out.label;
+    }
+
+    // Map `required` → `isRequired` (pyform schema uses `required`)
+    if (out.isRequired === undefined && out.required !== undefined) {
+        out.isRequired = !!out.required;
+        delete out.required;
+    }
+
+    // Normalize options: ensure each has id, value, and order
+    if (Array.isArray(out.options)) {
+        const seen = new Set<string>();
+        out.options = out.options.map((opt: any, index: number) => {
+            const label = typeof opt.label === "string" ? opt.label : `Option ${index + 1}`;
+
+            // Generate value from label if missing/empty
+            let value =
+                typeof opt.value === "string" && opt.value.trim() !== ""
+                    ? opt.value
+                    : label
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/[^a-z0-9]+/g, "_")
+                        .replace(/^_|_$/g, "") || `option_${index}`;
+
+            // Deduplicate values
+            const base = value;
+            let suffix = 2;
+            while (seen.has(value)) {
+                value = `${base}_${suffix++}`;
+            }
+            seen.add(value);
+
+            return {
+                id: typeof opt.id === "string" && opt.id ? opt.id : `opt_${index}`,
+                label,
+                value,
+                order: typeof opt.order === "number" ? opt.order : index,
+            };
+        });
+    }
+
+    return out;
+}
+
 export async function POST(req: Request, props: { params: Promise<{ formId: string }> }) {
     const params = await props.params;
     const userIdOrError = await resolveUserId(req);
@@ -23,13 +83,14 @@ export async function POST(req: Request, props: { params: Promise<{ formId: stri
         }
 
         const body = await req.json();
+        const normalized = normalizeQuestion(body);
 
         // Whitelist allowed fields to prevent mass assignment (C-4)
         const ALLOWED_QUESTION_FIELDS = ["type", "order", "title", "description", "isRequired", "validation", "options", "placeholder", "showConfetti", "id"];
         const data: Record<string, unknown> = {};
         for (const key of ALLOWED_QUESTION_FIELDS) {
-            if (key in body) {
-                data[key] = body[key];
+            if (key in normalized) {
+                data[key] = normalized[key];
             }
         }
 
@@ -96,7 +157,8 @@ export async function PUT(req: Request, props: { params: Promise<{ formId: strin
         const seenIds = new Set<string>();
 
         // 2. Upsert each incoming question
-        const upsertPromises = questions.map(async (q: any) => {
+        const upsertPromises = questions.map(async (raw: any) => {
+            const q = normalizeQuestion(raw);
             const { _id, id, ...rest } = q;
 
             // Validate ObjectIds to prevent Casting Errors

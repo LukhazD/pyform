@@ -50,7 +50,7 @@ export default function MultipleChoiceQuestion({ module, value, onChange, onAuto
 
                     <RadioGroup
                         classNames={{ wrapper: "gap-3" }}
-                        value={value || ""}
+                        value={value ?? undefined}
                         onValueChange={(v) => {
                             onChange?.(v);
                             if (v) setTimeout(() => onAutoAdvance?.(), 600);

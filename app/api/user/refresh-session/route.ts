@@ -75,12 +75,13 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        // Return the fields needed to update the session
+        // Return the fields needed to update the session and billing UI
         return NextResponse.json({
             subscriptionTier: user.subscriptionTier || null,
             subscriptionStatus: user.subscriptionStatus || null,
             cancelAtPeriodEnd: user.cancelAtPeriodEnd || false,
             currentPeriodEnd: user.currentPeriodEnd?.toISOString() || null,
+            stripePriceId: user.stripePriceId || null,
             onboardingCompleted: user.onboardingCompleted || false,
             role: user.role || "user",
         });
