@@ -55,10 +55,15 @@ export default auth((req) => {
         }
 
         // Step 3: User has active subscription - full access
-        if (isOnboarding || isSubscribe) {
-            // Don't let subscribed users go back to onboarding/subscribe
+        if (isOnboarding) {
+            // Don't let subscribed users go back to onboarding
             return Response.redirect(new URL("/dashboard", nextUrl));
         }
+        // Note: we intentionally do NOT redirect /subscribe → /dashboard here.
+        // The middleware JWT can be stale (Edge Runtime can't check the DB), so
+        // redirecting would cause a loop when the dashboard layout detects the
+        // subscription is actually canceled and sends the user back to /subscribe.
+        // The /subscribe page handles active-user redirects on its own.
     } else {
         // If not logged in and trying to access protected pages
         if (isDashboard || isOnboarding || isSubscribe) {
