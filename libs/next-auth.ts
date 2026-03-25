@@ -9,8 +9,48 @@ import connectMongoose from "@/libs/mongoose";
 import { authConfig } from "./auth.config";
 import { getMagicLinkEmailHTML, getMagicLinkEmailText } from "./emailTemplate";
 
+/** How often (ms) the JWT callback re-checks the DB for subscription changes. */
+const SESSION_REVALIDATION_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+
+const baseJwtCallback = authConfig.callbacks?.jwt;
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  callbacks: {
+    ...authConfig.callbacks,
+    jwt: async (params: any) => {
+      // Run the base callback first (handles sign-in, session updates)
+      const token = baseJwtCallback ? await baseJwtCallback(params) : params.token;
+
+      // Periodic DB revalidation (server-side only — safe to use Mongoose here).
+      // Re-checks subscription status to catch webhook-driven changes
+      // (cancellations, disputes, refunds) that the stale JWT wouldn't know about.
+      if (!params.user && params.trigger !== "update" && token.id) {
+        const now = Date.now();
+        const lastChecked = (token.lastDbCheck as number) || 0;
+
+        if (now - lastChecked > SESSION_REVALIDATION_INTERVAL_MS) {
+          try {
+            await connectMongoose();
+            const dbUser = await User.findById(token.id).lean();
+            if (dbUser) {
+              token.subscriptionTier = (dbUser as any).subscriptionTier;
+              token.subscriptionStatus = (dbUser as any).subscriptionStatus;
+              token.cancelAtPeriodEnd = (dbUser as any).cancelAtPeriodEnd ?? false;
+              token.currentPeriodEnd = (dbUser as any).currentPeriodEnd?.toISOString?.() ?? (dbUser as any).currentPeriodEnd ?? null;
+              token.onboardingCompleted = (dbUser as any).onboardingCompleted;
+              token.role = (dbUser as any).role;
+            }
+            token.lastDbCheck = now;
+          } catch (err) {
+            console.error("[AUTH] DB revalidation failed:", err);
+          }
+        }
+      }
+
+      return token;
+    },
+  },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID!,
