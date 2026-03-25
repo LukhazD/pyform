@@ -162,12 +162,12 @@ export async function POST(req: NextRequest) {
                     { stripeSubscriptionId: subscription.id },
                     { status: "canceled" }
                 );
-                // Sync to User (remove tier)
+                // Sync to User (remove tier — must use $unset, undefined is silently ignored by Mongoose)
                 const canceledUser = await User.findOneAndUpdate(
                     { stripeSubscriptionId: subscription.id },
                     {
-                        subscriptionStatus: "canceled",
-                        subscriptionTier: undefined,
+                        $set: { subscriptionStatus: "canceled" },
+                        $unset: { subscriptionTier: 1 },
                     }
                 );
 
@@ -255,8 +255,8 @@ export async function POST(req: NextRequest) {
                     const disputedUser = await User.findOneAndUpdate(
                         { stripeCustomerId: disputeCustomerId },
                         {
-                            subscriptionStatus: "canceled",
-                            subscriptionTier: undefined,
+                            $set: { subscriptionStatus: "canceled" },
+                            $unset: { subscriptionTier: 1 },
                         }
                     );
 
@@ -287,8 +287,8 @@ export async function POST(req: NextRequest) {
                     const refundedUser = await User.findOneAndUpdate(
                         { stripeCustomerId: refundCustomerId },
                         {
-                            subscriptionStatus: "canceled",
-                            subscriptionTier: undefined,
+                            $set: { subscriptionStatus: "canceled" },
+                            $unset: { subscriptionTier: 1 },
                         }
                     );
 

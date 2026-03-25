@@ -1,5 +1,10 @@
 import type { NextAuthConfig } from "next-auth";
 import config from "@/config";
+import connectMongo from "@/libs/mongoose";
+import User from "@/models/User";
+
+/** How often (ms) the JWT callback re-checks the DB for subscription changes. */
+const SESSION_REVALIDATION_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 export const authConfig = {
     // Set any random key in .env.local
@@ -25,6 +30,33 @@ export const authConfig = {
                 token.cancelAtPeriodEnd = user.cancelAtPeriodEnd ?? false;
                 token.currentPeriodEnd = user.currentPeriodEnd?.toISOString?.() ?? user.currentPeriodEnd ?? null;
                 token.onboardingCompleted = user.onboardingCompleted;
+            }
+
+            // Periodic DB revalidation: re-check subscription status to catch
+            // webhook-driven changes (cancellations, disputes, refunds) that the
+            // stale JWT token wouldn't know about.
+            if (!user && trigger !== "update" && token.id) {
+                const now = Date.now();
+                const lastChecked = (token.lastDbCheck as number) || 0;
+
+                if (now - lastChecked > SESSION_REVALIDATION_INTERVAL_MS) {
+                    try {
+                        await connectMongo();
+                        const dbUser = await User.findById(token.id).lean();
+                        if (dbUser) {
+                            token.subscriptionTier = dbUser.subscriptionTier;
+                            token.subscriptionStatus = dbUser.subscriptionStatus;
+                            token.cancelAtPeriodEnd = dbUser.cancelAtPeriodEnd ?? false;
+                            token.currentPeriodEnd = dbUser.currentPeriodEnd?.toISOString?.() ?? dbUser.currentPeriodEnd ?? null;
+                            token.onboardingCompleted = dbUser.onboardingCompleted;
+                            token.role = dbUser.role;
+                        }
+                        token.lastDbCheck = now;
+                    } catch (err) {
+                        // Silently fail — keep existing token data rather than breaking auth
+                        console.error("[AUTH] DB revalidation failed:", err);
+                    }
+                }
             }
 
             // Session update triggered with fresh data from API

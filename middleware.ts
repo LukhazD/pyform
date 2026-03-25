@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 import { authConfig } from "@/libs/auth.config";
+import { hasActiveProAccess } from "@/libs/subscriptionUtils";
 
 const { auth } = NextAuth(authConfig);
 
@@ -8,8 +9,12 @@ export default auth((req) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
     const isOnboardingCompleted = req.auth?.user?.onboardingCompleted;
-    const subscriptionStatus = req.auth?.user?.subscriptionStatus;
-    const hasActiveSubscription = subscriptionStatus === "active";
+    const hasActiveSubscription = hasActiveProAccess({
+        subscriptionTier: req.auth?.user?.subscriptionTier,
+        subscriptionStatus: req.auth?.user?.subscriptionStatus,
+        cancelAtPeriodEnd: req.auth?.user?.cancelAtPeriodEnd,
+        currentPeriodEnd: req.auth?.user?.currentPeriodEnd,
+    });
 
     const isDashboard = nextUrl.pathname.startsWith("/dashboard");
     const isOnboarding = nextUrl.pathname === "/onboarding";
