@@ -48,10 +48,11 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
     const isLastActionableModule = !questions[currentIndex + 1] || questions[currentIndex + 1].type === "GOODBYE";
 
-    // Auto-advance: navigate next for selection/completion modules, but never auto-submit on the last module
+    // Auto-advance: skip validation since the user just made a selection — avoids
+    // stale-closure race where the setTimeout fires before React flushes the state update.
     const handleAutoAdvance = useCallback(() => {
         if (!isLastActionableModule) {
-            navigateNext();
+            navigateNext({ skipValidation: true });
         }
     }, [isLastActionableModule, navigateNext]);
 
@@ -335,7 +336,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
 
                                     <Button
                                         radius="md"
-                                        onPress={navigateNext}
+                                        onPress={() => navigateNext()}
                                         className="text-white px-8 transition-transform hover:scale-105"
                                         style={{
                                             backgroundColor: primaryColor,

@@ -124,8 +124,8 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
         return true;
     }, [currentIndex, questions, responses]);
 
-    const navigateNext = useCallback(() => {
-        if (!validateCurrent()) return;
+    const navigateNext = useCallback((opts?: { skipValidation?: boolean }) => {
+        if (!opts?.skipValidation && !validateCurrent()) return;
 
         if (currentIndex < questions.length - 1) {
             setDirection(1);
