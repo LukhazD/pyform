@@ -175,12 +175,18 @@ export default function PropertiesPanel({
                     placeholder="Añade contexto adicional"
                     radius="md"
                     variant="bordered"
+                    maxLength={200}
                     minRows={2}
                     value={selectedModule.description || ""}
                     onChange={(e) => handleUpdate("description", e.target.value)}
                     classNames={{
                         inputWrapper: "border-gray-300 focus-within:border-primary",
                     }}
+                    endContent={
+                        <div className="text-xs text-gray-400">
+                            {selectedModule.description?.length || 0}/200
+                        </div>
+                    }
                 />
 
                 {/* Placeholder - for simple text inputs */}

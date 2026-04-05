@@ -111,9 +111,18 @@ export default function FormPreview({
         }
     }, [selectedModuleId, modules]);
 
-    // Handle keyboard navigation
+    // Handle keyboard navigation (skip when user is typing in an input/textarea)
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
+            const tag = (e.target as HTMLElement)?.tagName;
+            if (
+                tag === "INPUT" ||
+                tag === "TEXTAREA" ||
+                (e.target as HTMLElement)?.isContentEditable
+            ) {
+                return;
+            }
+
             if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
                 e.preventDefault();
                 navigatePrev();
