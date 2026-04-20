@@ -1,111 +1,21 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { JSX } from "react";
+import { useTranslations } from "next-intl";
 
 interface FAQItemProps {
   question: string;
-  answer: JSX.Element;
+  answerHtml: string;
 }
 
-const faqList: FAQItemProps[] = [
-  {
-    question: "¿Qué tipos de preguntas puedo crear?",
-    answer: (
-      <div className="space-y-2 leading-relaxed">
-        <p>
-          Pyform incluye <strong>15 tipos de preguntas</strong> listos para usar:
-          texto corto, texto largo, email, teléfono, número, URL, fecha,
-          desplegable, opción múltiple, casillas de verificación, subida de
-          archivos, y módulos especiales como bienvenida, despedida y citas.
-        </p>
-        <p>
-          Cada módulo es personalizable: puedes marcarlos como obligatorios,
-          añadir descripciones y reordenarlos con arrastrar y soltar.
-        </p>
-      </div>
-    ),
-  },
-  {
-    question: "¿Cómo funciona el editor?",
-    answer: (
-      <div className="space-y-2 leading-relaxed">
-        <p>
-          Nuestro editor es <strong>WYSIWYG en tiempo real</strong>: lo que ves
-          mientras editas es exactamente lo que verán tus usuarios. Arrastra
-          módulos para reordenarlos, edita propiedades en el panel lateral, y ve
-          los cambios reflejados al instante sin modo de vista previa separado.
-        </p>
-        <p>
-          Funciona tanto en escritorio como en móvil, con una interfaz adaptada
-          a cada pantalla.
-        </p>
-      </div>
-    ),
-  },
-  {
-    question: "¿Qué estadísticas están incluidas?",
-    answer: (
-      <div className="space-y-2 leading-relaxed">
-        <p>
-          Cada formulario incluye un panel completo de estadísticas con: tasa de
-          finalización, tiempo promedio de respuesta, línea de tiempo de envíos
-          y un <strong>funnel de abandono</strong> que te muestra exactamente en
-          qué pregunta pierdes usuarios.
-        </p>
-        <p>
-          También puedes ver cada respuesta individual y exportar todo a CSV con
-          un clic.
-        </p>
-      </div>
-    ),
-  },
-  {
-    question: "¿Puedo personalizar el diseño de mis formularios?",
-    answer: (
-      <div className="space-y-2 leading-relaxed">
-        <p>
-          Sí. Desde el panel de ajustes del editor puedes cambiar el{" "}
-          <strong>color primario, la tipografía, el radio de bordes y las sombras</strong>.
-          Todos los cambios se aplican en tiempo real al formulario.
-        </p>
-        <p>
-          Tu formulario se verá profesional y coherente con tu marca sin
-          necesidad de escribir una línea de CSS.
-        </p>
-      </div>
-    ),
-  },
-  {
-    question: "¿Cómo funciona la suscripción?",
-    answer: (
-      <div className="space-y-2 leading-relaxed">
-        <p>
-          Pyform utiliza una <strong>tarifa plana mensual</strong>. No cobramos
-          por respuesta, así que no importa si tu formulario recibe 10 o 10.000
-          envíos — tu precio no cambia.
-        </p>
-        <p>
-          Todas las funcionalidades están incluidas desde el primer día, sin
-          planes ocultos ni upgrades forzados. Puedes cancelar cuando quieras.
-        </p>
-      </div>
-    ),
-  },
-  {
-    question: "¿Puedo recibir archivos en mis formularios?",
-    answer: (
-      <div className="space-y-2 leading-relaxed">
-        <p>
-          Sí. El módulo de <strong>subida de archivos</strong> permite a tus
-          usuarios adjuntar documentos, imágenes u otros archivos directamente
-          en el formulario. Puedes previsualizar los archivos recibidos desde el
-          panel de respuestas.
-        </p>
-      </div>
-    ),
-  },
-];
+const questionKeys = [
+  "questionTypes",
+  "editor",
+  "stats",
+  "customization",
+  "subscription",
+  "fileUpload",
+] as const;
 
 const FaqItem = ({ item }: { item: FAQItemProps }) => {
   const accordion = useRef<HTMLDivElement>(null);
@@ -163,26 +73,42 @@ const FaqItem = ({ item }: { item: FAQItemProps }) => {
             : { maxHeight: 0, opacity: 0 }
         }
       >
-        <div className="px-6 pb-5 pt-2 ml-14 text-gray-600 leading-relaxed">
-          {item?.answer}
-        </div>
+        <div
+          className="px-6 pb-5 pt-2 ml-14 text-gray-600 leading-relaxed space-y-2"
+          dangerouslySetInnerHTML={{ __html: item?.answerHtml }}
+        />
       </div>
     </li>
   );
 };
 
 const FAQ = () => {
+  const t = useTranslations("faq");
+
+  const faqList: FAQItemProps[] = questionKeys.map((key) => {
+    const answer = t.raw(`questions.${key}.answer`) as string;
+    const hasAnswer2 = t.has(`questions.${key}.answer2`);
+    const answer2 = hasAnswer2 ? t.raw(`questions.${key}.answer2`) as string : undefined;
+    const answerHtml = answer2
+      ? `<p>${answer}</p><p>${answer2}</p>`
+      : `<p>${answer}</p>`;
+
+    return {
+      question: t(`questions.${key}.question`),
+      answerHtml,
+    };
+  });
+
   return (
     <section className="bg-gray-50 py-20 md:py-28 overflow-hidden" id="faq">
       <div className="max-w-3xl mx-auto px-6 md:px-8">
         {/* Header */}
         <div className="text-center mb-12 md:mb-16">
           <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-gray-900 mb-4">
-            Todo lo que necesitas saber
+            {t("title")}
           </h2>
           <p className="text-gray-500 text-lg max-w-xl mx-auto">
-            Respuestas a las preguntas más comunes sobre Pyform y cómo puede
-            ayudarte.
+            {t("subtitle")}
           </p>
         </div>
 

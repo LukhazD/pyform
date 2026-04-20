@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import { Form, Question } from "@/types/Form";
 import { incrementFormViews } from "@/actions/form";
 
 export function usePublicFormViewModel(form: Form, questions: Question[], isPreview: boolean = false) {
+    const t = useTranslations("publicForm");
     const [currentIndex, setCurrentIndex] = useState(0);
     const [responses, setResponses] = useState<Record<string, any>>({});
     const [direction, setDirection] = useState(1); // 1 for next, -1 for prev
@@ -107,7 +109,7 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
                 if (!emailRegex.test(value)) {
                     setValidationError(prev => prev + 1);
                     // Could add toast or specific error UI here
-                    toast.error("Por favor, introduce un email válido.");
+                    toast.error(t("invalidEmail"));
                     return false;
                 }
             }
@@ -190,12 +192,12 @@ export function usePublicFormViewModel(form: Form, questions: Question[], isPrev
                 setDirection(1);
                 setCurrentIndex(goodbyeIndex);
             } else {
-                toast.success("¡Gracias! Tu respuesta ha sido registrada.");
+                toast.success(t("submitSuccess"));
                 setShowDefaultGoodbye(true);
             }
         } catch (error) {
             console.error("Submission error:", error);
-            toast.error("Error al enviar el formulario. Por favor, inténtalo de nuevo.");
+            toast.error(t("submitError"));
         } finally {
             setSubmitting(false);
         }

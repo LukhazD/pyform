@@ -29,11 +29,67 @@ class SubmissionService implements ISubmissionService {
             throw new Error("Este formulario no está disponible temporalmente");
         }
 
-        // Enforce response-per-form limit atomically (C-5: prevent TOCTOU race)
-        // Use actual submission count as source of truth instead of analytics counter
-        const currentCount = await Submission.countDocuments({ formId: new mongoose.Types.ObjectId(formId) });
-        if (currentCount >= RESPONSES_PER_FORM_LIMIT) {
-            throw new Error(`Este formulario ha alcanzado el límite de ${RESPONSES_PER_FORM_LIMIT} respuestas.`);
+        // Server-side enforcement of "no multiple submissions" setting.
+        // Uses IP as identifier since respondents are typically unauthenticated.
+        if (form.settings?.allowMultipleSubmissions === false && metadata.ipAddress) {
+            const existing = await Submission.findOne({
+                formId: new mongoose.Types.ObjectId(formId),
+                "metadata.ipAddress": metadata.ipAddress,
+            });
+            if (existing) {
+                throw new Error("DUPLICATE_SUBMISSION");
+            }
+        }
+
+        // Enforce response-per-form limit atomically using findOneAndUpdate
+        // with a condition. This prevents TOCTOU races where two concurrent
+        // submissions both pass a count check before either inserts.
+        const formObjectId = new mongoose.Types.ObjectId(formId);
+        const reserveSlot = await FormAnalytics.findOneAndUpdate(
+            {
+                formId: formObjectId,
+                completedSubmissions: { $lt: RESPONSES_PER_FORM_LIMIT },
+            },
+            { $inc: { completedSubmissions: 1, totalSubmissions: 1 } },
+            { new: true, upsert: false }
+        );
+
+        if (!reserveSlot) {
+            // Either the analytics doc doesn't exist yet (first submission) or limit reached.
+            // Use upsert with $setOnInsert to atomically create-or-fail for new forms.
+            const upsertResult = await FormAnalytics.findOneAndUpdate(
+                { formId: formObjectId, completedSubmissions: { $lt: RESPONSES_PER_FORM_LIMIT } },
+                {
+                    $inc: { completedSubmissions: 1, totalSubmissions: 1 },
+                    $setOnInsert: {
+                        formId: formObjectId,
+                        partialSubmissions: 0,
+                        completionRate: 0,
+                        averageCompletionTimeMs: 0,
+                        views: 0,
+                        dropOffByQuestion: [],
+                        submissionTimeline: [],
+                    },
+                },
+                { new: true, upsert: true }
+            ).catch((err: any): null => {
+                // E11000 duplicate key on concurrent first-submission race:
+                // another request just created the doc. Retry the conditional update.
+                if (err?.code === 11000) return null;
+                throw err;
+            });
+
+            if (!upsertResult) {
+                // Retry once after duplicate key (the doc now exists)
+                const retryResult = await FormAnalytics.findOneAndUpdate(
+                    { formId: formObjectId, completedSubmissions: { $lt: RESPONSES_PER_FORM_LIMIT } },
+                    { $inc: { completedSubmissions: 1, totalSubmissions: 1 } },
+                    { new: true }
+                );
+                if (!retryResult) {
+                    throw new Error(`FORM_RESPONSE_LIMIT_REACHED:${RESPONSES_PER_FORM_LIMIT}`);
+                }
+            }
         }
 
         const formattedAnswers = answers.map((a) => ({
@@ -51,47 +107,35 @@ class SubmissionService implements ISubmissionService {
             formVersion: form.formVersion || 1,
         });
 
-        // Update Analytics Atomically
+        // Update remaining analytics fields (counters already incremented atomically above)
         try {
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Create initial analytics doc if it doesn't exist (Upsert dummy)
+            // Update averageCompletionTimeMs and completionRate
+            // (totalSubmissions/completedSubmissions already incremented by the atomic reserve above)
             await FormAnalytics.updateOne(
-                { formId },
-                { $setOnInsert: { formId, totalSubmissions: 0, completedSubmissions: 0, partialSubmissions: 0, completionRate: 0, averageCompletionTimeMs: 0, views: 0, dropOffByQuestion: [], submissionTimeline: [] } },
-                { upsert: true }
-            );
-
-            // 1. Atomic Math Update using Aggregation Pipeline
-            await FormAnalytics.updateOne(
-                { formId },
+                { formId: formObjectId },
                 [
                     {
                         $set: {
-                            totalSubmissions: { $add: [{ $ifNull: ["$totalSubmissions", 0] }, 1] },
-                            completedSubmissions: { $add: [{ $ifNull: ["$completedSubmissions", 0] }, 1] },
                             averageCompletionTimeMs: {
                                 $cond: {
-                                    if: { $eq: [{ $ifNull: ["$completedSubmissions", 0] }, 0] },
+                                    if: { $lte: ["$completedSubmissions", 1] },
                                     then: completionTimeMs,
                                     else: {
                                         $divide: [
                                             {
                                                 $add: [
-                                                    { $multiply: [{ $ifNull: ["$averageCompletionTimeMs", 0] }, "$completedSubmissions"] },
+                                                    { $multiply: ["$averageCompletionTimeMs", { $subtract: ["$completedSubmissions", 1] }] },
                                                     completionTimeMs
                                                 ]
                                             },
-                                            { $add: ["$completedSubmissions", 1] }
+                                            "$completedSubmissions"
                                         ]
                                     }
                                 }
-                            }
-                        }
-                    },
-                    {
-                        $set: {
+                            },
                             completionRate: {
                                 $cond: {
                                     if: { $gt: [{ $ifNull: ["$views", 0] }, 0] },
@@ -104,23 +148,21 @@ class SubmissionService implements ISubmissionService {
                 ]
             );
 
-            // 2. Timeline Array Update (Fast non-pipeline atomic update)
+            // Timeline Array Update
             const timelineUpdateResult = await FormAnalytics.updateOne(
-                { formId, "submissionTimeline.date": today },
+                { formId: formObjectId, "submissionTimeline.date": today },
                 { $inc: { "submissionTimeline.$.count": 1 } }
             );
 
-            // If the date didn't exist in the array, push it
             if (timelineUpdateResult.modifiedCount === 0) {
                 await FormAnalytics.updateOne(
-                    { formId },
+                    { formId: formObjectId },
                     { $push: { submissionTimeline: { date: today, count: 1 } } }
                 );
             }
 
         } catch (err) {
-            console.error("Failed to update analytics atomically:", err);
-            // Don't fail the submission request just because analytics failed
+            console.error("Failed to update analytics:", err);
         }
 
         return submission;

@@ -3,6 +3,7 @@ import { auth } from "@/libs/next-auth";
 import { createCheckout } from "@/libs/stripe";
 import connectMongo from "@/libs/mongoose";
 import User from "@/models/User";
+import config from "@/config";
 
 // This function is used to create a Stripe Checkout Session (one-time payment or subscription)
 // It's called by the <ButtonCheckout /> component
@@ -30,12 +31,34 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Prevent open redirect: only allow redirects to our own domain
+  const allowedOrigins = [
+    `https://${config.domainName}`,
+    ...(process.env.NODE_ENV === "development" ? ["http://localhost:3000", "http://localhost:3001"] : []),
+  ];
+  const isValidUrl = (url: string) => allowedOrigins.some((origin) => url.startsWith(origin));
+  if (!isValidUrl(body.successUrl) || !isValidUrl(body.cancelUrl)) {
+    return NextResponse.json(
+      { error: "Invalid redirect URL" },
+      { status: 400 }
+    );
+  }
+
   try {
     const session = await auth();
 
     await connectMongo();
 
-    const { priceId, mode, successUrl, cancelUrl, trialPeriodDays } = body;
+    const { priceId, mode, successUrl, cancelUrl } = body;
+
+    // Validate priceId against known plans — prevents using test/internal prices
+    const validPlan = config.stripe.plans.find((p) => p.priceId === priceId);
+    if (!validPlan) {
+      return NextResponse.json({ error: "Invalid price" }, { status: 400 });
+    }
+
+    // Use server-side trial period config — NEVER trust client-provided trialPeriodDays
+    const trialPeriodDays = validPlan.trialPeriodDays;
 
     let user = null;
     if (session?.user?.id) {

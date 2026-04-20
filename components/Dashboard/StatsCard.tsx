@@ -1,6 +1,9 @@
+"use client";
+
 import React from "react";
 import { Card } from "@heroui/react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface StatsCardProps {
     label: string;
@@ -20,6 +23,7 @@ export default function StatsCard({
     trend,
     variant = "default"
 }: StatsCardProps) {
+    const t = useTranslations("dashboard");
     const bgStyles = {
         purple: "bg-gray-50",
         green: "bg-gray-100",
@@ -57,7 +61,7 @@ export default function StatsCard({
                             ) : (
                                 <TrendingDown size={14} className={trendColor} />
                             )}
-                            <span className="text-xs text-gray-500 ml-1">vs mes anterior</span>
+                            <span className="text-xs text-gray-500 ml-1">{t("vsLastMonth")}</span>
                         </div>
                     )}
                 </div>

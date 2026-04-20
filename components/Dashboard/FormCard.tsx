@@ -6,6 +6,7 @@ import { MoreVertical, Edit, Eye, Copy, Trash2, ArchiveRestore } from "lucide-re
 import { Dropdown, DropdownTrigger, DropdownMenu, DropdownItem } from "@heroui/react";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 interface FormCardProps {
     id: string;
@@ -19,23 +20,11 @@ interface FormCardProps {
     onUpdateStatus?: (id: string, status: string) => void;
 }
 
-const statusConfig = {
-    draft: { label: "Borrador", color: "default" as const },
-    published: { label: "Publicado", color: "default" as const },
-    closed: { label: "Cerrado", color: "warning" as const },
+const statusColors = {
+    draft: "default" as const,
+    published: "default" as const,
+    closed: "warning" as const,
 };
-
-function formatRelativeTime(date: Date): string {
-    const now = new Date();
-    const diffMs = now.getTime() - new Date(date).getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) return "Hoy";
-    if (diffDays === 1) return "Ayer";
-    if (diffDays < 7) return `Hace ${diffDays} días`;
-    if (diffDays < 30) return `Hace ${Math.floor(diffDays / 7)} semanas`;
-    return `Hace ${Math.floor(diffDays / 30)} meses`;
-}
 
 export default function FormCard({
     id,
@@ -48,7 +37,22 @@ export default function FormCard({
     onDelete,
     onUpdateStatus,
 }: FormCardProps) {
-    const statusInfo = statusConfig[status];
+    const t = useTranslations("forms.card");
+
+    const formatRelativeTime = (date: Date): string => {
+        const now = new Date();
+        const diffMs = now.getTime() - new Date(date).getTime();
+        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) return t("today");
+        if (diffDays === 1) return t("yesterday");
+        if (diffDays < 7) return t("daysAgo", { count: diffDays });
+        if (diffDays < 30) return t("weeksAgo", { count: Math.floor(diffDays / 7) });
+        return t("monthsAgo", { count: Math.floor(diffDays / 30) });
+    };
+
+    const statusLabel = t(status);
+    const statusColor = statusColors[status];
 
     const handleCopyLink = async () => {
         const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : '';
@@ -57,7 +61,7 @@ export default function FormCard({
         try {
             if (navigator.clipboard) {
                 await navigator.clipboard.writeText(url);
-                toast.success("¡Enlace copiado!");
+                toast.success(t("linkCopied"));
                 return;
             }
         } catch (err) {
@@ -77,13 +81,13 @@ export default function FormCard({
             document.body.removeChild(textArea);
 
             if (successful) {
-                toast.success("¡Enlace copiado!");
+                toast.success(t("linkCopied"));
             } else {
                 throw new Error("Copy failed");
             }
         } catch (err) {
             console.error('Failed to copy', err);
-            toast.error("Error al copiar. el enlace es: " + url);
+            toast.error(t("copyError") + url);
         }
     };
 
@@ -113,11 +117,11 @@ export default function FormCard({
                         <h3 className="font-semibold text-gray-900 truncate">{title}</h3>
                         <Chip
                             size="sm"
-                            color={statusInfo.color}
+                            color={statusColor}
                             variant="flat"
                             className="flex-shrink-0"
                         >
-                            {statusInfo.label}
+                            {statusLabel}
                         </Chip>
                     </div>
 
@@ -126,7 +130,7 @@ export default function FormCard({
                     )}
 
                     <p className="text-sm text-gray-400 mt-2">
-                        {questionCount} preguntas • {responseCount} respuestas
+                        {questionCount} {t("questions")} • {responseCount} {t("responses")}
                     </p>
                 </div>
 
@@ -143,7 +147,7 @@ export default function FormCard({
                         </Button>
                     </DropdownTrigger>
                     <DropdownMenu
-                        aria-label="Acciones del formulario"
+                        aria-label={t("actions")}
                         onAction={(key) => handleAction(String(key))}
                     >
                         <DropdownItem
@@ -152,7 +156,7 @@ export default function FormCard({
                             href={`/dashboard/forms/${id}/edit`}
                             as={Link}
                         >
-                            Editar
+                            {t("editAction")}
                         </DropdownItem>
                         <DropdownItem
                             key="view"
@@ -160,20 +164,20 @@ export default function FormCard({
                             href={`/f/${id}`}
                             as={Link}
                         >
-                            Ver formulario
+                            {t("viewForm")}
                         </DropdownItem>
                         <DropdownItem
                             key="copy"
                             startContent={<Copy size={16} />}
                         >
-                            Copiar enlace
+                            {t("copyLink")}
                         </DropdownItem>
                         {status === "published" && (
                             <DropdownItem
                                 key="unpublish"
                                 startContent={<ArchiveRestore size={16} />}
                             >
-                                Marcar como borrador
+                                {t("markAsDraft")}
                             </DropdownItem>
                         )}
                         <DropdownItem
@@ -182,7 +186,7 @@ export default function FormCard({
                             className="text-danger"
                             color="danger"
                         >
-                            Eliminar
+                            {t("deleteAction")}
                         </DropdownItem>
                     </DropdownMenu>
                 </Dropdown>
@@ -190,7 +194,7 @@ export default function FormCard({
 
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-100">
                 <span className="text-xs text-gray-400">
-                    Editado {formatRelativeTime(updatedAt)}
+                    {t("edited", { time: formatRelativeTime(updatedAt) })}
                 </span>
 
                 <div className="flex gap-2">
@@ -201,7 +205,7 @@ export default function FormCard({
                         radius="md"
                         variant="light"
                     >
-                        Ver respuestas
+                        {t("viewResponses")}
                     </Button>
                     <Button
                         as={Link}
@@ -211,7 +215,7 @@ export default function FormCard({
                         radius="md"
                         className="text-white bg-[#1a1a1a] hover:bg-[#2a2a2a] hover:text-[#1a1a1a]"
                     >
-                        Editar
+                        {t("editAction")}
                     </Button>
                 </div>
             </div>

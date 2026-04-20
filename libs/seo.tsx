@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import config from "@/config";
+import { locales, defaultLocale } from "@/i18n/config";
 
 // These are all the SEO tags you can add to your pages.
 // It prefills data with default title/description/OG, etc.. and you can cusotmize it for each page.
@@ -13,10 +14,13 @@ export const getSEOTags = ({
   openGraph,
   canonicalUrlRelative,
   extraTags,
+  locale,
 }: Metadata & {
   canonicalUrlRelative?: string;
   extraTags?: Record<string, any>;
+  locale?: string;
 } = {}) => {
+  const ogLocale = locale === "es" ? "es_ES" : "en_US";
   return {
     // up to 50 characters (what does your app do for the user?) > your main should be here
     title: title || config.appName,
@@ -36,7 +40,7 @@ export const getSEOTags = ({
       title: openGraph?.title || config.appName,
       description: openGraph?.description || config.appDescription,
       url: openGraph?.url || `https://${config.domainName}/`,
-      siteName: openGraph?.title || config.appName,
+      siteName: config.appName,
       // If you add an opengraph-image.(jpg|jpeg|png|gif) image to the /app folder, you don't need the code below
       // images: [
       //   {
@@ -45,7 +49,7 @@ export const getSEOTags = ({
       //     height: 660,
       //   },
       // ],
-      locale: "en_US",
+      locale: ogLocale,
       type: "website",
     },
 
@@ -58,9 +62,20 @@ export const getSEOTags = ({
       creator: "@marc_louvion",
     },
 
-    // If a canonical URL is given, we add it. The metadataBase will turn the relative URL into a fully qualified URL
+    // Canonical URL + hreflang alternates for i18n
     ...(canonicalUrlRelative && {
-      alternates: { canonical: canonicalUrlRelative },
+      alternates: {
+        canonical: canonicalUrlRelative,
+        languages: Object.fromEntries([
+          ...locales.map((l) => [
+            l,
+            l === defaultLocale
+              ? canonicalUrlRelative
+              : `/${l}${canonicalUrlRelative}`,
+          ]),
+          ["x-default", canonicalUrlRelative],
+        ]),
+      },
     }),
 
     // If you want to add extra tags, you can pass them here

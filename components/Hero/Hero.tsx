@@ -6,21 +6,22 @@ import { Button } from "@heroui/react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import HeroAnimation from "./HeroAnimation";
+import { useTranslations } from "next-intl";
 
 // Lazy load GSAP - only when needed for animations
 const loadGsap = () => import("gsap").then(mod => mod.default);
 
-// Profesiones que rotan en el hero
-const professions = [
-    "Desarrolladores",
-    "Marketers",
-    "Diseñadores",
-    "Startups",
-    "Emprendedores",
-    "Freelancers",
-];
+const professionKeys = [
+    "developers",
+    "marketers",
+    "designers",
+    "startups",
+    "entrepreneurs",
+    "freelancers",
+] as const;
 
 export default function Hero() {
+    const t = useTranslations("hero");
     const router = useRouter();
     const containerRef = useRef<HTMLDivElement>(null);
     const buttonRef = useRef<HTMLDivElement>(null);
@@ -94,7 +95,7 @@ export default function Hero() {
                     duration: 0.25,
                     ease: "power2.in",
                     onComplete: () => {
-                        setCurrentProfession((prev) => (prev + 1) % professions.length);
+                        setCurrentProfession((prev) => (prev + 1) % professionKeys.length);
 
                         gsap.fromTo(
                             professionRef.current,
@@ -132,17 +133,16 @@ export default function Hero() {
                 <div className="max-w-xl md:max-w-2xl text-left text-black drop-shadow-none space-y-6 pointer-events-auto">
                     <div className="opacity-100">
                         <h1 className="text-5xl md:text-7xl font-bold leading-tight tracking-tight text-gray-900">
-                            <span className="hero-title block">Formularios para</span>
+                            <span className="hero-title block">{t("titlePrefix")}</span>
                             <span
                                 ref={professionRef}
                                 className="hero-profession block text-gray-600"
                             >
-                                {professions[currentProfession]}
+                                {t(`professions.${professionKeys[currentProfession]}`)}
                             </span>
                         </h1>
                         <p className="hero-description mt-6 text-lg md:text-xl text-gray-600 leading-relaxed max-w-lg">
-                            Crea formularios de lujo en minutos.
-                            Simple, rápido y a una fracción del costo.
+                            {t("description")}
                         </p>
                     </div>
 
@@ -154,7 +154,7 @@ export default function Hero() {
                             className="font-semibold text-lg px-8 text-white bg-gray-900 shadow-lg hover:bg-gray-800"
                             onPress={() => router.push("/auth/signin")}
                         >
-                            Empezar
+                            {t("cta")}
                         </Button>
                         <Button
                             size="lg"
@@ -163,7 +163,7 @@ export default function Hero() {
                             className="font-semibold text-lg px-8"
                             onPress={() => document.getElementById("pricing")?.scrollIntoView({ behavior: "smooth" })}
                         >
-                            Más información
+                            {t("learnMore")}
                         </Button>
                     </div>
                 </div>

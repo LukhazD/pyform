@@ -3,6 +3,7 @@
 import React, { useState, useRef, useCallback, useEffect } from "react";
 import { Settings, Pencil, Plus, GripVertical, Check } from "lucide-react";
 import { Reorder, useDragControls, motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 
 interface Module {
     id: string;
@@ -11,22 +12,6 @@ interface Module {
     title?: string;
 }
 
-const moduleTypeLabels: Record<string, string> = {
-    WELCOME: "Bienvenida",
-    QUOTE: "Cita",
-    GOODBYE: "Despedida",
-    TEXT: "Texto",
-    EMAIL: "Email",
-    NUMBER: "Número",
-    PHONE: "Teléfono",
-    URL: "URL",
-    TEXTAREA: "Texto Largo",
-    MULTIPLE_CHOICE: "Opción Múltiple",
-    CHECKBOXES: "Casillas",
-    DROPDOWN: "Desplegable",
-    DATE: "Fecha",
-    FILE_UPLOAD: "Archivo",
-};
 
 interface MobileModuleNavProps {
     modules: Module[];
@@ -49,6 +34,7 @@ function ReorderItem({
     index: number;
 }) {
     const dragControls = useDragControls();
+    const t = useTranslations("editor.moduleTypes");
 
     return (
         <Reorder.Item
@@ -83,7 +69,7 @@ function ReorderItem({
 
             {/* Module label */}
             <span className="text-sm font-medium text-gray-700 truncate flex-1">
-                {module.title || moduleTypeLabels[module.type] || module.type}
+                {module.title || t(module.type as any) || module.type}
             </span>
         </Reorder.Item>
     );
@@ -101,6 +87,7 @@ export default function MobileModuleNav({
     onReorderModules,
     onModulesReorder,
 }: MobileModuleNavProps) {
+    const t = useTranslations("editor");
     const currentIndex = modules.findIndex((m) => m.id === selectedModuleId);
     const [reorderMode, setReorderMode] = useState(false);
     const [reorderItems, setReorderItems] = useState<Module[]>([]);
@@ -198,15 +185,15 @@ export default function MobileModuleNav({
                     {/* Header */}
                     <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
                         <div>
-                            <h3 className="text-base font-semibold text-gray-900">Reordenar módulos</h3>
-                            <p className="text-xs text-gray-500 mt-0.5">Arrastra para cambiar el orden</p>
+                            <h3 className="text-base font-semibold text-gray-900">{t("reorderModules")}</h3>
+                            <p className="text-xs text-gray-500 mt-0.5">{t("dragToReorder")}</p>
                         </div>
                         <button
                             onClick={handleDone}
                             className="flex items-center gap-1.5 px-4 py-2 bg-gray-900 text-white rounded-full text-sm font-medium active:scale-95 transition-transform"
                         >
                             <Check size={16} />
-                            Listo
+                            {t("done")}
                         </button>
                     </div>
 
@@ -262,7 +249,7 @@ export default function MobileModuleNav({
                             }}
                         >
                             <GripVertical size={14} className="text-gray-400" />
-                            Mantén presionado para reordenar
+                            {t("holdToReorder")}
                         </motion.span>
                     </motion.div>
                 )}
@@ -272,7 +259,7 @@ export default function MobileModuleNav({
                 <button
                     onClick={onOpenSettings}
                     className="w-10 h-10 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 active:bg-gray-200 transition-colors"
-                    aria-label="Configuración"
+                    aria-label={t("settingsAria")}
                 >
                     <Settings size={20} />
                 </button>
@@ -315,7 +302,7 @@ export default function MobileModuleNav({
                                 ? "w-6 h-2.5 bg-gray-900"
                                 : "w-2.5 h-2.5 bg-gray-300 hover:bg-gray-400"
                                 }`}
-                            aria-label={`Módulo ${i + 1}`}
+                            aria-label={t("moduleN", { number: i + 1 })}
                         />
                     ))}
                     {/* Add dot — shows active when on ghost card */}
@@ -325,7 +312,7 @@ export default function MobileModuleNav({
                             ? "w-6 h-6 bg-gray-900 text-white"
                             : "w-2.5 h-2.5 bg-gray-200 hover:bg-gray-300"
                             }`}
-                        aria-label="Añadir módulo"
+                        aria-label={t("addModuleAria")}
                     >
                         {showingAddCard && <Plus size={14} />}
                     </button>
@@ -339,10 +326,10 @@ export default function MobileModuleNav({
                         ? "bg-gray-100 text-gray-300 cursor-not-allowed"
                         : "bg-gray-900 text-white active:scale-95 shadow-sm"
                         }`}
-                    aria-label="Editar módulo"
+                    aria-label={t("editModuleAria")}
                 >
                     <Pencil size={16} />
-                    <span className="text-sm font-medium">Editar</span>
+                    <span className="text-sm font-medium">{t("editButton")}</span>
                 </button>
             </div>
         </div>

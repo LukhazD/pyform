@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 interface ProblemCardProps {
   icon: string;
@@ -17,6 +18,7 @@ const ProblemCard = ({ icon, title, description }: ProblemCardProps) => (
 );
 
 const Problem = () => {
+  const t = useTranslations("problem");
   const sectionRef = useRef<HTMLElement>(null);
   const titleRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
@@ -131,23 +133,13 @@ const Problem = () => {
     initAnimations();
   }, [isVisible]);
 
-  const problems: ProblemCardProps[] = [
-    {
-      icon: "💸",
-      title: "Precios impredecibles",
-      description: "Cuantas más respuestas recibes, más pagas. Tus costos se disparan justo cuando más éxito tienes.",
-    },
-    {
-      icon: "🔄",
-      title: "Vista previa separada",
-      description: "Editas en un lugar, previsualizas en otro. Y cuando publicas... nunca se ve igual.",
-    },
-    {
-      icon: "🧩",
-      title: "Complejidad innecesaria",
-      description: "100 funciones que jamás usarás. Interfaces sobrecargadas que ralentizan tu trabajo.",
-    },
-  ];
+  const cardKeys = ["pricing", "preview", "complexity"] as const;
+
+  const problems: ProblemCardProps[] = cardKeys.map((key) => ({
+    icon: t(`cards.${key}.icon`),
+    title: t(`cards.${key}.title`),
+    description: t(`cards.${key}.description`),
+  }));
 
   return (
     <section
@@ -173,14 +165,14 @@ const Problem = () => {
         <div ref={titleRef} className="text-center mb-8 md:mb-24 perspective-[1200px]">
 
           <h2 className="text-3xl md:text-6xl font-extrabold tracking-tight mb-4 md:mb-6 max-w-4xl mx-auto leading-[1.1]">
-            ¿Cansado de herramientas{" "}
+            {t("title")}{" "}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-400 to-fuchsia-400">
-              lentas y complicadas
+              {t("titleHighlight")}
             </span>
             ?
           </h2>
           <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Los constructores corporativos te obligan a pagar facturas monstruosas por formularios que parecen sacados de 2010.
+            {t("subtitle")}
           </p>
         </div>
 
@@ -201,11 +193,10 @@ const Problem = () => {
         >
           <div className="text-5xl mb-6">✨</div>
           <h3 className="text-3xl md:text-4xl font-extrabold mb-5 tracking-tight">
-            Con Pyform, todo es diferente
+            {t("solution.title")}
           </h3>
           <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed">
-            Edición en tiempo real. Precio plano. Crea experiencias inmersivas
-            en minutos, sin sacrificar la elegancia de tu marca.
+            {t("solution.description")}
           </p>
         </div>
       </div>

@@ -1,18 +1,26 @@
 import NextAuth from "next-auth";
 import { NextResponse } from "next/server";
 import { authConfig } from "@/libs/auth.config";
+import createIntlMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
 
 const { auth } = NextAuth(authConfig);
+
+const intlMiddleware = createIntlMiddleware(routing);
 
 export default auth((req) => {
     const { nextUrl } = req;
     const isLoggedIn = !!req.auth;
 
-    const isDashboard = nextUrl.pathname.startsWith("/dashboard");
-    const isOnboarding = nextUrl.pathname === "/onboarding";
-    const isSubscribe = nextUrl.pathname === "/subscribe";
-    const isPaymentSuccess = nextUrl.pathname === "/payment-success";
-    const isApi = nextUrl.pathname.startsWith("/api");
+    // Strip locale prefix for path matching
+    const pathname = nextUrl.pathname;
+    const pathnameWithoutLocale = pathname.replace(/^\/(en|es)/, '') || '/';
+
+    const isDashboard = pathnameWithoutLocale.startsWith("/dashboard");
+    const isOnboarding = pathnameWithoutLocale === "/onboarding";
+    const isSubscribe = pathnameWithoutLocale === "/subscribe";
+    const isPaymentSuccess = pathnameWithoutLocale === "/payment-success";
+    const isApi = pathname.startsWith("/api");
     const isProtected = isDashboard || isOnboarding || isSubscribe || isPaymentSuccess;
 
     // Allow API routes to pass through (auth check handled per-route)
@@ -31,9 +39,10 @@ export default auth((req) => {
     // MongoDB), so making redirect decisions here causes loops when the JWT
     // disagrees with the actual DB state.
 
-    return NextResponse.next();
+    // Run i18n middleware for locale detection and routing
+    return intlMiddleware(req);
 });
 
 export const config = {
-    matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+    matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

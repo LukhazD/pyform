@@ -1,7 +1,10 @@
+"use client";
+
 import { useRef, useEffect } from "react";
 import confetti from "canvas-confetti";
 import { Card, Button } from "@heroui/react";
 import { CheckCircle, Twitter, Instagram, Linkedin, Globe } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface Module {
     id: string;
@@ -23,6 +26,7 @@ interface GoodbyeModuleProps {
 }
 
 export default function GoodbyeModule({ module, isPreview }: GoodbyeModuleProps) {
+    const t = useTranslations("publicForm.modules");
     useEffect(() => {
         if (module.showConfetti && !isPreview) {
             const duration = 3 * 1000;
@@ -69,10 +73,10 @@ export default function GoodbyeModule({ module, isPreview }: GoodbyeModuleProps)
                 </div>
 
                 <h1 className="text-2xl md:text-4xl font-bold text-gray-900 mb-4">
-                    {module.title || "¡Gracias por tu tiempo!"}
+                    {module.title || t("thankYouTitle")}
                 </h1>
                 <p className="text-lg text-gray-600 mb-10 max-w-md mx-auto">
-                    {module.message || "Tu respuesta ha sido registrada correctamente."}
+                    {module.message || t("responseRecorded")}
                 </p>
 
                 {module.socialLinks && (

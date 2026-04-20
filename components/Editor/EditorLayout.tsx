@@ -8,6 +8,7 @@ import Toolbar from "@/components/Editor/Toolbar";
 import PropertiesPanel from "@/components/Editor/PropertiesPanel";
 import FormPreview from "@/components/Editor/FormPreview";
 import MobileModuleNav from "@/components/Editor/MobileModuleNav";
+import { useTranslations } from "next-intl";
 import GeneralSettingsPanel from "@/components/Editor/GeneralSettingsPanel";
 
 import { FormStyling } from "@/types/FormStyling";
@@ -61,6 +62,7 @@ export default function EditorLayout({
     onUpdateForm,
     onUnpublish,
 }: EditorLayoutProps) {
+    const t = useTranslations("editor");
     const selectedModule = modules.find((m) => m.id === selectedModuleId);
     const [isMobile, setIsMobile] = useState(false);
     const [activePanel, setActivePanel] = useState<MobilePanel>("preview");
@@ -263,7 +265,7 @@ export default function EditorLayout({
                     {activePanel === "settings" && (
                         <div className="absolute inset-0 z-20 bg-white animate-in slide-in-from-bottom duration-200">
                             <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                                <h2 className="font-semibold text-gray-900">Configuración General</h2>
+                                <h2 className="font-semibold text-gray-900">{t("generalSettings")}</h2>
                                 <Button
                                     isIconOnly
                                     variant="light"

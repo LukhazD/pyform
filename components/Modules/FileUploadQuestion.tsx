@@ -5,6 +5,7 @@ import { Card, Progress } from "@heroui/react";
 import { Upload, File as FileIcon, X } from "lucide-react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 import { FormStyling } from "@/types/FormStyling";
 
@@ -30,6 +31,7 @@ interface FileUploadQuestionProps {
 }
 
 export default function FileUploadQuestion({ module, value, onChange, onAutoAdvance, primaryColor, radius = "lg", shadow = "sm", formId }: FileUploadQuestionProps) {
+    const t = useTranslations("publicForm.modules");
     const [uploading, setUploading] = useState(false);
     const [progress, setProgress] = useState(0);
     const [fileName, setFileName] = useState<string>("");
@@ -41,7 +43,7 @@ export default function FileUploadQuestion({ module, value, onChange, onAutoAdva
 
         // Validar tamaño máximo de 10MB
         if (file.size > 10 * 1024 * 1024) {
-            toast.error("El archivo supera el límite de 10MB");
+            toast.error(t("fileSizeError"));
             return;
         }
 
@@ -50,7 +52,7 @@ export default function FileUploadQuestion({ module, value, onChange, onAutoAdva
 
     const uploadFile = async (file: File) => {
         if (!formId) {
-            toast.error("Error intencionado: Falta ID del formulario");
+            toast.error(t("missingFormIdError"));
             return;
         }
 
@@ -82,12 +84,12 @@ export default function FileUploadQuestion({ module, value, onChange, onAutoAdva
                 onChange(data.key);
             }
             setFileName(file.name);
-            toast.success("Archivo subido correctamente");
+            toast.success(t("fileUploadedSuccess"));
             setTimeout(() => onAutoAdvance?.(), 800);
 
         } catch (err) {
             console.error("Upload error:", err);
-            toast.error("Error al subir el archivo");
+            toast.error(t("uploadError"));
         } finally {
             setUploading(false);
         }
@@ -99,7 +101,7 @@ export default function FileUploadQuestion({ module, value, onChange, onAutoAdva
         if (file) {
             // Validar tamaño máximo de 10MB en drag & drop
             if (file.size > 10 * 1024 * 1024) {
-                toast.error("El archivo supera el límite de 10MB");
+                toast.error(t("fileSizeError"));
                 return;
             }
             await uploadFile(file);
@@ -115,7 +117,7 @@ export default function FileUploadQuestion({ module, value, onChange, onAutoAdva
                 <div className="space-y-6">
                     <div>
                         <label className="text-xl md:text-2xl font-semibold text-gray-900 block mb-2">
-                            {module.title || "Subir archivo"}
+                            {module.title || t("uploadFile")}
                             {module.isRequired && <span className="text-red-500 ml-1">*</span>}
                         </label>
                         {module.description && (
@@ -140,18 +142,18 @@ export default function FileUploadQuestion({ module, value, onChange, onAutoAdva
                         >
                             {uploading ? (
                                 <div className="py-4">
-                                    <p className="text-primary font-medium mb-2">Subiendo {progress}%...</p>
+                                    <p className="text-primary font-medium mb-2">{t("uploading", { progress })}</p>
                                     <Progress value={progress} size="sm" color="primary" className="max-w-xs mx-auto" />
                                 </div>
                             ) : (
                                 <>
                                     <Upload className="mx-auto mb-4 text-gray-400" size={48} />
                                     <p className="text-gray-700 font-medium mb-1">
-                                        Arrastra archivos aquí
+                                        {t("dragFilesHere")}
                                     </p>
-                                    <p className="text-sm text-gray-500">o haz clic para seleccionar</p>
+                                    <p className="text-sm text-gray-500">{t("orClickToSelect")}</p>
                                     <p className="text-xs text-gray-400 mt-2">
-                                        Máximo 10MB • PDF, DOC, JPG, PNG
+                                        {t("maxFileSize")}
                                     </p>
                                 </>
                             )}
@@ -163,8 +165,8 @@ export default function FileUploadQuestion({ module, value, onChange, onAutoAdva
                                     <FileIcon size={24} />
                                 </div>
                                 <div>
-                                    <p className="font-medium text-green-800">Archivo subido</p>
-                                    <p className="text-xs text-green-600 break-all">{fileName || (typeof value === 'string' ? value.split('_').pop() : 'Archivo')}</p>
+                                    <p className="font-medium text-green-800">{t("fileUploaded")}</p>
+                                    <p className="text-xs text-green-600 break-all">{fileName || (typeof value === 'string' ? value.split('_').pop() : t("file"))}</p>
                                 </div>
                             </div>
                             <button

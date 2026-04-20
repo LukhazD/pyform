@@ -1,6 +1,9 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 
 const CTA = () => {
+  const t = useTranslations("cta");
+
   return (
     <section className="relative py-20 md:py-28 overflow-hidden">
       {/* Subtle gradient orbs for depth */}
@@ -10,16 +13,15 @@ const CTA = () => {
       <div className="relative max-w-4xl mx-auto px-6 md:px-8 text-center">
         {/* Heading */}
         <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-tight">
-          Tu próximo formulario,{" "}
+          {t("title")}{" "}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
-            en minutos
+            {t("titleHighlight")}
           </span>
         </h2>
 
         {/* Subtitle */}
         <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed mb-12">
-          Editor en vivo, estadísticas incluidas y un precio que no cambia con el
-          éxito de tus formularios. Sin sorpresas.
+          {t("subtitle")}
         </p>
 
         {/* Stats row */}
@@ -27,19 +29,19 @@ const CTA = () => {
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
             <div className="text-2xl md:text-3xl font-bold text-white">15</div>
             <div className="text-xs md:text-sm text-gray-400 mt-1">
-              Tipos de pregunta
+              {t("stats.questionTypes")}
             </div>
           </div>
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
             <div className="text-2xl md:text-3xl font-bold text-white">∞</div>
             <div className="text-xs md:text-sm text-gray-400 mt-1">
-              Respuestas incluidas
+              {t("stats.responsesIncluded")}
             </div>
           </div>
           <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-4 border border-white/10">
             <div className="text-2xl md:text-3xl font-bold text-white">&lt;5m</div>
             <div className="text-xs md:text-sm text-gray-400 mt-1">
-              Para crear un formulario
+              {t("stats.timeToCreate")}
             </div>
           </div>
         </div>
@@ -49,7 +51,7 @@ const CTA = () => {
           href="/auth/signin"
           className="inline-flex items-center gap-2 px-8 py-4 text-lg font-semibold text-gray-900 bg-white rounded-full hover:bg-gray-100 transition-all duration-200 shadow-lg shadow-white/10 hover:shadow-white/20 hover:scale-[1.02] active:scale-[0.98]"
         >
-          Crear mi primer formulario
+          {t("button")}
           <svg
             className="w-5 h-5"
             fill="none"

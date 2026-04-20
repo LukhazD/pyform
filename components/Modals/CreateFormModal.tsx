@@ -15,6 +15,7 @@ import {
 import { useRouter } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 interface CreateFormModalProps {
     isOpen: boolean;
@@ -24,6 +25,8 @@ interface CreateFormModalProps {
 export default function
     CreateFormModal({ isOpen, onOpenChange }: CreateFormModalProps) {
     const router = useRouter();
+    const t = useTranslations("forms.createModal");
+    const tCommon = useTranslations("common");
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
 
@@ -44,13 +47,13 @@ export default function
     const mutation = useMutation({
         mutationFn: createForm,
         onSuccess: (data) => {
-            toast.success("Formulario creado correctamente");
+            toast.success(t("successToast"));
             // Navigate first, then close modal (keeps loading visible during navigation)
             router.push(`/dashboard/forms/${data._id || data.shortId}/edit`);
             // Modal will close automatically when page navigates away
         },
         onError: () => {
-            toast.error("Error al crear el formulario");
+            toast.error(t("errorToast"));
         },
     });
 
@@ -73,13 +76,13 @@ export default function
                 {(onClose) => (
                     <form onSubmit={handleSubmit}>
                         <ModalHeader className="flex flex-col gap-1">
-                            Crear nuevo formulario
+                            {t("title")}
                         </ModalHeader>
                         <ModalBody>
                             <Input
                                 autoFocus
-                                label="Título del formulario"
-                                placeholder="Ej. Encuesta de satisfacción"
+                                label={t("titleLabel")}
+                                placeholder={t("titlePlaceholder")}
                                 variant="bordered"
                                 radius="md"
                                 value={title}
@@ -90,8 +93,8 @@ export default function
                                 }}
                             />
                             <Textarea
-                                label="Descripción (opcional)"
-                                placeholder="Breve descripción del propósito del formulario. (Solo tú la verás)"
+                                label={t("descriptionLabel")}
+                                placeholder={t("descriptionPlaceholder")}
                                 variant="bordered"
                                 radius="md"
                                 value={description}
@@ -109,7 +112,7 @@ export default function
                                 radius="md"
                                 isDisabled={mutation.isPending}
                             >
-                                Cancelar
+                                {tCommon("cancel")}
                             </Button>
                             <Button
                                 color="secondary"
@@ -118,7 +121,7 @@ export default function
                                 className="bg-primary text-white font-medium shadow-lg hover:bg-gray-700"
                                 isLoading={mutation.isPending}
                             >
-                                Crear formulario
+                                {t("createButton")}
                             </Button>
                         </ModalFooter>
                     </form>

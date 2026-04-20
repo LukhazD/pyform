@@ -15,6 +15,11 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: "Missing key" }, { status: 400 });
         }
 
+        // Prevent path traversal attacks (../ sequences, double encoding)
+        if (key.includes("..") || key.includes("//") || key !== decodeURIComponent(key)) {
+            return NextResponse.json({ error: "Invalid key" }, { status: 400 });
+        }
+
         const userIdOrError = await resolveUserId(req);
         if (userIdOrError instanceof NextResponse) return userIdOrError;
         const userId = userIdOrError;

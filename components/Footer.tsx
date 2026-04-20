@@ -3,10 +3,13 @@ import Image from "next/image";
 import config from "@/config";
 import logo from "@/app/icon.png";
 import RaodSystemLogo from "@/public/assets/icons/RaodSystemLogo.png";
+import { useTranslations } from "next-intl";
 // Add the Footer to the bottom of your landing page and more.
 // The support link is connected to the config.js file. If there's no config.resend.supportEmail, the link won't be displayed.
 
 const Footer = () => {
+  const t = useTranslations("footer");
+
   return (
     <footer className="bg-base-200 border-t border-base-content/10">
       <div className="max-w-7xl mx-auto px-8 py-24">
@@ -34,7 +37,7 @@ const Footer = () => {
               {config.appDescription}
             </p>
 
-            <p className="mt-3 text-sm text-base-content/80">Un producto de:</p>
+            <p className="mt-3 text-sm text-base-content/80">{t("madeBy")}</p>
             <Image
               src={RaodSystemLogo}
               alt="RaodSystem Logo"
@@ -50,7 +53,7 @@ const Footer = () => {
           <div className="flex-grow flex flex-wrap justify-center -mb-10 md:mt-0 mt-10 text-center">
             <div className="lg:w-1/3 md:w-1/2 w-full px-4">
               <div className="footer-title font-semibold text-base-content tracking-widest text-sm md:text-left mb-3">
-                ENLACES
+                {t("links")}
               </div>
 
               <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
@@ -61,32 +64,32 @@ const Footer = () => {
                     className="link link-hover"
                     aria-label="Contact Support"
                   >
-                    Soporte
+                    {t("support")}
                   </a>
                 )}
                 <Link href="/#pricing" className="link link-hover">
-                  Precios
+                  {t("pricing")}
                 </Link>
                 <Link href="/blog" className="link link-hover">
-                  Blog
+                  {t("blog")}
                 </Link>
               </div>
             </div>
 
             <div className="lg:w-1/3 md:w-1/2 w-full px-4">
               <div className="footer-title font-semibold text-base-content tracking-widest text-sm md:text-left mb-3">
-                LEGAL
+                {t("legal")}
               </div>
 
               <div className="flex flex-col justify-center items-center md:items-start gap-2 mb-10 text-sm">
                 <Link href="/tos" className="link link-hover">
-                  Términos de servicio
+                  {t("tos")}
                 </Link>
                 <Link href="/privacy-policy" className="link link-hover">
-                  Política de privacidad
+                  {t("privacy")}
                 </Link>
                 <Link href="/about" className="link link-hover">
-                  Sobre nosotros
+                  {t("about")}
                 </Link>
               </div>
             </div>

@@ -1,17 +1,19 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 import config from "@/config";
 
 export function useAuthViewModel() {
     const [email, setEmail] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+    const t = useTranslations("auth");
 
     const handleEmailSignIn = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!email) {
-            toast.error("Por favor introduce tu email");
+            toast.error(t("enterEmail"));
             return;
         }
 
@@ -24,12 +26,12 @@ export function useAuthViewModel() {
             });
 
             if (res?.error) {
-                toast.error("Error al enviar el magic link");
+                toast.error(t("magicLinkError"));
             } else {
-                toast.success("¡Enlace enviado! Revisa tu correo.");
+                toast.success(t("linkSent"));
             }
         } catch (error) {
-            toast.error("Algo salió mal");
+            toast.error(t("somethingWentWrong"));
         } finally {
             setIsLoading(false);
         }

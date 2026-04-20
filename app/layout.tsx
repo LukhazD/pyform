@@ -1,41 +1,17 @@
 import { ReactNode } from "react";
-import { Plus_Jakarta_Sans } from "next/font/google";
 import { Viewport } from "next";
 import { getSEOTags } from "@/libs/seo";
-import ClientLayout from "@/components/LayoutClient";
 import config from "@/config";
 import "./globals.css";
 
-const font = Plus_Jakarta_Sans({
-	subsets: ["latin"],
-	weight: ["400", "500", "700"],
-	display: "swap",
-	preload: true,
-});
-
 export const viewport: Viewport = {
-	// Will use the primary color of your theme to show a nice theme color in the URL bar of supported browsers
 	themeColor: config.colors.main,
 	width: "device-width",
 	initialScale: 1,
 };
 
-// This adds default SEO tags to all pages in our app.
-// You can override them in each page passing params to getSOTags() function.
 export const metadata = getSEOTags();
 
 export default function RootLayout({ children }: { children: ReactNode }) {
-	return (
-		<html
-			lang="es"
-			data-theme={config.colors.theme}
-			className={font.className + " min-h-full"}
-			suppressHydrationWarning
-		>
-			<body className="min-h-full">
-				{/* ClientLayout contains all the client wrappers (Crisp chat support, toast messages, tooltips, HeroUI, etc.) */}
-				<ClientLayout >{children}</ClientLayout>
-			</body>
-		</html>
-	);
+	return children;
 }

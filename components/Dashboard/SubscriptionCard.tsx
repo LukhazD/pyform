@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import apiClient from "@/libs/api";
+import { useTranslations, useLocale } from "next-intl";
 import {
     getSubscriptionDisplayStatus,
     formatSubscriptionDate,
@@ -41,6 +42,8 @@ interface SessionData {
 
 export default function SubscriptionCard({ session: initialSession }: { session: any }) {
     const { update } = useSession();
+    const t = useTranslations("subscription");
+    const locale = useLocale();
     const [isLoading, setIsLoading] = useState(false);
     const [isSyncing, setIsSyncing] = useState(true);
     const [sessionData, setSessionData] = useState<SessionData>({
@@ -109,8 +112,8 @@ export default function SubscriptionCard({ session: initialSession }: { session:
         } catch (e: any) {
             console.error(e);
             const errorMessage = e?.message?.includes("billing account")
-                ? "Tu suscripción fue activada manualmente. Contacta soporte para gestionar tu facturación."
-                : "Error al abrir el portal de facturación. Intenta de nuevo.";
+                ? t("manualError")
+                : t("portalError");
             alert(errorMessage);
         } finally {
             setIsLoading(false);
@@ -135,7 +138,7 @@ export default function SubscriptionCard({ session: initialSession }: { session:
         const plan = config.stripe.plans.find(p => p.priceId === sessionData.stripePriceId);
         if (!plan) return null;
         const isAnnual = plan.name.toLowerCase().includes("anual");
-        return `${plan.price}€/${isAnnual ? "año" : "mes"}`;
+        return `${plan.price}€/${isAnnual ? t("perYear") : t("perMonth")}`;
     })();
 
     // Status badge
@@ -144,7 +147,7 @@ export default function SubscriptionCard({ session: initialSession }: { session:
             return (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gray-100 text-gray-500 rounded-full text-sm font-medium">
                     <RefreshCw size={14} className="animate-spin" />
-                    Verificando...
+                    {t("verifying")}
                 </span>
             );
         }
@@ -166,7 +169,7 @@ export default function SubscriptionCard({ session: initialSession }: { session:
         return (
             <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium ${styles[subscriptionStatus.variant]}`}>
                 {icons[subscriptionStatus.variant]}
-                {subscriptionStatus.label}
+                {t(subscriptionStatus.labelKey)}
             </span>
         );
     };
@@ -181,7 +184,7 @@ export default function SubscriptionCard({ session: initialSession }: { session:
                     </div>
                     <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                            <h2 className="text-lg font-semibold text-gray-900">Suscripción</h2>
+                            <h2 className="text-lg font-semibold text-gray-900">{t("title")}</h2>
                             {getStatusBadge()}
                         </div>
                     </div>
@@ -196,7 +199,7 @@ export default function SubscriptionCard({ session: initialSession }: { session:
                             <span className="loading loading-spinner loading-xs" />
                         ) : (
                             <>
-                                Gestionar
+                                {t("manage")}
                                 <ExternalLink size={14} />
                             </>
                         )}
@@ -206,7 +209,7 @@ export default function SubscriptionCard({ session: initialSession }: { session:
                         href="/subscribe"
                         className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-medium transition-colors duration-200"
                     >
-                        Suscribirse
+                        {t("subscribe")}
                         <Crown size={14} />
                     </Link>
                 )}
@@ -221,7 +224,7 @@ export default function SubscriptionCard({ session: initialSession }: { session:
                             <div className="flex items-center justify-between py-3 border-b border-gray-100">
                                 <div className="flex items-center gap-2 text-sm text-gray-500">
                                     <Crown size={15} className="text-amber-500" />
-                                    Plan actual
+                                    {t("currentPlan")}
                                 </div>
                                 <span className="text-sm font-semibold text-gray-900">
                                     {planName}
@@ -239,13 +242,13 @@ export default function SubscriptionCard({ session: initialSession }: { session:
                                     <div className="flex items-center gap-2 text-sm text-gray-500">
                                         <CalendarDays size={15} />
                                         {isCanceling
-                                            ? "Acceso hasta"
+                                            ? t("accessUntil")
                                             : isTrialing
-                                                ? "Fin del período de prueba"
-                                                : "Próxima facturación"}
+                                                ? t("trialEnd")
+                                                : t("nextBilling")}
                                     </div>
                                     <span className={`text-sm font-semibold ${isCanceling ? "text-amber-600" : "text-gray-900"}`}>
-                                        {formatSubscriptionDate(sessionData.currentPeriodEnd)}
+                                        {formatSubscriptionDate(sessionData.currentPeriodEnd, locale)}
                                     </span>
                                 </div>
                             )}
@@ -256,22 +259,20 @@ export default function SubscriptionCard({ session: initialSession }: { session:
                                     <ShieldAlert size={20} className="text-amber-500 flex-shrink-0 mt-0.5" />
                                     <div className="text-sm">
                                         <p className="font-medium text-amber-800">
-                                            Tu suscripción está programada para cancelarse
+                                            {t("cancelScheduled")}
                                         </p>
                                         <p className="text-amber-700 mt-1">
-                                            Seguirás teniendo acceso a todas las funcionalidades
-                                            hasta el{" "}
-                                            <strong>{formatSubscriptionDate(sessionData.currentPeriodEnd)}</strong>.
-                                            Después de esa fecha perderás el acceso al dashboard,
-                                            tus formularios dejarán de recibir respuestas y tus
-                                            API keys serán revocadas.
+                                            {t.rich("cancelDescription", {
+                                                date: formatSubscriptionDate(sessionData.currentPeriodEnd, locale),
+                                                strong: (chunks) => <strong>{chunks}</strong>,
+                                            })}
                                         </p>
                                         <button
                                             onClick={handleManageSubscription}
                                             disabled={isLoading}
                                             className="inline-flex items-center gap-1.5 mt-3 text-amber-800 font-medium hover:text-amber-900 transition-colors"
                                         >
-                                            Reactivar suscripción
+                                            {t("reactivate")}
                                             <ExternalLink size={13} />
                                         </button>
                                     </div>
@@ -284,20 +285,17 @@ export default function SubscriptionCard({ session: initialSession }: { session:
                                     <AlertTriangle size={20} className="text-red-500 flex-shrink-0 mt-0.5" />
                                     <div className="text-sm">
                                         <p className="font-medium text-red-800">
-                                            Tu último pago no se pudo procesar
+                                            {t("paymentFailed")}
                                         </p>
                                         <p className="text-red-700 mt-1">
-                                            Estamos reintentando el cobro automáticamente. Si el
-                                            pago no se completa, tu suscripción será cancelada y
-                                            perderás el acceso. Actualiza tu método de pago para
-                                            evitar interrupciones.
+                                            {t("paymentFailedDescription")}
                                         </p>
                                         <button
                                             onClick={handleManageSubscription}
                                             disabled={isLoading}
                                             className="inline-flex items-center gap-1.5 mt-3 text-red-800 font-medium hover:text-red-900 transition-colors"
                                         >
-                                            Actualizar método de pago
+                                            {t("updatePayment")}
                                             <ExternalLink size={13} />
                                         </button>
                                     </div>
@@ -310,14 +308,9 @@ export default function SubscriptionCard({ session: initialSession }: { session:
                                     <Info size={20} className="text-blue-500 flex-shrink-0 mt-0.5" />
                                     <div className="text-sm">
                                         <p className="font-medium text-blue-800">
-                                            Estás en tu período de prueba gratuito
+                                            {t("trialActive")}
                                         </p>
-                                        <p className="text-blue-700 mt-1">
-                                            Tu prueba termina el{" "}
-                                            <strong>{formatSubscriptionDate(sessionData.currentPeriodEnd)}</strong>.
-                                            Después se te cobrará automáticamente. Puedes cancelar
-                                            en cualquier momento antes de esa fecha sin cargos.
-                                        </p>
+                                        <p className="text-blue-700 mt-1" dangerouslySetInnerHTML={{ __html: t("trialDescription", { date: formatSubscriptionDate(sessionData.currentPeriodEnd, locale) }) }} />
                                     </div>
                                 </div>
                             )}
@@ -325,8 +318,8 @@ export default function SubscriptionCard({ session: initialSession }: { session:
                     ) : (
                         <p className="text-gray-500 text-sm">
                             {isCanceled
-                                ? "Tu suscripción ha sido cancelada. Suscríbete de nuevo para acceder a todas las funcionalidades."
-                                : "No tienes una suscripción activa."}
+                                ? t("canceled")
+                                : t("noSubscription")}
                         </p>
                     )}
                 </div>

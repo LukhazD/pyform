@@ -3,6 +3,7 @@
 
 import React from "react";
 import { Card, Input } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 import { FormStyling } from "@/types/FormStyling";
 
@@ -25,13 +26,14 @@ interface TextQuestionProps {
 }
 
 export default function TextQuestion({ module, value, onChange, radius = "lg", shadow = "sm" }: TextQuestionProps) {
+    const t = useTranslations("publicForm.modules");
     return (
         <div className="min-h-[300px] md:min-h-[400px] flex items-center justify-center p-4 md:p-8">
             <Card shadow={shadow} radius={radius === "full" ? "lg" : radius} className="max-w-2xl w-full p-6 md:p-10 bg-white">
                 <div className="space-y-6">
                     <div>
                         <label className="text-xl md:text-2xl font-semibold text-gray-900 block mb-2">
-                            {module.title || "Pregunta sin título"}
+                            {module.title || t("untitledQuestion")}
                             {module.isRequired && <span className="text-red-500 ml-1">*</span>}
                         </label>
                         {module.description && (
@@ -40,7 +42,7 @@ export default function TextQuestion({ module, value, onChange, radius = "lg", s
                     </div>
 
                     <Input
-                        placeholder={module.placeholder || "Escribe tu respuesta..."}
+                        placeholder={module.placeholder || t("typeYourAnswer")}
                         radius="md"
                         variant="bordered"
                         size="lg"

@@ -20,7 +20,22 @@ export async function POST(req: Request) {
             );
         }
 
-        const { formId, answers, metadata, completionTimeMs } = await req.json();
+        const body = await req.json();
+        const { formId, answers, metadata, completionTimeMs } = body;
+
+        // Basic input validation — this endpoint is public (no auth required)
+        if (!formId || typeof formId !== "string" || !/^[0-9a-fA-F]{24}$/.test(formId)) {
+            return NextResponse.json({ error: "Invalid formId" }, { status: 400 });
+        }
+        if (!Array.isArray(answers)) {
+            return NextResponse.json({ error: "answers must be an array" }, { status: 400 });
+        }
+        if (!metadata || typeof metadata !== "object") {
+            return NextResponse.json({ error: "metadata is required" }, { status: 400 });
+        }
+        if (!metadata.deviceType || !["desktop", "mobile", "tablet"].includes(metadata.deviceType)) {
+            return NextResponse.json({ error: "Invalid deviceType" }, { status: 400 });
+        }
 
         // Rate limiting by formId
         if (!checkRateLimit(`sub:form:${formId}`, FORM_LIMIT, WINDOW_MS)) {
@@ -63,13 +78,17 @@ export async function POST(req: Request) {
         return NextResponse.json(submission, { status: 201 });
     } catch (error: any) {
         console.error("Submission Error:", error);
-        // Only expose safe error messages to the client
-        const safeMessages = [
-            "Formulario no encontrado",
-            "Este formulario no está disponible temporalmente",
-        ];
-        const message = safeMessages.find(m => error.message?.includes(m))
-            || (error.message?.startsWith("Este formulario ha alcanzado") ? error.message : "Error al enviar respuesta");
-        return NextResponse.json({ error: message }, { status: error.message?.includes("no encontrado") ? 404 : 500 });
+        // Return error codes that the client can translate
+        const msg = error.message || "";
+        if (msg.includes("no encontrado")) {
+            return NextResponse.json({ error: "FORM_NOT_FOUND" }, { status: 404 });
+        }
+        if (msg.startsWith("FORM_RESPONSE_LIMIT_REACHED")) {
+            return NextResponse.json({ error: msg }, { status: 429 });
+        }
+        if (msg === "DUPLICATE_SUBMISSION") {
+            return NextResponse.json({ error: "DUPLICATE_SUBMISSION" }, { status: 409 });
+        }
+        return NextResponse.json({ error: "SUBMISSION_ERROR" }, { status: 500 });
     }
 }

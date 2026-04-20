@@ -7,6 +7,7 @@ import EmptyState from "./EmptyState";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface FormListProps {
     initialForms: any[];
@@ -19,6 +20,7 @@ export default function FormList({ initialForms, formsPerPage = FORMS_PER_PAGE }
     const router = useRouter();
     const [forms, setForms] = useState(initialForms);
     const [currentPage, setCurrentPage] = useState(1);
+    const t = useTranslations("forms");
 
     // Pagination calculations
     const totalPages = Math.ceil(forms.length / formsPerPage);
@@ -47,12 +49,12 @@ export default function FormList({ initialForms, formsPerPage = FORMS_PER_PAGE }
                 throw new Error("Failed to delete");
             }
 
-            toast.success("Formulario eliminado correctamente");
+            toast.success(t("deleteSuccess"));
             router.refresh();
         } catch (error) {
             // Revert on error
             setForms(previousForms);
-            toast.error("Error al eliminar el formulario");
+            toast.error(t("deleteError"));
             console.error(error);
         }
     };
@@ -76,11 +78,11 @@ export default function FormList({ initialForms, formsPerPage = FORMS_PER_PAGE }
                 throw new Error("Failed to update status");
             }
 
-            toast.success(newStatus === "draft" ? "Devuelto a borrador" : "Estado actualizado");
+            toast.success(newStatus === "draft" ? t("revertedToDraft") : t("statusUpdated"));
             router.refresh();
         } catch (error) {
             setForms(previousForms);
-            toast.error("Error al actualizar el estado");
+            toast.error(t("statusUpdateError"));
             console.error(error);
         }
     };
@@ -160,7 +162,7 @@ export default function FormList({ initialForms, formsPerPage = FORMS_PER_PAGE }
             {/* Page info */}
             {totalPages > 1 && (
                 <p className="text-center text-sm text-gray-500">
-                    Mostrando {startIndex + 1}-{Math.min(endIndex, forms.length)} de {forms.length} formularios
+                    {t("showing", { start: startIndex + 1, end: Math.min(endIndex, forms.length), total: forms.length })}
                 </p>
             )}
         </div>

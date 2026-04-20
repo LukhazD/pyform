@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Card, Button, Pagination } from "@heroui/react";
 import Link from "next/link";
 import { BarChart3, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface AnalyticsFormProps {
     formId: string;
@@ -16,6 +17,7 @@ interface AnalyticsFormProps {
 }
 
 export default function GlobalFormsList({ forms }: { forms: AnalyticsFormProps[] }) {
+    const t = useTranslations("analytics");
     const [page, setPage] = useState(1);
     const rowsPerPage = 4;
 
@@ -31,14 +33,14 @@ export default function GlobalFormsList({ forms }: { forms: AnalyticsFormProps[]
     if (forms.length === 0) {
         return (
             <Card className="p-8 text-center mt-8">
-                <p className="text-gray-500">No tienes formularios con datos aún.</p>
+                <p className="text-gray-500">{t("noFormsYet")}</p>
             </Card>
         );
     }
 
     return (
         <div className="w-full">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Formularios respondidos</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("answeredForms")}</h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 {items.map((form) => (
@@ -50,8 +52,8 @@ export default function GlobalFormsList({ forms }: { forms: AnalyticsFormProps[]
                             <div className="w-full">
                                 <h4 className="font-semibold text-gray-900 truncate">{form.title}</h4>
                                 <div className="flex flex-row gap-1 text-sm text-gray-500 mt-2">
-                                    <span className="truncate text-blue-500">{form.views} vistas</span>
-                                    <span className="truncate text-green-500">{Math.min(form.completionRate || 0, 100)}% completados</span>
+                                    <span className="truncate text-blue-500">{form.views} {t("views")}</span>
+                                    <span className="truncate text-green-500">{Math.min(form.completionRate || 0, 100)}{t("percentCompleted")}</span>
                                 </div>
                             </div>
                         </div>
@@ -67,7 +69,7 @@ export default function GlobalFormsList({ forms }: { forms: AnalyticsFormProps[]
                                 size="sm"
                                 className="w-full bg-gray-900 hover:bg-gray-800 text-white"
                             >
-                                Ver detalles
+                                {t("viewDetails")}
                             </Button>
                         </div>
                     </Card>

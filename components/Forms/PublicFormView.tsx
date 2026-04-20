@@ -10,6 +10,7 @@ import { useNavigationStore } from "@/hooks/useNavigationStore";
 import { usePublicFormViewModel } from "@/hooks/usePublicFormViewModel";
 import { Form, Question } from "@/types/Form";
 import { sanitizeCSS } from "@/libs/sanitizeCSS";
+import { useTranslations } from "next-intl";
 
 gsap.registerPlugin(useGSAP);
 
@@ -20,6 +21,8 @@ interface PublicFormViewProps {
 }
 
 export default function PublicFormView({ form, questions, isPreview = false }: PublicFormViewProps) {
+    const t = useTranslations("publicForm");
+    const tCommon = useTranslations("common");
     const {
         currentIndex,
         responses,
@@ -155,7 +158,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
             try {
                 await navigator.share({
                     title: form.title,
-                    text: 'Te invito a responder este formulario',
+                    text: t("shareInvite"),
                     url: window.location.href,
                 });
             } catch (error) {
@@ -164,7 +167,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
         } else {
             // Fallback to copy to clipboard
             navigator.clipboard.writeText(window.location.href);
-            import("react-hot-toast").then((mod) => mod.default.success("Enlace copiado al portapapeles"));
+            import("react-hot-toast").then((mod) => mod.default.success(t("linkCopied")));
         }
     };
 
@@ -182,9 +185,9 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                     <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner">
                         <CheckCircle2 className="w-10 h-10 text-green-500" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-3">¡Gracias! <br /> Respuesta enviada.</h2>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-3">{t("thankYou")} <br /> {t("responseSent")}</h2>
                     <p className="text-gray-500 mb-8 text-sm">
-                        Tus respuestas han sido registradas correctamente de forma segura.
+                        {t("responseRecorded")}
                     </p>
 
                     <Button
@@ -195,17 +198,17 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                         radius="md"
                         startContent={<Share2 size={18} />}
                     >
-                        Compartir Formulario
+                        {t("shareForm")}
                     </Button>
                 </div>
 
                 {/* Pyform Watermark / CTA */}
                 <div className="mt-12 text-center">
                     <a href="https://pyform.app" target="_blank" rel="noopener noreferrer" className="group flex flex-col items-center gap-1 opacity-60 hover:opacity-100 transition-opacity">
-                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 group-hover:text-gray-600">Desarrollado con</span>
+                        <span className="text-xs font-semibold uppercase tracking-wider text-gray-400 group-hover:text-gray-600">{t("madeWith")}</span>
                         <div className="flex items-center gap-2 font-bold text-gray-900">
                             <span className="text-lg">PyForm</span>
-                            <span className="bg-gray-900 text-white text-[10px] px-2 py-0.5 rounded-full">Gratis</span>
+                            <span className="bg-gray-900 text-white text-[10px] px-2 py-0.5 rounded-full">{t("free")}</span>
                         </div>
                     </a>
                 </div>
@@ -237,7 +240,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
             {isPreview && (
                 <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-amber-500 text-white px-6 py-2 rounded-full shadow-lg flex items-center gap-2 text-sm font-medium">
                     <span className="text-lg">👁️</span>
-                    Vista previa — Las respuestas no se guardarán
+                    {t("previewBanner")}
                 </div>
             )}
             {/* Progress bar */}
@@ -308,7 +311,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                             backgroundColor: primaryColor,
                                         }}
                                     >
-                                        Enviar respuestas
+                                        {t("submitResponses")}
                                     </Button>
 
                                     <Button
@@ -319,7 +322,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                         isDisabled={currentIndex === 0 || submitting}
                                         className="text-gray-400 hover:text-gray-600"
                                     >
-                                        Volver
+                                        {tCommon("back")}
                                     </Button>
                                 </>
                             ) : (
@@ -331,7 +334,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                         isDisabled={currentIndex === 0}
                                         startContent={<ChevronUp size={18} />}
                                     >
-                                        Anterior
+                                        {tCommon("previous")}
                                     </Button>
 
                                     <Button
@@ -343,7 +346,7 @@ export default function PublicFormView({ form, questions, isPreview = false }: P
                                         }}
                                         endContent={<ChevronDown size={18} />}
                                     >
-                                        Siguiente
+                                        {tCommon("next")}
                                     </Button>
                                 </>
                             )}

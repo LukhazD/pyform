@@ -3,6 +3,7 @@ import { auth } from "@/libs/next-auth";
 import connectMongo from "@/libs/mongoose";
 import { createCustomerPortal } from "@/libs/stripe";
 import User from "@/models/User";
+import config from "@/config";
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -30,6 +31,15 @@ export async function POST(req: NextRequest) {
           { error: "Return URL is required" },
           { status: 400 }
         );
+      }
+
+      // Prevent open redirect
+      const allowedOrigins = [
+        `https://${config.domainName}`,
+        ...(process.env.NODE_ENV === "development" ? ["http://localhost:3000", "http://localhost:3001"] : []),
+      ];
+      if (!allowedOrigins.some((origin) => body.returnUrl.startsWith(origin))) {
+        return NextResponse.json({ error: "Invalid return URL" }, { status: 400 });
       }
 
       const stripePortalUrl = await createCustomerPortal({

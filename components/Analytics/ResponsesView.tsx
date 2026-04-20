@@ -11,6 +11,7 @@ import { ISubmission } from "@/models/Submission";
 import { Calendar, Smartphone, Monitor, Search, ChevronRight, User as UserIcon, BarChart3 } from "lucide-react";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
+import { useTranslations, useLocale } from "next-intl";
 
 interface ResponsesViewProps {
     questions: IQuestion[];
@@ -25,6 +26,8 @@ const CHART_COLORS = [
 ];
 
 export default function ResponsesView({ questions, submissions }: ResponsesViewProps) {
+    const t = useTranslations("responses");
+    const locale = useLocale();
     const [selectedQuestionId, setSelectedQuestionId] = useState<string | null>(questions.length > 0 && questions[0].type !== "WELCOME" && questions[0].type !== "GOODBYE" ? String(questions[0]._id) : questions.length > 0 ? String(questions[1]._id) : null);
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
@@ -146,7 +149,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
 
     return (
         <div className="animate-in fade-in duration-500">
-            <Tabs disableAnimation={true} aria-label="Opciones de Análisis" size="lg" color="primary" variant="underlined" classNames={{
+            <Tabs disableAnimation={true} aria-label={t("analysisOptions")} size="lg" color="primary" variant="underlined" classNames={{
                 tabList: "gap-6 w-full relative rounded-none p-0 border-b border-divider",
                 cursor: "w-full bg-primary",
                 tab: "max-w-fit px-0 h-12",
@@ -157,14 +160,14 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                     title={
                         <div className="flex items-center space-x-2">
                             <UserIcon size={18} />
-                            <span>Por sesión</span>
+                            <span>{t("bySession")}</span>
                         </div>
                     }
                 >
                     <div className="pt-2">
                         {submissions.length === 0 ? (
                             <Card className="p-8 text-center bg-gray-50 border border-dashed border-gray-300 shadow-none">
-                                <p className="text-gray-500">Aún no hay respuestas registradas.</p>
+                                <p className="text-gray-500">{t("noResponses")}</p>
                             </Card>
                         ) : (
                             <>
@@ -175,16 +178,16 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                             <tr className="bg-gray-50 border-b border-gray-200">
                                                 {/* Fixed meta columns */}
                                                 <th className="text-left px-4 py-3 font-semibold text-gray-500 uppercase tracking-wider text-xs whitespace-nowrap">
-                                                    Estado
+                                                    {t("status")}
                                                 </th>
                                                 <th className="text-left px-4 py-3 font-semibold text-gray-500 uppercase tracking-wider text-xs whitespace-nowrap">
-                                                    Respondente
+                                                    {t("respondent")}
                                                 </th>
                                                 <th className="text-left px-4 py-3 font-semibold text-gray-500 uppercase tracking-wider text-xs whitespace-nowrap">
-                                                    Fecha
+                                                    {t("date")}
                                                 </th>
                                                 <th className="text-left px-4 py-3 font-semibold text-gray-500 uppercase tracking-wider text-xs whitespace-nowrap">
-                                                    Dispositivo
+                                                    {t("device")}
                                                 </th>
                                                 {/* One column per question */}
                                                 {questionsWithAnswers.map((q) => (
@@ -215,7 +218,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                                                 ? 'bg-green-100 text-green-700'
                                                                 : 'bg-amber-100 text-amber-700'
                                                                 }`}>
-                                                                {isComplete ? 'Completado' : 'Parcial'}
+                                                                {isComplete ? t("completed") : t("partial")}
                                                             </span>
                                                         </td>
                                                         {/* Respondent */}
@@ -238,7 +241,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                                         <td className="px-4 py-3 whitespace-nowrap text-gray-500 text-xs">
                                                             <div className="flex items-center gap-1">
                                                                 {isMobile ? <Smartphone size={13} /> : <Monitor size={13} />}
-                                                                <span>{isMobile ? 'Móvil' : isTablet ? 'Tablet' : 'Escritorio'}</span>
+                                                                <span>{isMobile ? t("mobile") : isTablet ? t("tablet") : t("desktop")}</span>
                                                             </div>
                                                         </td>
                                                         {/* One cell per question */}
@@ -267,7 +270,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                                                             className="bg-gray-900 text-white text-xs px-2 h-7"
                                                                             onPress={() => handlePreview(String(raw))}
                                                                         >
-                                                                            Ver archivo
+                                                                            {t("viewFile")}
                                                                         </Button>
                                                                     ) : Array.isArray(val) ? (
                                                                         <div className="flex flex-wrap gap-1">
@@ -314,7 +317,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                             return (
                                                 <AccordionItem
                                                     key={String(sub._id)}
-                                                    aria-label={`Sesión de ${respondent}`}
+                                                    aria-label={t("sessionOf", { respondent })}
                                                     title={
                                                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-1">
                                                             <div className="flex items-center gap-3">
@@ -324,17 +327,17 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                                                 <div className="flex flex-col">
                                                                     <span className="font-bold text-gray-900">{respondent}</span>
                                                                     <div className="flex items-center gap-2 text-xs text-gray-500">
-                                                                        <Calendar size={12} /> {date} a las {time}
+                                                                        <Calendar size={12} /> {date} {t("at")} {time}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <div className="flex items-center gap-3">
                                                                 <div className="flex items-center gap-1 text-gray-500 text-xs bg-gray-100 px-2 py-1 rounded-md">
                                                                     {isMobile ? <Smartphone size={14} /> : <Monitor size={14} />}
-                                                                    <span className="capitalize">{sub.metadata?.deviceType?.toLowerCase() == 'mobile' ? 'Móvil' : sub.metadata?.deviceType?.toLowerCase() == 'tablet' ? 'Tablet' : 'Escritorio'}</span>
+                                                                    <span className="capitalize">{sub.metadata?.deviceType?.toLowerCase() == 'mobile' ? t("mobile") : sub.metadata?.deviceType?.toLowerCase() == 'tablet' ? t("tablet") : t("desktop")}</span>
                                                                 </div>
                                                                 <Chip size="sm" color={isComplete ? "success" : "warning"} variant="flat" className="font-medium">
-                                                                    {isComplete ? 'Completado' : 'Parcial'}
+                                                                    {isComplete ? t("completed") : t("partial")}
                                                                 </Chip>
                                                             </div>
                                                         </div>
@@ -344,7 +347,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                                     <Divider className="mb-4" />
                                                     <div className="space-y-6 pb-2">
                                                         {sessionAnswers.length === 0 ? (
-                                                            <p className="text-gray-400 italic text-sm">El usuario no respondió a ninguna pregunta rastreable.</p>
+                                                            <p className="text-gray-400 italic text-sm">{t("noTrackedAnswers")}</p>
                                                         ) : (
                                                             sessionAnswers.map((item, idx) => (
                                                                 <div key={idx} className="flex flex-col gap-1.5">
@@ -361,7 +364,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                                                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
                                                                             }
                                                                         >
-                                                                            Ver Archivo Adjunto
+                                                                            {t("viewAttachment")}
                                                                         </Button>
                                                                     ) : Array.isArray(item.value) ? (
                                                                         <ul className="list-disc list-inside text-base font-bold text-gray-900">
@@ -390,7 +393,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                     title={
                         <div className="flex items-center space-x-2">
                             <BarChart3 size={18} />
-                            <span>Por pregunta</span>
+                            <span>{t("byQuestion")}</span>
                         </div>
                     }
                 >
@@ -398,10 +401,10 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                         {/* Question Analysis Section */}
                         <section>
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                                <h3 className="text-xl font-bold text-gray-900">Análisis Detallado</h3>
+                                <h3 className="text-xl font-bold text-gray-900">{t("detailedAnalysis")}</h3>
                                 <Select
-                                    label="Pregunta"
-                                    placeholder="Selecciona una pregunta"
+                                    label={t("question")}
+                                    placeholder={t("selectQuestion")}
                                     className="max-w-md"
                                     selectedKeys={selectedQuestionId ? [selectedQuestionId] : []}
                                     onChange={(e) => {
@@ -426,7 +429,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                     <div className="flex items-start justify-between mb-6">
                                         <div>
                                             <div className="flex items-center gap-2 mb-2">
-                                                <span className="text-sm text-gray-500">{analysis.totalAnswers} respuestas</span>
+                                                <span className="text-sm text-gray-500">{t("totalResponses", { count: analysis.totalAnswers })}</span>
                                             </div>
                                             <h4 className="text-xl font-bold text-gray-900 leading-tight">{analysis.question.title}</h4>
                                         </div>
@@ -438,8 +441,8 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                             analysis.totalAnswers === 0 ? (
                                                 <div className="flex flex-col items-center justify-center py-12 text-center bg-gray-50 rounded-xl border border-dashed border-gray-200">
                                                     <BarChart3 size={48} className="text-gray-300 mb-3" />
-                                                    <p className="text-gray-500 font-medium">No hay datos para visualizar</p>
-                                                    <p className="text-sm text-gray-400 mt-1">Las respuestas a esta pregunta aparecerán aquí como gráficas.</p>
+                                                    <p className="text-gray-500 font-medium">{t("noDataToVisualize")}</p>
+                                                    <p className="text-sm text-gray-400 mt-1">{t("answersWillAppear")}</p>
                                                 </div>
                                             ) : (
                                                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -463,7 +466,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
 
                                                     {/* Legend Area */}
                                                     <div className="bg-gray-50 rounded-xl p-5 h-fit">
-                                                        <h5 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Leyenda</h5>
+                                                        <h5 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">{t("legend")}</h5>
                                                         <div className="space-y-3">
                                                             {Object.entries(analysis.distribution).map(([label, data]) => (
                                                                 <div key={label} className="flex items-center justify-between text-sm">
@@ -499,7 +502,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
                                                                     }
                                                                 >
-                                                                    Ver Archivo
+                                                                    {t("viewFile")}
                                                                 </Button>
                                                             ) : (
                                                                 <p className="text-gray-800 font-medium mb-2">{String(item.value)}</p>
@@ -523,12 +526,12 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                                         endContent={<ChevronRight size={16} />}
                                                         onPress={onOpen}
                                                     >
-                                                        Ver las {analysis.totalAnswers} respuestas
+                                                        {t("viewAllResponses", { count: analysis.totalAnswers })}
                                                     </Button>
                                                 )}
                                                 {analysis.totalAnswers === 0 && (
                                                     <div className="text-center py-8 text-gray-400">
-                                                        Sin respuestas aún
+                                                        {t("noResponsesYet")}
                                                     </div>
                                                 )}
                                             </div>
@@ -546,8 +549,8 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                 {(onClose) => (
                                     <>
                                         <ModalHeader className="flex flex-col gap-1">
-                                            <span className="text-xl">Respuestas: {analysis.question.title}</span>
-                                            <span className="text-sm text-gray-500 font-normal">Listado completo de {analysis.totalAnswers} respuestas</span>
+                                            <span className="text-xl">{t("responsesTitle", { title: analysis.question.title })}</span>
+                                            <span className="text-sm text-gray-500 font-normal">{t("fullList", { count: analysis.totalAnswers })}</span>
                                         </ModalHeader>
                                         <ModalBody>
                                             <div className="space-y-3 pb-4">
@@ -564,7 +567,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" /><circle cx="12" cy="12" r="3" /></svg>
                                                                     }
                                                                 >
-                                                                    Ver Archivo
+                                                                    {t("viewFile")}
                                                                 </Button>
                                                             </div>
                                                         ) : (
@@ -585,7 +588,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                         </ModalBody>
                                         <ModalFooter>
                                             <Button color="danger" variant="light" onPress={onClose}>
-                                                Cerrar
+                                                {t("close")}
                                             </Button>
                                         </ModalFooter>
                                     </>
@@ -610,7 +613,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                         return (
                             <>
                                 <ModalHeader className="flex flex-col gap-1">
-                                    Vista Previa
+                                    {t("preview")}
                                 </ModalHeader>
                                 <ModalBody className="p-0 bg-gray-100 flex items-center relative justify-center min-h-[400px]">
                                     {isPreviewLoading && fileType !== 'other' && (
@@ -636,13 +639,13 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                     )}
                                     {fileType === 'other' && (
                                         <div className="text-center p-8">
-                                            <p className="mb-4 text-gray-500">Vista previa no disponible para este tipo de archivo.</p>
+                                            <p className="mb-4 text-gray-500">{t("previewNotAvailable")}</p>
                                         </div>
                                     )}
                                 </ModalBody>
                                 <ModalFooter className="justify-between">
                                     <Button color="danger" variant="light" onPress={onClose}>
-                                        Cerrar
+                                        {t("close")}
                                     </Button>
                                     <Button
                                         as="a"
@@ -651,7 +654,7 @@ export default function ResponsesView({ questions, submissions }: ResponsesViewP
                                         color="primary"
                                         startContent={<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>}
                                     >
-                                        Descargar Original
+                                        {t("downloadOriginal")}
                                     </Button>
                                 </ModalFooter>
                             </>

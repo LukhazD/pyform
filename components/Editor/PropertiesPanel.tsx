@@ -4,6 +4,7 @@
 import React from "react";
 import { Button, Input, Textarea, Switch, Divider } from "@heroui/react";
 import { Trash2, Copy, MousePointer, Plus, X, GripVertical, ChevronUp, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 import GeneralSettingsPanel from "./GeneralSettingsPanel";
 
@@ -46,22 +47,6 @@ interface PropertiesPanelProps {
     onUnpublish?: () => void;
 }
 
-const moduleLabels: Record<string, string> = {
-    WELCOME: "Bienvenida",
-    QUOTE: "Cita",
-    GOODBYE: "Despedida",
-    TEXT: "Texto Corto",
-    EMAIL: "Email",
-    NUMBER: "Número",
-    PHONE: "Teléfono",
-    URL: "URL",
-    TEXTAREA: "Texto Largo",
-    MULTIPLE_CHOICE: "Opción Múltiple",
-    CHECKBOXES: "Casillas",
-    DROPDOWN: "Desplegable",
-    DATE: "Fecha",
-    FILE_UPLOAD: "Archivo",
-};
 
 export default function PropertiesPanel({
     selectedModule,
@@ -80,6 +65,9 @@ export default function PropertiesPanel({
     canMoveDown,
     onUnpublish,
 }: PropertiesPanelProps) {
+    const tModules = useTranslations("editor.moduleTypes");
+    const tProps = useTranslations("editor.properties");
+
     if (!selectedModule) {
         return (
             <div className={`bg-white ${isMobile ? 'w-full' : 'w-80 border-l border-gray-200'} h-full overflow-hidden flex flex-col`}>
@@ -105,14 +93,14 @@ export default function PropertiesPanel({
     const hasOptions = ["MULTIPLE_CHOICE", "CHECKBOXES", "DROPDOWN"].includes(selectedModule.type);
 
     const options = selectedModule.options || [
-        { id: "opt-1", label: "Opción 1", value: "option1", order: 0 },
-        { id: "opt-2", label: "Opción 2", value: "option2", order: 1 },
+        { id: "opt-1", label: tProps("optionN", { number: 1 }), value: "option1", order: 0 },
+        { id: "opt-2", label: tProps("optionN", { number: 2 }), value: "option2", order: 1 },
     ];
 
     const handleAddOption = () => {
         const newOption: Option = {
             id: `opt-${Date.now()}`,
-            label: `Opción ${options.length + 1}`,
+            label: tProps("optionN", { number: options.length + 1 }),
             value: `option${options.length + 1}`,
             order: options.length,
         };
@@ -141,7 +129,7 @@ export default function PropertiesPanel({
             {/* Header */}
             <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-medium text-gray-900">
-                    {moduleLabels[selectedModule.type] || selectedModule.type}
+                    {tModules(selectedModule.type as any) || selectedModule.type}
                 </h3>
                 <Button
                     isIconOnly
@@ -158,8 +146,8 @@ export default function PropertiesPanel({
             <div className="space-y-4">
                 {/* Title */}
                 <Input
-                    label="Título"
-                    placeholder="Escribe el título"
+                    label={tProps("title")}
+                    placeholder={tProps("titlePlaceholder")}
                     radius="md"
                     variant="bordered"
                     value={selectedModule.title || ""}
@@ -171,8 +159,8 @@ export default function PropertiesPanel({
 
                 {/* Description */}
                 <Textarea
-                    label="Descripción (opcional)"
-                    placeholder="Añade contexto adicional"
+                    label={tProps("descriptionOptional")}
+                    placeholder={tProps("descriptionPlaceholder")}
                     radius="md"
                     variant="bordered"
                     maxLength={200}
@@ -192,8 +180,8 @@ export default function PropertiesPanel({
                 {/* Placeholder - for simple text inputs */}
                 {!["WELCOME", "QUOTE", "GOODBYE", "MULTIPLE_CHOICE", "CHECKBOXES", "DROPDOWN", "DATE", "FILE_UPLOAD"].includes(selectedModule.type) && (
                     <Input
-                        label="Placeholder"
-                        placeholder="Texto de ejemplo"
+                        label={tProps("placeholder")}
+                        placeholder={tProps("placeholderExample")}
                         radius="md"
                         variant="bordered"
                         value={selectedModule.placeholder || ""}
@@ -208,7 +196,7 @@ export default function PropertiesPanel({
                 {hasOptions && (
                     <div className="space-y-3">
                         <label className="text-sm font-medium text-gray-700">
-                            Opciones
+                            {tProps("options")}
                         </label>
                         <div className="space-y-2">
                             {options.map((option, index) => (
@@ -231,7 +219,7 @@ export default function PropertiesPanel({
                                         classNames={{
                                             inputWrapper: "border-gray-200 focus-within:border-primary",
                                         }}
-                                        placeholder={`Opción ${index + 1}`}
+                                        placeholder={tProps("optionN", { number: index + 1 })}
                                     />
                                     <Button
                                         isIconOnly
@@ -255,7 +243,7 @@ export default function PropertiesPanel({
                             onPress={handleAddOption}
                             className="w-full mt-2"
                         >
-                            Añadir opción
+                            {tProps("addOption")}
                         </Button>
                     </div>
                 )}

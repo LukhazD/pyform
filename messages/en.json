@@ -1,0 +1,676 @@
+{
+  "common": {
+    "appName": "Pyform",
+    "appDescription": "The visual editor you need to turn data into action.",
+    "loading": "Loading...",
+    "user": "User",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "confirm": "Confirm",
+    "copied": "Copied to clipboard",
+    "error": "Error",
+    "success": "Success",
+    "linkCopied": "Link copied successfully",
+    "linkCopyError": "Error copying the link"
+  },
+  "nav": {
+    "pricing": "Pricing",
+    "reviews": "Reviews",
+    "faq": "FAQ",
+    "login": "Log in",
+    "openMenu": "Open main menu",
+    "menu": "Menu"
+  },
+  "hero": {
+    "titlePrefix": "Forms for",
+    "professions": {
+      "developers": "Developers",
+      "marketers": "Marketers",
+      "designers": "Designers",
+      "startups": "Startups",
+      "entrepreneurs": "Entrepreneurs",
+      "freelancers": "Freelancers"
+    },
+    "description": "Build beautiful forms in minutes. Simple, fast, and at a fraction of the cost.",
+    "cta": "Get started",
+    "learnMore": "Learn more"
+  },
+  "problem": {
+    "title": "Tired of tools that are",
+    "titleHighlight": "slow and overcomplicated",
+    "subtitle": "Enterprise form builders force you to pay outrageous bills for forms that look like they're from 2010.",
+    "cards": {
+      "pricing": {
+        "icon": "💸",
+        "title": "Unpredictable pricing",
+        "description": "The more responses you get, the more you pay. Your costs skyrocket right when you're most successful."
+      },
+      "preview": {
+        "icon": "🔄",
+        "title": "Separate preview",
+        "description": "You edit in one place, preview in another. And when you publish... it never looks the same."
+      },
+      "complexity": {
+        "icon": "🧩",
+        "title": "Unnecessary complexity",
+        "description": "100 features you'll never use. Bloated interfaces that slow down your work."
+      }
+    },
+    "solution": {
+      "title": "With Pyform, everything is different",
+      "description": "Real-time editing. Flat pricing. Create immersive experiences in minutes, without sacrificing your brand's elegance."
+    }
+  },
+  "features": {
+    "badge": "Features",
+    "title": "Everything you need to create amazing forms",
+    "subtitle": "Pyform combines the simplicity of Google Forms with the elegance of Typeform, at a fraction of the cost. No unnecessary features, no surprise pricing.",
+    "liveEditor": {
+      "name": "Live Editor",
+      "items": [
+        "WYSIWYG editing: what you see is what your users get",
+        "Changes reflected instantly (<300ms)",
+        "No separate preview mode",
+        "Keyboard shortcuts for maximum productivity"
+      ],
+      "highlight": "Create forms 10x faster"
+    },
+    "fairPrice": {
+      "name": "Fair Pricing",
+      "items": [
+        "Flat monthly rate, no per-response costs",
+        "No surprises when your form goes viral",
+        "All features included from day one",
+        "Cancel anytime, no commitments"
+      ],
+      "highlight": "Save up to 80% vs Typeform"
+    },
+    "analytics": {
+      "name": "Analytics",
+      "items": [
+        "Clear metrics: responses, completion rate, average time",
+        "See exactly which question makes users drop off",
+        "Real-time response timeline"
+      ],
+      "highlight": "Optimize your forms with real data"
+    },
+    "simplicity": {
+      "name": "Simplicity",
+      "items": [
+        "Clean, minimalist interface with zero distractions",
+        "Create your first form in under 5 minutes",
+        "No learning curve: if you can type, you can use Pyform",
+        "Advanced features hidden until you need them"
+      ],
+      "highlight": "Designed for humans, not robots"
+    },
+    "speed": {
+      "name": "Speed",
+      "items": [
+        "Forms load in under 1 second",
+        "Silent auto-save in the background",
+        "No spinners or loading screens",
+        "Optimized for mobile and slow connections"
+      ],
+      "highlight": "The best experience for your users"
+    }
+  },
+  "pricing": {
+    "label": "Pricing",
+    "title": "You focus on what matters, we handle the rest.",
+    "popular": "POPULAR",
+    "trialBadge": "{trialDays}-day free trial!",
+    "tryFree": "Try {trialDays} days free",
+    "buyNow": "Buy now",
+    "plans": {
+      "proMonthly": {
+        "name": "Pro Monthly",
+        "description": "Everything you need to create professional forms"
+      },
+      "proAnnual": {
+        "name": "Pro Annual",
+        "description": "Save 40% with the annual plan — best value"
+      }
+    },
+    "features": {
+      "unlimitedForms": "Unlimited forms",
+      "responsesPerForm": "500 responses per form",
+      "questionTypes": "15 question types",
+      "liveEditor": "Real-time Live Editor",
+      "advancedStats": "Advanced analytics",
+      "csvExport": "CSV export",
+      "googleLogin": "Google sign-in",
+      "emailSupport": "Email support",
+      "prioritySupport": "Priority email support"
+    }
+  },
+  "faq": {
+    "title": "Everything you need to know",
+    "subtitle": "Answers to the most common questions about Pyform and how it can help you.",
+    "questions": {
+      "questionTypes": {
+        "question": "What types of questions can I create?",
+        "answer": "Pyform includes <strong>15 question types</strong> ready to use: short text, long text, email, phone, number, URL, date, dropdown, multiple choice, checkboxes, file upload, and special modules like welcome, goodbye, and quotes.",
+        "answer2": "Each module is customizable: you can mark them as required, add descriptions, and reorder them with drag and drop."
+      },
+      "editor": {
+        "question": "How does the editor work?",
+        "answer": "Our editor is <strong>real-time WYSIWYG</strong>: what you see while editing is exactly what your users will see. Drag modules to reorder them, edit properties in the side panel, and see changes reflected instantly with no separate preview mode.",
+        "answer2": "It works on both desktop and mobile, with an interface adapted to each screen."
+      },
+      "stats": {
+        "question": "What analytics are included?",
+        "answer": "Each form includes a complete analytics dashboard with: completion rate, average response time, submission timeline, and a <strong>drop-off funnel</strong> that shows you exactly which question loses users.",
+        "answer2": "You can also view each individual response and export everything to CSV with one click."
+      },
+      "customization": {
+        "question": "Can I customize the design of my forms?",
+        "answer": "Yes. From the editor settings panel you can change the <strong>primary color, typography, border radius, and shadows</strong>. All changes are applied in real time to the form.",
+        "answer2": "Your form will look professional and consistent with your brand without writing a single line of CSS."
+      },
+      "subscription": {
+        "question": "How does the subscription work?",
+        "answer": "Pyform uses a <strong>flat monthly rate</strong>. We don't charge per response, so it doesn't matter if your form receives 10 or 10,000 submissions — your price stays the same.",
+        "answer2": "All features are included from day one, with no hidden plans or forced upgrades. You can cancel anytime."
+      },
+      "fileUpload": {
+        "question": "Can I receive files in my forms?",
+        "answer": "Yes. The <strong>file upload</strong> module allows your users to attach documents, images, or other files directly in the form. You can preview received files from the responses panel."
+      }
+    }
+  },
+  "cta": {
+    "title": "Your next form,",
+    "titleHighlight": "in minutes",
+    "subtitle": "Live editor, built-in analytics, and a price that doesn't change with your forms' success. No surprises.",
+    "stats": {
+      "questionTypes": "Question types",
+      "responsesIncluded": "Responses included",
+      "timeToCreate": "To create a form"
+    },
+    "button": "Create my first form"
+  },
+  "footer": {
+    "madeBy": "A product of:",
+    "links": "LINKS",
+    "legal": "LEGAL",
+    "support": "Support",
+    "pricing": "Pricing",
+    "blog": "Blog",
+    "tos": "Terms of service",
+    "privacy": "Privacy policy",
+    "about": "About us"
+  },
+  "auth": {
+    "title": "Create account or Log in",
+    "subtitle": "PyForm uses magic links. No password needed — we'll send a secure access link to your email to sign up or log in.",
+    "googleButton": "Sign up / Log in with Google",
+    "orEmail": "OR WITH EMAIL",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@email.com",
+    "sendingLink": "Sending link...",
+    "getMagicLink": "Get magic link",
+    "termsNotice": "By continuing, you agree to our",
+    "termsOfService": "Terms of Service",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "enterEmail": "Please enter your email",
+    "magicLinkError": "Error sending the magic link",
+    "linkSent": "Link sent! Check your inbox.",
+    "somethingWentWrong": "Something went wrong"
+  },
+  "onboarding": {
+    "title": "Welcome to PyForm",
+    "subtitle": "Let's set up your account. What's your name?",
+    "nameLabel": "Full name",
+    "namePlaceholder": "e.g. Elon Musk",
+    "continueButton": "Continue to Dashboard"
+  },
+  "subscribe": {
+    "title": "Choose your plan",
+    "subtitle": "Access all of PyForm's features to create professional forms that convert.",
+    "bestValue": "Best value",
+    "redirecting": "Redirecting to Stripe...",
+    "startNow": "Start now",
+    "subscribeButton": "Subscribe",
+    "perYear": "year",
+    "perMonth": "month",
+    "cancelAnytime": "Cancel anytime. No commitments."
+  },
+  "paymentSuccess": {
+    "processing": "Processing your payment...",
+    "activating": "We're activating your subscription. Just a moment please.",
+    "successTitle": "Payment successful!",
+    "successMessage": "Your Pro subscription is active. You can now create amazing forms.",
+    "goToDashboard": "Go to Dashboard",
+    "errorTitle": "Something went wrong",
+    "errorMessage": "We couldn't verify your subscription. Please try logging in again.",
+    "retryLogin": "Log in"
+  },
+  "dashboard": {
+    "greeting": "Hi, {name} 👋",
+    "summary": "Here's a summary of your forms",
+    "vsLastMonth": "vs last month",
+    "stats": {
+      "totalForms": "Total Forms",
+      "published": "Published",
+      "totalResponses": "Total Responses",
+      "completionRate": "Completion Rate"
+    },
+    "yourForms": "Your forms",
+    "viewAll": "View all →",
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "forms": "Forms",
+      "analytics": "Analytics",
+      "support": "Support",
+      "settings": "Settings",
+      "expand": "Expand",
+      "collapse": "Collapse"
+    }
+  },
+  "forms": {
+    "myForms": "My Forms",
+    "manageDescription": "Manage and edit all your forms",
+    "newForm": "New form",
+    "emptyTitle": "You don't have any forms yet",
+    "emptyDescription": "Create your first form and start collecting responses in minutes.",
+    "emptyAction": "Create my first form",
+    "deleteSuccess": "Form deleted successfully",
+    "deleteError": "Error deleting form",
+    "revertedToDraft": "Reverted to draft",
+    "statusUpdated": "Status updated",
+    "statusUpdateError": "Error updating status",
+    "showing": "Showing {start}-{end} of {total} forms",
+    "breadcrumbForms": "Forms",
+    "viewPublic": "View public",
+    "openEditor": "Open Editor",
+    "createModal": {
+      "title": "Create new form",
+      "titleLabel": "Form title",
+      "titlePlaceholder": "e.g. Customer satisfaction survey",
+      "descriptionLabel": "Description (optional)",
+      "descriptionPlaceholder": "Brief description of the form's purpose. (Only you will see this)",
+      "createButton": "Create form",
+      "successToast": "Form created successfully",
+      "errorToast": "Error creating form"
+    },
+    "card": {
+      "draft": "Draft",
+      "published": "Published",
+      "closed": "Closed",
+      "questions": "questions",
+      "responses": "responses",
+      "edited": "Edited {time}",
+      "today": "Today",
+      "yesterday": "Yesterday",
+      "daysAgo": "{count} days ago",
+      "weeksAgo": "{count} weeks ago",
+      "monthsAgo": "{count} months ago",
+      "actions": "Form actions",
+      "editAction": "Edit",
+      "viewForm": "View form",
+      "copyLink": "Copy link",
+      "markAsDraft": "Mark as draft",
+      "deleteAction": "Delete",
+      "linkCopied": "Link copied!",
+      "copyError": "Error copying. The link is: ",
+      "viewResponses": "View responses"
+    }
+  },
+  "editor": {
+    "loading": "Loading editor...",
+    "backToDashboard": "Back to Dashboard",
+    "untitled": "Untitled",
+    "draft": "Draft",
+    "published": "Published",
+    "closed": "Closed",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "shareLink": "Share link",
+    "preview": "Preview",
+    "publishedButton": "Published",
+    "update": "Update",
+    "publish": "Publish",
+    "sharedSuccess": "Shared successfully!",
+    "shareError": "There was an error trying to share",
+    "shareInvite": "I invite you to fill out this form",
+    "toolbar": {
+      "informationalModules": "Informational Modules",
+      "welcome": "Welcome",
+      "quote": "Quote",
+      "goodbye": "Goodbye",
+      "shortText": "Short Text",
+      "email": "Email",
+      "number": "Number",
+      "phone": "Phone",
+      "url": "URL",
+      "longText": "Long Text",
+      "multipleChoice": "Multiple Choice",
+      "checkboxes": "Checkboxes",
+      "dropdown": "Dropdown",
+      "date": "Date",
+      "fileUpload": "File",
+      "expandTools": "Expand tools",
+      "collapseTools": "Collapse tools",
+      "designSettings": "Design & Settings",
+      "questionTypes": "Question types"
+    },
+    "settings": {
+      "formStatus": "Form Status",
+      "formPublished": "Form Published",
+      "markAsDraftDescription": "You can mark it as draft if you need to deactivate it temporarily.",
+      "markAsDraft": "Mark as draft",
+      "basicInfo": "Basic Information",
+      "formTitle": "Form Title",
+      "formTitlePlaceholder": "My awesome form",
+      "internalDescription": "Description (Internal)",
+      "internalDescriptionPlaceholder": "Description for your dashboard",
+      "globalStyles": "Global Styles",
+      "primaryColor": "Primary Color",
+      "primaryColorDescription": "Main color for buttons and accents",
+      "font": "Font",
+      "borderRadius": "Border Radius",
+      "shadow": "Shadow",
+      "borderRadiusOptions": {
+        "square": "Square",
+        "small": "Small",
+        "medium": "Medium",
+        "large": "Large",
+        "round": "Round"
+      },
+      "shadowOptions": {
+        "none": "No shadow",
+        "soft": "Soft",
+        "medium": "Medium",
+        "strong": "Strong"
+      },
+      "configuration": "Configuration",
+      "progressBar": "Progress Bar",
+      "progressBarDescription": "Show visual progress bar",
+      "multipleResponses": "Multiple Responses",
+      "multipleResponsesDescription": "Allow a user to respond multiple times"
+    },
+    "moduleTypes": {
+      "WELCOME": "Welcome",
+      "QUOTE": "Quote",
+      "GOODBYE": "Goodbye",
+      "TEXT": "Text",
+      "EMAIL": "Email",
+      "NUMBER": "Number",
+      "PHONE": "Phone",
+      "URL": "URL",
+      "TEXTAREA": "Long Text",
+      "MULTIPLE_CHOICE": "Multiple Choice",
+      "CHECKBOXES": "Checkboxes",
+      "DROPDOWN": "Dropdown",
+      "DATE": "Date",
+      "FILE_UPLOAD": "File"
+    },
+    "properties": {
+      "title": "Title",
+      "titlePlaceholder": "Write the title",
+      "descriptionOptional": "Description (optional)",
+      "descriptionPlaceholder": "Add additional context",
+      "placeholder": "Placeholder",
+      "placeholderExample": "Example text",
+      "options": "Options",
+      "optionN": "Option {number}",
+      "addOption": "Add option",
+      "buttonTextLabel": "Button Text",
+      "buttonTextPlaceholder": "Start",
+      "message": "Message",
+      "messagePlaceholder": "Goodbye message",
+      "showConfetti": "Show confetti",
+      "requiredField": "Required field",
+      "moveLeft": "Move left",
+      "moveRight": "Move right",
+      "addModule": "Add module",
+      "autoSave": "Changes are saved automatically"
+    },
+    "generalSettings": "General Settings",
+    "addModuleTitle": "Add Module",
+    "propertiesTitle": "Properties",
+    "reorderModules": "Reorder modules",
+    "dragToReorder": "Drag to change the order",
+    "done": "Done",
+    "holdToReorder": "Hold to reorder",
+    "moduleN": "Module {number}",
+    "addModuleAria": "Add module",
+    "settingsAria": "Settings",
+    "editModuleAria": "Edit module",
+    "editButton": "Edit",
+    "noPermission": "You don't have permission to edit this form",
+    "loadError": "Error loading the form",
+    "unexpectedError": "An unexpected error occurred",
+    "defaultTitles": {
+      "welcome": "Welcome!",
+      "quote": "An inspiring quote",
+      "goodbye": "Thank you for your responses!",
+      "text": "What's your name?",
+      "email": "What's your email?",
+      "number": "Enter a number",
+      "phone": "What's your phone number?",
+      "url": "What's your website?",
+      "textarea": "Tell us more about yourself",
+      "multipleChoice": "Select an option",
+      "checkboxes": "Choose all that apply",
+      "dropdown": "Select from the list",
+      "date": "When did it happen?",
+      "fileUpload": "Upload your file here",
+      "newQuestion": "New question {type}"
+    }
+  },
+  "analytics": {
+    "globalTitle": "Global Analytics",
+    "globalSubtitle": "Performance summary across all your forms",
+    "viewStats": "View Analytics",
+    "statsOf": "Analytics for {title}",
+    "detailedStats": "Detailed performance and analytics",
+    "totalViews": "Total Views",
+    "completed": "Completed",
+    "completionRate": "Completion Rate",
+    "averageTime": "Average Time",
+    "noFormsYet": "You don't have any forms with data yet.",
+    "answeredForms": "Answered forms",
+    "views": "views",
+    "percentCompleted": "% completed",
+    "viewDetails": "View details",
+    "responseActivity": "Response Activity",
+    "responsesTooltip": "{count} responses on {date}"
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account and preferences",
+    "activeAccount": "Active account",
+    "verified": "Verified",
+    "signOut": "Sign Out",
+    "whatsappHelp": "Hi, I need help with my {appName} account. My email is: {email}"
+  },
+  "subscription": {
+    "title": "Subscription",
+    "verifying": "Verifying...",
+    "manage": "Manage",
+    "subscribe": "Subscribe",
+    "currentPlan": "Current plan",
+    "accessUntil": "Access until",
+    "trialEnd": "Trial period ends",
+    "nextBilling": "Next billing",
+    "cancelScheduled": "Your subscription is scheduled to cancel",
+    "cancelDescription": "You'll continue to have access to all features until <strong>{date}</strong>. After that date you'll lose access to the dashboard, your forms will stop receiving responses, and your API keys will be revoked.",
+    "reactivate": "Reactivate subscription",
+    "paymentFailed": "Your last payment couldn't be processed",
+    "paymentFailedDescription": "We're automatically retrying the charge. If the payment doesn't go through, your subscription will be canceled and you'll lose access. Update your payment method to avoid interruptions.",
+    "updatePayment": "Update payment method",
+    "trialActive": "You're on your free trial period",
+    "trialDescription": "Your trial ends on <strong>{date}</strong>. After that you'll be charged automatically. You can cancel at any time before that date at no charge.",
+    "canceled": "Your subscription has been canceled. Subscribe again to access all features.",
+    "noSubscription": "You don't have an active subscription.",
+    "manualError": "Your subscription was activated manually. Contact support to manage your billing.",
+    "portalError": "Error opening billing portal. Try again.",
+    "perYear": "year",
+    "perMonth": "month",
+    "displayStatus": {
+      "noSubscription": "No subscription",
+      "canceled": "Canceled",
+      "pastDue": "Payment pending",
+      "trialing": "Trial period",
+      "cancelsSoon": "Cancels soon",
+      "activePro": "Active Pro Plan"
+    }
+  },
+  "apiKeys": {
+    "title": "API Keys",
+    "subtitle": "Connect external tools like Claude Cowork",
+    "newKey": "New Key",
+    "saveWarning": "Save this key — it won't be shown again",
+    "nameLabel": "API Key name",
+    "namePlaceholder": "e.g. Claude Plugin, CI/CD...",
+    "createButton": "Create",
+    "noActiveKeys": "You don't have any active API keys",
+    "revokeTitle": "Revoke API Key",
+    "loadError": "Error loading API keys",
+    "loadErrorToast": "Couldn't load API keys",
+    "nameRequired": "Enter a name for the API key",
+    "createSuccess": "API Key created. Copy it now — it won't be shown again.",
+    "createError": "Error creating API key",
+    "revokeConfirm": "Revoke API key \"{name}\"? This action cannot be undone.",
+    "revokeError": "Error revoking",
+    "revokeSuccess": "API Key revoked",
+    "revokeErrorToast": "Couldn't revoke the API key",
+    "copied": "Copied to clipboard"
+  },
+  "support": {
+    "title": "Support & Help",
+    "subtitle": "Have a problem or question? Send us a message and we'll help you as soon as possible.",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "subject": "Subject",
+    "subjectPlaceholder": "e.g. Issue with my subscription",
+    "message": "Message",
+    "messagePlaceholder": "Describe your problem or question in as much detail as possible...",
+    "sendTicket": "Send Ticket",
+    "ticketSuccess": "Ticket sent successfully. We'll get back to you soon.",
+    "ticketError": "Error sending ticket. Please try again.",
+    "whatsapp": "WhatsApp",
+    "quickResponse": "Quick response",
+    "directChat": "Direct chat →",
+    "emailTitle": "Email",
+    "sendEmail": "Send email →",
+    "faqTitle": "Frequently Asked Questions?",
+    "faqDescription": "Before sending a ticket, check our documentation. You might find the answer instantly.",
+    "hoursTitle": "Business Hours",
+    "hoursDescription": "Monday to Friday: 9:00 AM - 6:00 PM (UTC+2).",
+    "hoursExtra": "We respond as quickly as possible.",
+    "whatsappHelp": "Hi, I need help with my account.",
+    "other": "Other"
+  },
+  "publicForm": {
+    "formUnavailable": "Form unavailable",
+    "notPublished": "This form hasn't been published by its creator yet.",
+    "notAccepting": "This form is not accepting responses at this time.",
+    "thankYou": "Thank you!",
+    "responseSent": "Response submitted.",
+    "responseRecorded": "Your responses have been securely recorded.",
+    "shareForm": "Share Form",
+    "madeWith": "Built with",
+    "free": "Free",
+    "shareInvite": "I invite you to answer this form",
+    "linkCopied": "Link copied to clipboard",
+    "submitResponses": "Submit responses",
+    "previewBanner": "Preview — Responses will not be saved",
+    "invalidEmail": "Please enter a valid email.",
+    "submitSuccess": "Thank you! Your response has been recorded.",
+    "submitError": "Error submitting the form. Please try again.",
+    "modules": {
+      "untitledQuestion": "Untitled question",
+      "typeYourAnswer": "Type your answer...",
+      "longText": "Long Text",
+      "typeYourAnswerHere": "Type your answer here...",
+      "uploadFile": "Upload file",
+      "fileSizeError": "File exceeds the 10MB limit",
+      "missingFormIdError": "Intentional error: Missing form ID",
+      "fileUploadedSuccess": "File uploaded successfully",
+      "fileUploaded": "File uploaded",
+      "uploadError": "Error uploading file",
+      "uploading": "Uploading {progress}%...",
+      "dragFilesHere": "Drag files here",
+      "orClickToSelect": "or click to select",
+      "maxFileSize": "Max 10MB - PDF, DOC, JPG, PNG",
+      "file": "File",
+      "thankYouTitle": "Thank you for your time!",
+      "responseRecorded": "Your response has been recorded successfully.",
+      "startButton": "Start",
+      "welcomeTitle": "Welcome",
+      "welcomeDescription": "Thank you for participating in our survey."
+    }
+  },
+  "formDashboard": {
+    "overview": "Overview",
+    "responses": "Responses",
+    "welcomeTitle": "Welcome to your form's dashboard",
+    "welcomeDescription": "Share your form on your social networks to start receiving responses.",
+    "shareForm": "Share form",
+    "copyLink": "Copy link",
+    "noResponses": "No responses yet",
+    "noResponsesDescription": "Share your form with your audience. Once you receive responses, they'll appear here in real time with charts and detailed analysis.",
+    "copyFormLink": "Copy form link",
+    "shareSuccess": "Shared successfully!",
+    "shareError": "There was an error trying to share",
+    "browserNotSupported": "Your browser doesn't support this native feature, use 'Copy link'",
+    "settingsTitle": "General Settings",
+    "settingsDescription": "Coming soon: notification settings, webhook integration, and more.",
+    "shareInvite": "I invite you to fill out this form"
+  },
+  "responses": {
+    "analysisOptions": "Analysis Options",
+    "bySession": "By session",
+    "byQuestion": "By question",
+    "noResponses": "No responses recorded yet.",
+    "status": "Status",
+    "respondent": "Respondent",
+    "date": "Date",
+    "device": "Device",
+    "completed": "Completed",
+    "partial": "Partial",
+    "mobile": "Mobile",
+    "tablet": "Tablet",
+    "desktop": "Desktop",
+    "question": "Question",
+    "selectQuestion": "Select a question",
+    "noAnswer": "No answer",
+    "totalResponses": "{count} responses",
+    "download": "Download",
+    "preview": "Preview",
+    "filePreview": "File preview",
+    "viewFile": "View file",
+    "viewAttachment": "View Attachment",
+    "detailedAnalysis": "Detailed Analysis",
+    "noDataToVisualize": "No data to visualize",
+    "answersWillAppear": "Responses to this question will appear here as charts.",
+    "legend": "Legend",
+    "viewAllResponses": "View all {count} responses",
+    "noResponsesYet": "No responses yet",
+    "previewNotAvailable": "Preview not available for this file type.",
+    "close": "Close",
+    "downloadOriginal": "Download Original",
+    "fullList": "Full list of {count} responses",
+    "responsesTitle": "Responses: {title}",
+    "sessionOf": "Session of {respondent}",
+    "at": "at",
+    "noTrackedAnswers": "The user didn't answer any tracked questions."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you're looking for doesn't exist.",
+    "goHome": "Go home"
+  }
+}

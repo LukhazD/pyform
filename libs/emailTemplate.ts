@@ -2,13 +2,52 @@
  * PyForm branded magic-link email template.
  * Used by NextAuth's EmailProvider → sendVerificationRequest.
  */
-export function getMagicLinkEmailHTML(url: string): string {
+
+const emailStrings = {
+  en: {
+    title: "Access PyForm",
+    header: "Magic access link",
+    greeting: "Hello! 👋",
+    body1: 'We received a request to sign in to your <strong style="color:#1a1a1a;">PyForm</strong> account.',
+    body2: "Click the button below to access. This link is valid for <strong>24 hours</strong> and can only be used once.",
+    cta: "Access PyForm →",
+    fallback: "If the button doesn't work, copy and paste this link in your browser:",
+    security: '<strong style="color:#374151;">Wasn\'t you?</strong> You can safely ignore this message. No one can access your account without this link.',
+    footer: 'Sent by <strong style="color:#7c3aed;">PyForm</strong> · The visual editor for your forms',
+    textGreeting: "Access PyForm",
+    textBody: "Click the following link to sign in to your PyForm account:",
+    textExpiry: "This link is valid for 24 hours and can only be used once.",
+    textSecurity: "Wasn't you? You can safely ignore this message.",
+    textSignoff: "— The PyForm team",
+  },
+  es: {
+    title: "Accede a PyForm",
+    header: "Enlace mágico de acceso",
+    greeting: "¡Hola! 👋",
+    body1: 'Recibimos una solicitud para iniciar sesión en tu cuenta de <strong style="color:#1a1a1a;">PyForm</strong>.',
+    body2: "Haz clic en el botón de abajo para acceder. Este enlace es válido durante <strong>24 horas</strong> y solo puede usarse una vez.",
+    cta: "Acceder a PyForm →",
+    fallback: "Si el botón no funciona, copia y pega este enlace en tu navegador:",
+    security: '<strong style="color:#374151;">¿No fuiste tú?</strong> Puedes ignorar este mensaje con seguridad. Nadie podrá acceder a tu cuenta sin este enlace.',
+    footer: 'Enviado por <strong style="color:#7c3aed;">PyForm</strong> · El editor visual para tus formularios',
+    textGreeting: "Accede a PyForm",
+    textBody: "Haz clic en el siguiente enlace para iniciar sesión en tu cuenta de PyForm:",
+    textExpiry: "Este enlace es válido durante 24 horas y solo puede usarse una vez.",
+    textSecurity: "¿No fuiste tú? Puedes ignorar este mensaje de forma segura.",
+    textSignoff: "— El equipo de PyForm",
+  },
+} as const;
+
+type EmailLocale = keyof typeof emailStrings;
+
+export function getMagicLinkEmailHTML(url: string, locale: string = "es"): string {
+  const s = emailStrings[(locale in emailStrings ? locale : "es") as EmailLocale];
   return `<!DOCTYPE html>
-<html lang="es">
+<html lang="${locale}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Accede a PyForm</title>
+  <title>${s.title}</title>
   <!--[if mso]>
   <noscript>
     <xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml>
@@ -55,7 +94,7 @@ export function getMagicLinkEmailHTML(url: string): string {
 
               <p style="margin:20px 0 0;font-size:13px;color:rgba(255,255,255,0.75);letter-spacing:0.5px;
                          text-transform:uppercase;font-weight:600;">
-                Enlace mágico de acceso
+                ${s.header}
               </p>
             </td>
           </tr>
@@ -64,13 +103,13 @@ export function getMagicLinkEmailHTML(url: string): string {
           <tr>
             <td style="padding:40px 40px 32px;">
               <h1 style="margin:0 0 12px;font-size:26px;font-weight:800;color:#1e1b4b;line-height:1.2;">
-                ¡Hola! 👋
+                ${s.greeting}
               </h1>
               <p style="margin:0 0 10px;font-size:15px;color:#4b5563;line-height:1.6;">
-                Recibimos una solicitud para iniciar sesión en tu cuenta de <strong style="color:#1a1a1a;">PyForm</strong>.
+                ${s.body1}
               </p>
               <p style="margin:0 0 32px;font-size:15px;color:#4b5563;line-height:1.6;">
-                Haz clic en el botón de abajo para acceder. Este enlace es válido durante <strong>24 horas</strong> y solo puede usarse una vez.
+                ${s.body2}
               </p>
 
               <!-- CTA Button -->
@@ -82,7 +121,7 @@ export function getMagicLinkEmailHTML(url: string): string {
                       style="display:inline-block;padding:16px 40px;font-size:16px;font-weight:700;
                              color:#ffffff;text-decoration:none;border-radius:12px;
                              letter-spacing:0.2px;mso-padding-alt:16px 40px;">
-                      Acceder a PyForm →
+                      ${s.cta}
                     </a>
                   </td>
                 </tr>
@@ -93,7 +132,7 @@ export function getMagicLinkEmailHTML(url: string): string {
                 <tr>
                   <td style="border-top:1px solid #ede9fe;padding-top:24px;">
                     <p style="margin:0 0 8px;font-size:12px;color:#9ca3af;line-height:1.5;">
-                      Si el botón no funciona, copia y pega este enlace en tu navegador:
+                      ${s.fallback}
                     </p>
                     <p style="margin:0;font-size:11px;color:#7c3aed;word-break:break-all;line-height:1.5;">
                       ${url}
@@ -112,8 +151,7 @@ export function getMagicLinkEmailHTML(url: string): string {
                   <td style="padding:16px 18px;
                              border-left:4px solid #10b981;">
                     <p style="margin:0;font-size:12px;color:#6b7280;line-height:1.6;">
-                      🔒 <strong style="color:#374151;">¿No fuiste tú?</strong>
-                      Puedes ignorar este mensaje con seguridad. Nadie podrá acceder a tu cuenta sin este enlace.
+                      🔒 ${s.security}
                     </p>
                   </td>
                 </tr>
@@ -128,7 +166,7 @@ export function getMagicLinkEmailHTML(url: string): string {
                 <tr>
                   <td style="text-align:center;">
                     <p style="margin:0 0 4px;font-size:12px;color:#9ca3af;">
-                      Enviado por <strong style="color:#7c3aed;">PyForm</strong> · El editor visual para tus formularios
+                      ${s.footer}
                     </p>
                     <p style="margin:0;font-size:11px;color:#c4b5fd;">
                       <a href="https://pyform.app" style="color:#7c3aed;text-decoration:none;" target="_blank">pyform.app</a>
@@ -151,6 +189,7 @@ export function getMagicLinkEmailHTML(url: string): string {
 </html>`;
 }
 
-export function getMagicLinkEmailText(url: string): string {
-  return `Accede a PyForm\n\nHaz clic en el siguiente enlace para iniciar sesión en tu cuenta de PyForm:\n\n${url}\n\nEste enlace es válido durante 24 horas y solo puede usarse una vez.\n\n¿No fuiste tú? Puedes ignorar este mensaje de forma segura.\n\n— El equipo de PyForm\nhttps://pyform.app`;
+export function getMagicLinkEmailText(url: string, locale: string = "es"): string {
+  const s = emailStrings[(locale in emailStrings ? locale : "es") as EmailLocale];
+  return `${s.textGreeting}\n\n${s.textBody}\n\n${url}\n\n${s.textExpiry}\n\n${s.textSecurity}\n\n${s.textSignoff}\nhttps://pyform.app`;
 }

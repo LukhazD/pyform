@@ -12,11 +12,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
-// In-memory idempotency cache (for production, use Redis or a DB collection)
+// In-memory idempotency cache — best-effort deduplication only.
+// ⚠️  In serverless (Vercel), each instance has its own Map.
+// This is acceptable because:
+// 1. Stripe retries use the same event.id — the Map catches same-instance replays
+// 2. All DB operations below are written to be idempotent (findOneAndUpdate with
+//    specific conditions), so processing the same event twice is safe
+// 3. For stronger guarantees, replace with a MongoDB collection or Redis set
 const processedEvents = new Map<string, number>();
-const IDEMPOTENCY_TTL_MS = 5 * 60 * 1000; // 5 minutes
+const IDEMPOTENCY_TTL_MS = 5 * 60 * 1000;
 
-// Cleanup old entries periodically
 if (typeof setInterval !== "undefined") {
     setInterval(() => {
         const now = Date.now();
@@ -51,7 +56,7 @@ export async function POST(req: NextRequest) {
             case "checkout.session.completed": {
                 const session = event.data.object as Stripe.Checkout.Session;
 
-                if (session.mode === "subscription" && session.customer_email) {
+                if (session.mode === "subscription") {
                     const subscriptionId = session.subscription as string;
                     const customerId = session.customer as string;
 
@@ -59,57 +64,73 @@ export async function POST(req: NextRequest) {
                     const stripeSubscription = await stripe.subscriptions.retrieve(subscriptionId);
                     const priceId = stripeSubscription.items.data[0]?.price.id;
 
-                    // Find user by email
-                    let user = await User.findOne({ email: session.customer_email });
+                    // Find user: prefer client_reference_id (set during checkout for logged-in users),
+                    // fall back to email. This handles the case where the user's auth email
+                    // (e.g., Google OAuth) differs from the email entered in Stripe checkout.
+                    let user = session.client_reference_id
+                        ? await User.findById(session.client_reference_id)
+                        : null;
+                    if (!user && session.customer_email) {
+                        user = await User.findOne({ email: session.customer_email });
+                    }
 
-                    if (!user) {
+                    if (!user && session.customer_email) {
                         try {
-                            // Create new user from Stripe email
                             user = await User.create({
                                 email: session.customer_email,
-                                name: session.customer_details?.name || session.customer_email?.split("@")[0],
-                                image: `https://ui-avatars.com/api/?name=${session.customer_details?.name || "User"}&background=random`,
+                                name: session.customer_details?.name || session.customer_email.split("@")[0],
+                                image: `https://ui-avatars.com/api/?name=${encodeURIComponent(session.customer_details?.name || "User")}&background=random`,
                             });
                             console.log(`[WEBHOOK] Created new user for email: ${session.customer_email}`);
                         } catch (err) {
                             console.error(`[WEBHOOK] Error creating user: ${err}`);
-                            // If user creation fails, we can't continue syncing
                             return NextResponse.json({ error: "Failed to create user" }, { status: 500 });
                         }
                     }
 
-                    if (user) {
-                        // 1. Create/Update Subscription document (source of truth)
-                        await Subscription.findOneAndUpdate(
-                            { userId: user._id },
-                            {
-                                userId: user._id,
-                                stripeSubscriptionId: subscriptionId,
-                                stripePriceId: priceId,
-                                status: "active",
-                                tier: "pro",
-                                currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
-                                currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-                                cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
-                            },
-                            { upsert: true, new: true }
-                        );
+                    if (!user) {
+                        console.error(`[WEBHOOK] Cannot resolve user for checkout session: ${session.id}`);
+                        return NextResponse.json({ error: "User not found" }, { status: 400 });
+                    }
 
-                        // 2. Sync key fields to User (for fast auth)
-                        await User.findByIdAndUpdate(user._id, {
-                            stripeCustomerId: customerId,
+                    // Guard against subscription hijacking: if the user already has a
+                    // different stripeCustomerId, refuse to overwrite it. This prevents
+                    // an attacker from entering another user's email in Stripe checkout
+                    // and taking over their billing identity.
+                    if (user.stripeCustomerId && user.stripeCustomerId !== customerId) {
+                        console.error(`[WEBHOOK] Refusing to overwrite stripeCustomerId for user ${user.email}: existing=${user.stripeCustomerId}, incoming=${customerId}`);
+                        return NextResponse.json({ error: "Customer ID mismatch" }, { status: 400 });
+                    }
+
+                    // 1. Create/Update Subscription document (source of truth)
+                    await Subscription.findOneAndUpdate(
+                        { userId: user._id },
+                        {
+                            userId: user._id,
                             stripeSubscriptionId: subscriptionId,
                             stripePriceId: priceId,
-                            subscriptionTier: "pro",
-                            subscriptionStatus: "active",
-                            cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+                            status: "active",
+                            tier: "pro",
+                            currentPeriodStart: new Date(stripeSubscription.current_period_start * 1000),
                             currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
-                            // Ensure onboarding is false so they go through flow when they first login
-                            onboardingCompleted: user.onboardingCompleted ?? false
-                        });
+                            cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+                        },
+                        { upsert: true, new: true }
+                    );
 
-                        console.log(`[WEBHOOK] User ${user.email} subscribed - Subscription & User synced`);
-                    }
+                    // 2. Sync key fields to User (for fast auth)
+                    await User.findByIdAndUpdate(user._id, {
+                        stripeCustomerId: customerId,
+                        stripeSubscriptionId: subscriptionId,
+                        stripePriceId: priceId,
+                        subscriptionTier: "pro",
+                        subscriptionStatus: "active",
+                        cancelAtPeriodEnd: stripeSubscription.cancel_at_period_end,
+                        currentPeriodEnd: new Date(stripeSubscription.current_period_end * 1000),
+                        onboardingCompleted: user.onboardingCompleted ?? false
+                    });
+
+                    console.log(`[WEBHOOK] User ${user.email} subscribed - Subscription & User synced`);
                 }
                 break;
             }

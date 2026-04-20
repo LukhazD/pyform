@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Card, Textarea } from "@heroui/react";
+import { useTranslations } from "next-intl";
 
 import { FormStyling } from "@/types/FormStyling";
 
@@ -24,13 +25,14 @@ interface TextareaQuestionProps {
 }
 
 export default function TextareaQuestion({ module, value, onChange, radius = "lg", shadow = "sm" }: TextareaQuestionProps) {
+    const t = useTranslations("publicForm.modules");
     return (
         <div className="min-h-[300px] md:min-h-[400px] flex items-center justify-center p-4 md:p-8">
             <Card shadow={shadow} radius={radius === "full" ? "lg" : radius} className="max-w-2xl w-full p-6 md:p-10 bg-white">
                 <div className="space-y-3">
                     <div>
                         <label className="text-xl md:text-2xl font-semibold text-gray-900 block mb-2">
-                            {module.title || "Texto largo"}
+                            {module.title || t("longText")}
                             {module.isRequired && <span className="text-red-500 ml-1">*</span>}
                         </label>
                         {module.description && (
@@ -38,7 +40,7 @@ export default function TextareaQuestion({ module, value, onChange, radius = "lg
                         )}
                     </div>
                     <Textarea
-                        placeholder={module.placeholder || "Escribe tu respuesta aquí..."}
+                        placeholder={module.placeholder || t("typeYourAnswerHere")}
                         radius="md"
                         variant="bordered"
                         minRows={4}

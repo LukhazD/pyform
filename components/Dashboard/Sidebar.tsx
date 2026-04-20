@@ -15,19 +15,20 @@ import {
     PanelLeftOpen,
 } from "lucide-react";
 import ButtonAccount from "@/components/ButtonAccount";
+import { useTranslations } from "next-intl";
 
 interface NavItem {
-    label: string;
+    labelKey: string;
     href: string;
     icon: React.ReactNode;
 }
 
-const navItems: NavItem[] = [
-    { label: "Dashboard", href: "/dashboard", icon: <LayoutDashboard size={20} /> },
-    { label: "Formularios", href: "/dashboard/forms", icon: <FileText size={20} /> },
-    { label: "Estadísticas", href: "/dashboard/analytics", icon: <BarChart3 size={20} /> },
-    { label: "Soporte", href: "/dashboard/support", icon: <LifeBuoy size={20} /> },
-    { label: "Ajustes", href: "/dashboard/settings", icon: <Settings size={20} /> },
+const navItemsDef: NavItem[] = [
+    { labelKey: "dashboard", href: "/dashboard", icon: <LayoutDashboard size={20} /> },
+    { labelKey: "forms", href: "/dashboard/forms", icon: <FileText size={20} /> },
+    { labelKey: "analytics", href: "/dashboard/analytics", icon: <BarChart3 size={20} /> },
+    { labelKey: "support", href: "/dashboard/support", icon: <LifeBuoy size={20} /> },
+    { labelKey: "settings", href: "/dashboard/settings", icon: <Settings size={20} /> },
 ];
 
 export default function Sidebar({
@@ -39,6 +40,7 @@ export default function Sidebar({
 }) {
     const pathname = usePathname();
     const [isOpen, setIsOpen] = useState(false);
+    const t = useTranslations("dashboard.sidebar");
 
     return (
         <>
@@ -83,7 +85,7 @@ export default function Sidebar({
 
                 {/* Navigation */}
                 <nav className="flex-1 p-4 space-y-1">
-                    {navItems.map((item) => {
+                    {navItemsDef.map((item) => {
                         const isActive = pathname === item.href ||
                             (item.href !== "/dashboard" && pathname.startsWith(item.href));
 
@@ -92,7 +94,7 @@ export default function Sidebar({
                                 key={item.href}
                                 href={item.href}
                                 onClick={() => setIsOpen(false)}
-                                title={isCollapsed ? item.label : undefined}
+                                title={isCollapsed ? t(item.labelKey) : undefined}
                                 className={
                                     isActive
                                         ? `flex items-center gap-3 py-3 rounded-xl bg-gray-100 text-gray-900 font-medium transition-all duration-150 ${isCollapsed ? "justify-center px-0" : "px-4"}`
@@ -102,7 +104,7 @@ export default function Sidebar({
                                 <span className={`${isActive ? "text-gray-900" : "text-gray-400"} flex-shrink-0`}>
                                     {item.icon}
                                 </span>
-                                {!isCollapsed && <span className="truncate">{item.label}</span>}
+                                {!isCollapsed && <span className="truncate">{t(item.labelKey)}</span>}
                             </Link>
                         );
                     })}
@@ -114,7 +116,7 @@ export default function Sidebar({
                         <button
                             onClick={onToggleCollapse}
                             className={`p-4 flex items-center text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-colors ${isCollapsed ? "justify-center" : "justify-end"}`}
-                            title={isCollapsed ? "Expandir" : "Colapsar"}
+                            title={isCollapsed ? t("expand") : t("collapse")}
                         >
                             {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
                         </button>
@@ -137,7 +139,7 @@ export default function Sidebar({
 
                     {/* Navigation */}
                     <nav className="flex-1 p-4 space-y-1">
-                        {navItems.map((item) => {
+                        {navItemsDef.map((item) => {
                             const isActive = pathname === item.href ||
                                 (item.href !== "/dashboard" && pathname.startsWith(item.href));
 
@@ -155,7 +157,7 @@ export default function Sidebar({
                                     <span className={isActive ? "text-gray-900" : "text-gray-400"}>
                                         {item.icon}
                                     </span>
-                                    {item.label}
+                                    {t(item.labelKey)}
                                 </Link>
                             );
                         })}

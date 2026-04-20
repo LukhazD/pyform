@@ -1,7 +1,9 @@
 import Form, { IForm } from "@/models/Form";
 import Question from "@/models/Question";
+import Submission from "@/models/Submission";
+import FormAnalytics from "@/models/FormAnalytics";
 import connectMongo from "@/libs/mongoose";
-
+import { nanoid } from "nanoid";
 import mongoose from "mongoose";
 
 export interface IFormService {
@@ -15,8 +17,19 @@ export interface IFormService {
 class FormService implements IFormService {
     async createForm(userId: string, title: string): Promise<IForm> {
         await connectMongo();
-        // Generate a shortId (simple 6 char string for now)
-        const shortId = Math.random().toString(36).substring(2, 8);
+
+        // Generate a collision-resistant shortId with retry logic.
+        // nanoid(10) gives 64^10 ≈ 1.15e18 combinations vs Math.random's 36^6 ≈ 2.17e9
+        const MAX_RETRIES = 3;
+        let shortId: string = "";
+        for (let i = 0; i < MAX_RETRIES; i++) {
+            shortId = nanoid(10);
+            const exists = await Form.exists({ shortId });
+            if (!exists) break;
+            if (i === MAX_RETRIES - 1) {
+                throw new Error("Failed to generate unique form ID. Please try again.");
+            }
+        }
 
         const form = await Form.create({
             userId: new mongoose.Types.ObjectId(userId),
@@ -52,7 +65,17 @@ class FormService implements IFormService {
             : { shortId: formId };
 
         const result = await Form.findOneAndDelete(query);
-        return !!result;
+        if (!result) return false;
+
+        // Cascade delete: clean up orphaned documents
+        const formObjectId = result._id;
+        await Promise.all([
+            Question.deleteMany({ formId: formObjectId }),
+            Submission.deleteMany({ formId: formObjectId }),
+            FormAnalytics.deleteOne({ formId: formObjectId }),
+        ]);
+
+        return true;
     }
 
     async listUserForms(userId: string, limit: number = 20): Promise<IForm[]> {

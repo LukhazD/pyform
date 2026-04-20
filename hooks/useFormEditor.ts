@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { nanoid } from "nanoid";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useTranslations } from "next-intl";
 
 import { FormStyling } from "@/types/FormStyling";
 
@@ -41,6 +42,7 @@ export function useFormEditor(formId: string | null) {
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const t = useTranslations("editor");
 
     const [isLoaded, setIsLoaded] = useState(false);
 
@@ -56,7 +58,7 @@ export function useFormEditor(formId: string | null) {
                 ]);
 
                 if (formRes.status === 403 || formRes.status === 401) {
-                    setError("No tienes permiso para editar este formulario");
+                    setError(t("noPermission"));
                     return;
                 }
 
@@ -64,7 +66,7 @@ export function useFormEditor(formId: string | null) {
                     const formData = await formRes.json();
                     setForm(formData);
                 } else {
-                    setError("Error al cargar el formulario");
+                    setError(t("loadError"));
                 }
 
                 if (questionsRes.ok) {
@@ -84,7 +86,7 @@ export function useFormEditor(formId: string | null) {
                 }
             } catch (error) {
                 console.error("Error fetching data:", error);
-                setError("Ocurrió un error inesperado");
+                setError(t("unexpectedError"));
             } finally {
                 setLoading(false);
             }
@@ -139,21 +141,21 @@ export function useFormEditor(formId: string | null) {
 
     const getDefaultTitle = (type: string) => {
         switch (type) {
-            case "WELCOME": return "¡Te damos la bienvenida!";
-            case "QUOTE": return "Una frase para inspirar";
-            case "GOODBYE": return "¡Gracias por tus respuestas!";
-            case "TEXT": return "¿Cómo te llamas?";
-            case "EMAIL": return "¿Cuál es tu correo electrónico?";
-            case "NUMBER": return "Ingresa una cantidad";
-            case "PHONE": return "¿A qué número podemos llamarte?";
-            case "URL": return "¿Cuál es tu página web?";
-            case "TEXTAREA": return "Cuéntanos más sobre ti";
-            case "MULTIPLE_CHOICE": return "Selecciona una opción";
-            case "CHECKBOXES": return "Elige todas las opciones que apliquen";
-            case "DROPDOWN": return "Selecciona de la lista";
-            case "DATE": return "¿Cuándo sucedió?";
-            case "FILE_UPLOAD": return "Sube tu archivo aquí";
-            default: return `Nueva pregunta ${type}`;
+            case "WELCOME": return t("defaultTitles.welcome");
+            case "QUOTE": return t("defaultTitles.quote");
+            case "GOODBYE": return t("defaultTitles.goodbye");
+            case "TEXT": return t("defaultTitles.text");
+            case "EMAIL": return t("defaultTitles.email");
+            case "NUMBER": return t("defaultTitles.number");
+            case "PHONE": return t("defaultTitles.phone");
+            case "URL": return t("defaultTitles.url");
+            case "TEXTAREA": return t("defaultTitles.textarea");
+            case "MULTIPLE_CHOICE": return t("defaultTitles.multipleChoice");
+            case "CHECKBOXES": return t("defaultTitles.checkboxes");
+            case "DROPDOWN": return t("defaultTitles.dropdown");
+            case "DATE": return t("defaultTitles.date");
+            case "FILE_UPLOAD": return t("defaultTitles.fileUpload");
+            default: return t("defaultTitles.newQuestion", { type });
         }
     };
 

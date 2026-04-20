@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { Card } from "@heroui/react";
 import gsap from "gsap";
+import { useTranslations, useLocale } from "next-intl";
 import { IFormAnalytics, ITimelineData } from "@/models/FormAnalytics";
 
 interface TimelineChartProps {
@@ -11,6 +12,8 @@ interface TimelineChartProps {
 
 export default function TimelineChart({ data }: TimelineChartProps) {
     const containerRef = useRef<HTMLDivElement>(null);
+    const t = useTranslations("analytics");
+    const locale = useLocale();
 
     useEffect(() => {
         if (!data?.submissionTimeline?.length) return;
@@ -40,7 +43,7 @@ export default function TimelineChart({ data }: TimelineChartProps) {
 
     return (
         <Card ref={containerRef} className="p-6 border-none shadow-sm" radius="md">
-            <h3 className="text-lg font-semibold text-gray-900 mb-6">Actividad de Respuestas</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-6">{t("responseActivity")}</h3>
 
             <div className="flex gap-4 h-64">
                 {/* Y-Axis Labels */}
@@ -64,13 +67,13 @@ export default function TimelineChart({ data }: TimelineChartProps) {
                         {sortedData.map((item, index) => {
                             const heightPercentage = (item.count / maxCount) * 100;
                             const date = new Date(item.date);
-                            const dateLabel = date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
+                            const dateLabel = date.toLocaleDateString(locale, { day: '2-digit', month: 'short' });
 
                             return (
                                 <div key={index} className="flex flex-col items-center flex-1 group relative h-full justify-end">
                                     {/* Tooltip */}
                                     <div className="opacity-0 group-hover:opacity-100 absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-900 text-white text-xs rounded py-1 px-2 transition-opacity pointer-events-none whitespace-nowrap z-20">
-                                        {item.count} respuestas el {date.toLocaleDateString('es-ES')}
+                                        {t("responsesTooltip", { count: item.count, date: date.toLocaleDateString(locale) })}
                                         <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
                                     </div>
 

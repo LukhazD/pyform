@@ -80,13 +80,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           async sendVerificationRequest({ identifier: email, url, provider }) {
             const { Resend } = await import("resend");
             const resend = new Resend(process.env.RESEND_API_KEY!);
-            
+
+            // Detect locale from callbackUrl in the verification URL
+            const parsedUrl = new URL(url);
+            const callbackUrl = parsedUrl.searchParams.get("callbackUrl") || "";
+            const locale = callbackUrl.includes("/es/") || callbackUrl.endsWith("/es") ? "es" : "en";
+            const subject = locale === "es"
+              ? "Tu enlace para acceder a PyForm"
+              : "Your PyForm access link";
+
             const result = await resend.emails.send({
               to: email,
               from: provider.from as string,
-              subject: "Tu enlace para acceder a PyForm",
-              text: getMagicLinkEmailText(url),
-              html: getMagicLinkEmailHTML(url),
+              subject,
+              text: getMagicLinkEmailText(url, locale),
+              html: getMagicLinkEmailHTML(url, locale),
             });
 
             if (result.error) {

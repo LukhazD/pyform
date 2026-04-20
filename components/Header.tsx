@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { JSX } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -10,32 +9,33 @@ import logo from "@/app/icon.png";
 import config from "@/config";
 import { useScrollDirection } from "@/hooks/useScrollDirection";
 import Modal from "./Modal";
-
-const links: {
-  href: string;
-  label: string;
-}[] = [
-    {
-      href: "/#pricing",
-      label: "Precios",
-    },
-    {
-      href: "/#testimonials",
-      label: "Reseñas",
-    },
-    {
-      href: "/#faq",
-      label: "FAQ",
-    },
-  ];
-
-const cta: JSX.Element = <ButtonSignin extraStyle="btn-primary bg-primary border-none hover:bg-gray-700" text="Iniciar Sesión" />
+import { useTranslations } from "next-intl";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const Header = () => {
+  const t = useTranslations("nav");
   const searchParams = useSearchParams();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const scrollDirection = useScrollDirection();
   const [isScrolled, setIsScrolled] = useState(false);
+
+  const links: {
+    href: string;
+    label: string;
+  }[] = [
+      {
+        href: "/#pricing",
+        label: t("pricing"),
+      },
+      {
+        href: "/#testimonials",
+        label: t("reviews"),
+      },
+      {
+        href: "/#faq",
+        label: t("faq"),
+      },
+    ];
 
   // Monitor scroll for pure transparency vs glass effect
   useEffect(() => {
@@ -89,7 +89,7 @@ const Header = () => {
             className="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700"
             onClick={() => setIsOpen(true)}
           >
-            <span className="sr-only">Abrir menú principal</span>
+            <span className="sr-only">{t("openMenu")}</span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -123,11 +123,14 @@ const Header = () => {
         </div>
 
         {/* Desktop CTA */}
-        <div className="hidden lg:flex lg:justify-end lg:flex-1">{cta}</div>
+        <div className="hidden lg:flex lg:justify-end lg:flex-1 lg:items-center lg:gap-3">
+          <LanguageSwitcher />
+          <ButtonSignin extraStyle="btn-primary bg-primary border-none hover:bg-gray-700" text={t("login")} />
+        </div>
       </nav>
 
       {/* Mobile Menu Modal */}
-      <Modal isModalOpen={isOpen} setIsModalOpen={setIsOpen} title="Menú" isFullScreen={true}>
+      <Modal isModalOpen={isOpen} setIsModalOpen={setIsOpen} title={t("menu")} isFullScreen={true}>
         <div className="flex flex-col gap-6 items-center pt-4 pb-2">
           {links.map((link) => (
             <Link
@@ -140,8 +143,9 @@ const Header = () => {
             </Link>
           ))}
           <div className="w-full h-px bg-gray-100 my-2" />
+          <LanguageSwitcher />
           <div className="w-full">
-            <ButtonSignin extraStyle="btn-primary w-full bg-primary border-none hover:bg-gray-700" text="Iniciar Sesión" />
+            <ButtonSignin extraStyle="btn-primary w-full bg-primary border-none hover:bg-gray-700" text={t("login")} />
           </div>
         </div>
       </Modal>

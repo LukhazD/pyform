@@ -19,6 +19,30 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
+        // Whitelist allowed content types to prevent malicious uploads (HTML, SVG = XSS vectors)
+        const ALLOWED_CONTENT_TYPES = [
+            "image/jpeg", "image/png", "image/gif", "image/webp",
+            "application/pdf",
+            "video/mp4", "video/webm",
+            "audio/mpeg", "audio/wav", "audio/webm",
+            "application/msword",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.ms-excel",
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "text/csv",
+        ];
+
+        if (!ALLOWED_CONTENT_TYPES.includes(fileType)) {
+            return NextResponse.json({ error: "File type not allowed" }, { status: 400 });
+        }
+
+        // Max file size: 10MB
+        const MAX_FILE_SIZE = 10 * 1024 * 1024;
+        const fileSize = body.fileSize;
+        if (fileSize && fileSize > MAX_FILE_SIZE) {
+            return NextResponse.json({ error: "File too large (max 10MB)" }, { status: 400 });
+        }
+
         if (!process.env.S3_BUCKET_NAME) {
             console.error("S3_BUCKET_NAME is not defined in env");
             return NextResponse.json({ error: "Server Configuration Error" }, { status: 500 });
@@ -44,6 +68,7 @@ export async function POST(req: Request) {
             Bucket: process.env.S3_BUCKET_NAME,
             Key: key,
             ContentType: fileType,
+            ContentLength: fileSize && fileSize > 0 ? fileSize : undefined,
         });
 
         // URL valid for 10 minutes

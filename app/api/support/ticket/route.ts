@@ -6,6 +6,15 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+function escapeHtml(str: string): string {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#x27;");
+}
+
 const ticketSchema = z.object({
     name: z.string().min(1, "Name is required"),
     email: z.string().email("Invalid email address"),
@@ -51,14 +60,14 @@ export async function POST(req: NextRequest) {
             from: fromEmail,
             to: toEmail,
             replyTo: email,
-            subject: `[Soporte] ${subject}`,
+            subject: `[Soporte] ${escapeHtml(subject)}`,
             html: `
         <h2>Nuevo Ticket de Soporte</h2>
-        <p><strong>De:</strong> ${name} (<a href="mailto:${email}">${email}</a>)</p>
-        <p><strong>Teléfono:</strong> ${phone}</p>
+        <p><strong>De:</strong> ${escapeHtml(name)} (<a href="mailto:${escapeHtml(email)}">${escapeHtml(email)}</a>)</p>
+        <p><strong>Teléfono:</strong> ${escapeHtml(phone)}</p>
         <hr />
-        <h3>${subject}</h3>
-        <p style="white-space: pre-wrap;">${message}</p>
+        <h3>${escapeHtml(subject)}</h3>
+        <p style="white-space: pre-wrap;">${escapeHtml(message)}</p>
         <hr />
         <p><em>Enviado desde el dashboard de ${config.appName}</em></p>
       `,

@@ -65,27 +65,29 @@ export function hasActiveProAccess(user: SubscriptionUser): boolean {
 }
 
 /**
- * Get a human-readable subscription status for display
+ * Get subscription status for display.
+ * Returns a translation key (under "subscription.displayStatus") instead of
+ * hardcoded text so callers can resolve it via their i18n hook.
  */
 export function getSubscriptionDisplayStatus(user: SubscriptionUser): {
-    label: string;
+    labelKey: string;
     variant: "active" | "warning" | "error" | "inactive";
     endDate?: Date;
 } {
     if (!user.subscriptionTier) {
-        return { label: "Sin suscripción", variant: "inactive" };
+        return { labelKey: "displayStatus.noSubscription", variant: "inactive" };
     }
 
     if (user.subscriptionStatus === "canceled") {
-        return { label: "Cancelada", variant: "error" };
+        return { labelKey: "displayStatus.canceled", variant: "error" };
     }
 
     if (user.subscriptionStatus === "past_due") {
-        return { label: "Pago pendiente", variant: "warning" };
+        return { labelKey: "displayStatus.pastDue", variant: "warning" };
     }
 
     if (user.subscriptionStatus === "trialing") {
-        return { label: "Período de prueba", variant: "active" };
+        return { labelKey: "displayStatus.trialing", variant: "active" };
     }
 
     if (user.subscriptionStatus === "active" && user.cancelAtPeriodEnd && user.currentPeriodEnd) {
@@ -93,24 +95,26 @@ export function getSubscriptionDisplayStatus(user: SubscriptionUser): {
             ? new Date(user.currentPeriodEnd)
             : user.currentPeriodEnd;
         return {
-            label: "Cancela pronto",
+            labelKey: "displayStatus.cancelsSoon",
             variant: "warning",
             endDate
         };
     }
 
-    return { label: "Plan Pro Activo", variant: "active" };
+    return { labelKey: "displayStatus.activePro", variant: "active" };
 }
 
 /**
- * Format a date for display in Spanish
+ * Format a date for display using the provided locale
  */
-export function formatSubscriptionDate(date: Date | string | null | undefined): string {
+export function formatSubscriptionDate(date: Date | string | null | undefined, locale: string = "en"): string {
     if (!date) return "";
 
     const d = typeof date === "string" ? new Date(date) : date;
 
-    return d.toLocaleDateString("es-ES", {
+    const localeMap: Record<string, string> = { en: "en-US", es: "es-ES" };
+
+    return d.toLocaleDateString(localeMap[locale] || locale, {
         day: "numeric",
         month: "long",
         year: "numeric"

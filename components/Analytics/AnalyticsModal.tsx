@@ -4,6 +4,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDi
 import { BarChart3 } from "lucide-react";
 import AnalyticsView from "./AnalyticsView";
 import { IFormAnalytics } from "@/models/FormAnalytics";
+import { useTranslations } from "next-intl";
 
 interface AnalyticsModalProps {
     data: IFormAnalytics | null;
@@ -12,6 +13,8 @@ interface AnalyticsModalProps {
 
 export default function AnalyticsModal({ data, formTitle }: AnalyticsModalProps) {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const t = useTranslations("analytics");
+    const tCommon = useTranslations("common");
 
     return (
         <>
@@ -22,7 +25,7 @@ export default function AnalyticsModal({ data, formTitle }: AnalyticsModalProps)
                 startContent={<BarChart3 size={18} />}
                 className="bg-gray-100 text-gray-900 font-medium"
             >
-                Ver Estadísticas
+                {t("viewStats")}
             </Button>
 
             <Modal
@@ -36,15 +39,15 @@ export default function AnalyticsModal({ data, formTitle }: AnalyticsModalProps)
                     {(onClose) => (
                         <>
                             <ModalHeader className="flex flex-col gap-1">
-                                <span className="text-xl font-bold">Estadísticas de {formTitle}</span>
-                                <span className="text-sm text-gray-500 font-normal">Rendimiento detallado y estadísticas</span>
+                                <span className="text-xl font-bold">{t("statsOf", { title: formTitle })}</span>
+                                <span className="text-sm text-gray-500 font-normal">{t("detailedStats")}</span>
                             </ModalHeader>
                             <ModalBody className="pb-8">
                                 <AnalyticsView data={data} />
                             </ModalBody>
                             <ModalFooter>
                                 <Button color="danger" variant="light" onPress={onClose}>
-                                    Cerrar
+                                    {tCommon("close")}
                                 </Button>
                             </ModalFooter>
                         </>

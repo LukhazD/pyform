@@ -4,6 +4,7 @@ import { useState } from "react";
 import apiClient from "@/libs/api";
 
 import { Button } from "@heroui/button";
+import { useTranslations } from "next-intl";
 
 // This component is used to create Stripe Checkout Sessions
 // It calls the /api/stripe/create-checkout route with the priceId, successUrl and cancelUrl
@@ -19,6 +20,7 @@ const ButtonCheckout = ({
   trialPeriodDays?: number;
 }) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const t = useTranslations("pricing");
 
   const handlePayment = async () => {
     setIsLoading(true);
@@ -50,7 +52,7 @@ const ButtonCheckout = ({
       variant="solid"
       className="btn-block bg-primary hover:scale-105 transition-all duration-300 ease-in-out text-white"
       onPress={() => handlePayment()}>
-      {trialPeriodDays ? `Probar ${trialPeriodDays} días gratis` : "Comprar ya"}
+      {trialPeriodDays ? t("tryFree", { trialDays: trialPeriodDays }) : t("buyNow")}
     </Button>
   );
 };

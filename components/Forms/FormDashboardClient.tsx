@@ -8,6 +8,7 @@ import ResponsesView from "@/components/Analytics/ResponsesView";
 import { Share2, Link as LinkIcon, MessageSquareOff } from "lucide-react";
 import { useClipboard } from "@/hooks/useClipboard";
 import toast from "react-hot-toast";
+import { useTranslations } from "next-intl";
 
 interface FormDashboardClientProps {
     formTitle: string;
@@ -19,30 +20,31 @@ interface FormDashboardClientProps {
 export default function FormDashboardClient({ formTitle, formShortId, questions = [], submissions = [] }: FormDashboardClientProps) {
     const [activeTab, setActiveTab] = useState<"overview" | "responses" | "settings">("overview");
     const { copyToClipboard } = useClipboard();
+    const t = useTranslations("formDashboard");
 
     const shareUrl = typeof window !== "undefined" ? `${window.location.origin}/f/${formShortId}` : "";
 
     const handleShareNative = async () => {
         const shareData = {
             title: `Formulario: ${formTitle}`,
-            text: "Te invito a contestar este formulario",
+            text: t("shareInvite"),
             url: shareUrl
         };
 
         if (navigator.share) {
             try {
                 await navigator.share(shareData);
-                toast.success("¡Compartido con éxito!");
+                toast.success(t("shareSuccess"));
             } catch (err) {
                 // If the user cancelled the share sheet, this throws an AbortError.
                 // We only log non-cancellation errors.
                 if ((err as Error).name !== 'AbortError') {
                     console.error("Error al compartir:", err);
-                    toast.error("Hubo un error al intentar compartir");
+                    toast.error(t("shareError"));
                 }
             }
         } else {
-            toast.error("Tu navegador no soporta esta función nativa, usa 'Copiar enlace'");
+            toast.error(t("browserNotSupported"));
         }
     };
 
@@ -61,7 +63,7 @@ export default function FormDashboardClient({ formTitle, formShortId, questions 
                         : "text-gray-500 hover:text-gray-900"
                         }`}
                 >
-                    Resumen
+                    {t("overview")}
                     {activeTab === "overview" && (
                         <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-900 rounded-t-full" />
                     )}
@@ -73,7 +75,7 @@ export default function FormDashboardClient({ formTitle, formShortId, questions 
                         : "text-gray-500 hover:text-gray-900"
                         }`}
                 >
-                    Respuestas
+                    {t("responses")}
                     {activeTab === "responses" && (
                         <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gray-900 rounded-t-full" />
                     )}
@@ -96,15 +98,15 @@ export default function FormDashboardClient({ formTitle, formShortId, questions 
             <div className="py-4">
                 {activeTab === "overview" && (
                     <Card className="p-8 text-center" shadow="sm" radius="md">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-2">Bienvenido al panel de tu formulario</h3>
-                        <p className="text-gray-500 mb-6">Comparte tu formulario en tus redes sociales para empezar a recibir respuestas.</p>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">{t("welcomeTitle")}</h3>
+                        <p className="text-gray-500 mb-6">{t("welcomeDescription")}</p>
 
                         <div className="flex flex-wrap items-center justify-center gap-3">
                             <Button variant="solid" className="font-medium bg-[#1a1a1a] text-white" onPress={handleShareNative} startContent={<Share2 size={16} />}>
-                                Compartir formulario
+                                {t("shareForm")}
                             </Button>
                             <Button variant="flat" className="font-medium bg-gray-100 text-gray-900" onPress={handleCopyLink} startContent={<LinkIcon size={16} />}>
-                                Copiar enlace
+                                {t("copyLink")}
                             </Button>
                         </div>
                     </Card>
@@ -116,12 +118,12 @@ export default function FormDashboardClient({ formTitle, formShortId, questions 
                             <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-6">
                                 <MessageSquareOff size={32} className="text-gray-400" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Aún no hay respuestas</h3>
+                            <h3 className="text-xl font-bold text-gray-900 mb-2">{t("noResponses")}</h3>
                             <p className="text-gray-500 max-w-md text-center mb-8">
-                                Comparte tu formulario con tu audiencia. Una vez que recibas respuestas, las verás aparecer aquí en tiempo real con gráficas y análisis detallados.
+                                {t("noResponsesDescription")}
                             </p>
                             <Button variant="solid" className="font-medium bg-[#1a1a1a] text-white" onPress={handleCopyLink} startContent={<LinkIcon size={16} />}>
-                                Copiar enlace del formulario
+                                {t("copyFormLink")}
                             </Button>
                         </div>
                     ) : (
@@ -131,8 +133,8 @@ export default function FormDashboardClient({ formTitle, formShortId, questions 
 
                 {activeTab === "settings" && (
                     <Card className="p-6 max-w-2xl" shadow="sm" radius="md">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-4">Configuración General</h3>
-                        <p className="text-gray-500 text-sm">Próximamente: configuración de notificaciones, integración con webhooks y más.</p>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("settingsTitle")}</h3>
+                        <p className="text-gray-500 text-sm">{t("settingsDescription")}</p>
                     </Card>
                 )}
             </div>

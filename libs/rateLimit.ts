@@ -1,6 +1,17 @@
 /**
  * Simple in-memory rate limiter for API routes.
- * For production at scale, replace with Redis-based rate limiting.
+ *
+ * ⚠️  PRODUCTION LIMITATION: In serverless environments (Vercel, AWS Lambda),
+ * each function invocation may run in a different instance. This in-memory Map
+ * is NOT shared across instances, so rate limiting is best-effort only.
+ *
+ * For reliable rate limiting in production, replace with:
+ * - Vercel KV (Redis-compatible) with sliding window counters
+ * - Upstash Redis (@upstash/ratelimit package)
+ * - Cloudflare Rate Limiting (if using CF as CDN)
+ *
+ * This implementation still protects against single-instance burst attacks
+ * and is acceptable for launch if traffic is moderate.
  */
 
 const rateLimitMap = new Map<string, number[]>();

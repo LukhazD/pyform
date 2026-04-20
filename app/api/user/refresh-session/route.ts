@@ -37,41 +37,45 @@ export async function GET(req: NextRequest) {
             );
         }
 
-        // If user is not yet active/pro AND we have a session_id, check Stripe directly
-        // This handles race condition where webhook hasn't fired yet
+            // If user is not yet active/pro AND we have a session_id, check Stripe directly.
+        // This handles the race condition where the webhook hasn't fired yet.
         if ((!user.subscriptionStatus || user.subscriptionStatus !== 'active') && sessionId) {
             try {
-                console.log(`Checking Stripe session ${sessionId} for user ${user._id}`);
                 const stripeSession = await findCheckoutSession(sessionId) as Stripe.Checkout.Session;
 
                 if (stripeSession && stripeSession.payment_status === 'paid') {
-                    // Double check this session belongs to the user (client_reference_id or customer email)
-                    const isSessionValid =
-                        stripeSession.client_reference_id === user._id.toString() ||
-                        stripeSession.customer_details?.email === user.email;
+                    // SECURITY: Strictly require client_reference_id match — do NOT fall back
+                    // to email, as that allows any user with a matching email to replay sessions.
+                    const isSessionOwner = stripeSession.client_reference_id === user._id.toString();
 
-                    if (isSessionValid) {
-                        console.log(`Payment confirmed for session ${sessionId}. Updating user manually.`);
+                    // Time window: only accept sessions created within the last 30 minutes
+                    const sessionAge = Date.now() - (stripeSession.created * 1000);
+                    const MAX_SESSION_AGE_MS = 30 * 60 * 1000;
+                    const isRecent = sessionAge < MAX_SESSION_AGE_MS;
 
+                    if (isSessionOwner && isRecent) {
                         const priceId = stripeSession.line_items?.data[0]?.price?.id;
                         const plan = configFile.stripe.plans.find((p) => p.priceId === priceId);
 
                         if (plan) {
-                            // Manually update user since webhook might be delayed
-                            user.stripePriceId = priceId;
-                            user.stripeCustomerId = stripeSession.customer as string;
-                            user.stripeSubscriptionId = stripeSession.subscription as string;
-                            user.subscriptionStatus = "active";
-                            user.subscriptionTier = "pro";
+                            const customerId = stripeSession.customer as string;
 
-                            await user.save();
-                            console.log("User updated manually via refresh logic");
+                            // Guard: do not overwrite an existing stripeCustomerId from a different customer
+                            if (user.stripeCustomerId && user.stripeCustomerId !== customerId) {
+                                console.error(`[REFRESH] Customer ID mismatch for user ${user._id}: existing=${user.stripeCustomerId}, session=${customerId}`);
+                            } else {
+                                user.stripePriceId = priceId;
+                                user.stripeCustomerId = customerId;
+                                user.stripeSubscriptionId = stripeSession.subscription as string;
+                                user.subscriptionStatus = "active";
+                                user.subscriptionTier = "pro";
+                                await user.save();
+                            }
                         }
                     }
                 }
             } catch (stripeError) {
                 console.error("Error verifying stripe session:", stripeError);
-                // Continue to return user data as is if stripe check fails
             }
         }
 

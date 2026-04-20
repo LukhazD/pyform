@@ -5,6 +5,7 @@ import { Card } from "@heroui/react";
 import gsap from "gsap";
 import { IFormAnalytics } from "@/models/FormAnalytics";
 import { MousePointerClick, CheckCircle, Clock, Percent } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 interface AnalyticsCardsProps {
     data: IFormAnalytics | null;
@@ -12,6 +13,7 @@ interface AnalyticsCardsProps {
 
 export default function AnalyticsCards({ data }: AnalyticsCardsProps) {
     const cardsRef = useRef<HTMLDivElement>(null);
+    const t = useTranslations("analytics");
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -58,7 +60,7 @@ export default function AnalyticsCards({ data }: AnalyticsCardsProps) {
 
     const stats = [
         {
-            title: "Total Vistas",
+            title: t("totalViews"),
             value: data?.views || 0,
             icon: MousePointerClick,
             className: "stat-total",
@@ -66,7 +68,7 @@ export default function AnalyticsCards({ data }: AnalyticsCardsProps) {
             bgColor: "bg-blue-50",
         },
         {
-            title: "Completados",
+            title: t("completed"),
             value: data?.completedSubmissions || 0,
             icon: CheckCircle,
             className: "stat-completed",
@@ -74,7 +76,7 @@ export default function AnalyticsCards({ data }: AnalyticsCardsProps) {
             bgColor: "bg-green-50",
         },
         {
-            title: "Tasa de Finalización",
+            title: t("completionRate"),
             value: Math.min(data?.completionRate || 0, 100) + "%",
             icon: Percent,
             className: "stat-rate",
@@ -82,7 +84,7 @@ export default function AnalyticsCards({ data }: AnalyticsCardsProps) {
             bgColor: "bg-gray-100",
         },
         {
-            title: "Tiempo Promedio",
+            title: t("averageTime"),
             value: ((data?.averageCompletionTimeMs || 0) / 1000).toFixed(0) + "s",
             icon: Clock,
             className: "stat-time",

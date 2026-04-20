@@ -1,0 +1,676 @@
+{
+  "common": {
+    "appName": "Pyform",
+    "appDescription": "El editor visual que necesitas para transformar datos en acción.",
+    "loading": "Cargando...",
+    "user": "Usuario",
+    "close": "Cerrar",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "confirm": "Confirmar",
+    "copied": "Copiado al portapapeles",
+    "error": "Error",
+    "success": "Éxito",
+    "linkCopied": "Enlace copiado correctamente",
+    "linkCopyError": "Error al copiar el enlace"
+  },
+  "nav": {
+    "pricing": "Precios",
+    "reviews": "Reseñas",
+    "faq": "FAQ",
+    "login": "Iniciar Sesión",
+    "openMenu": "Abrir menú principal",
+    "menu": "Menú"
+  },
+  "hero": {
+    "titlePrefix": "Formularios para",
+    "professions": {
+      "developers": "Desarrolladores",
+      "marketers": "Marketers",
+      "designers": "Diseñadores",
+      "startups": "Startups",
+      "entrepreneurs": "Emprendedores",
+      "freelancers": "Freelancers"
+    },
+    "description": "Crea formularios de lujo en minutos. Simple, rápido y a una fracción del costo.",
+    "cta": "Empezar",
+    "learnMore": "Más información"
+  },
+  "problem": {
+    "title": "¿Cansado de herramientas",
+    "titleHighlight": "lentas y complicadas",
+    "subtitle": "Los constructores corporativos te obligan a pagar facturas monstruosas por formularios que parecen sacados de 2010.",
+    "cards": {
+      "pricing": {
+        "icon": "💸",
+        "title": "Precios impredecibles",
+        "description": "Cuantas más respuestas recibes, más pagas. Tus costos se disparan justo cuando más éxito tienes."
+      },
+      "preview": {
+        "icon": "🔄",
+        "title": "Vista previa separada",
+        "description": "Editas en un lugar, previsualizas en otro. Y cuando publicas... nunca se ve igual."
+      },
+      "complexity": {
+        "icon": "🧩",
+        "title": "Complejidad innecesaria",
+        "description": "100 funciones que jamás usarás. Interfaces sobrecargadas que ralentizan tu trabajo."
+      }
+    },
+    "solution": {
+      "title": "Con Pyform, todo es diferente",
+      "description": "Edición en tiempo real. Precio plano. Crea experiencias inmersivas en minutos, sin sacrificar la elegancia de tu marca."
+    }
+  },
+  "features": {
+    "badge": "Características",
+    "title": "Todo lo que necesitas para crear formularios increíbles",
+    "subtitle": "Pyform combina la simplicidad de Google Forms con la elegancia de Typeform, a una fracción del costo. Sin funciones innecesarias, sin precios sorpresa.",
+    "liveEditor": {
+      "name": "Editor en Vivo",
+      "items": [
+        "Edición WYSIWYG: lo que ves es lo que obtienen tus usuarios",
+        "Cambios reflejados instantáneamente (<300ms)",
+        "Sin modo de vista previa separado",
+        "Atajos de teclado para máxima productividad"
+      ],
+      "highlight": "Crea formularios 10x más rápido"
+    },
+    "fairPrice": {
+      "name": "Precio Justo",
+      "items": [
+        "Tarifa plana mensual, sin costos por respuesta",
+        "Sin sorpresas cuando tu formulario sea viral",
+        "Todas las funciones incluidas desde el primer día",
+        "Cancela cuando quieras, sin compromisos"
+      ],
+      "highlight": "Ahorra hasta 80% vs Typeform"
+    },
+    "analytics": {
+      "name": "Estadísticas",
+      "items": [
+        "Métricas claras: respuestas, tasa de finalización, tiempo promedio",
+        "Identifica en qué pregunta abandonan los usuarios",
+        "Línea de tiempo de respuestas en tiempo real"
+      ],
+      "highlight": "Optimiza tus formularios con datos reales"
+    },
+    "simplicity": {
+      "name": "Simplicidad",
+      "items": [
+        "Interfaz limpia y minimalista sin distracciones",
+        "Crea tu primer formulario en menos de 5 minutos",
+        "Sin curva de aprendizaje: si sabes escribir, sabes usar Pyform",
+        "Funciones avanzadas ocultas hasta que las necesites"
+      ],
+      "highlight": "Diseñado para humanos, no para robots"
+    },
+    "speed": {
+      "name": "Velocidad",
+      "items": [
+        "Formularios en menos de 1 segundo",
+        "Auto-guardado silencioso en segundo plano",
+        "Sin spinners ni pantallas de carga",
+        "Optimizado para móviles y conexiones lentas"
+      ],
+      "highlight": "La mejor experiencia para tus usuarios"
+    }
+  },
+  "pricing": {
+    "label": "Precios",
+    "title": "Tu te encargas de lo importante, nosotros del resto.",
+    "popular": "POPULAR",
+    "trialBadge": "¡{trialDays} días de prueba gratis!",
+    "tryFree": "Probar {trialDays} días gratis",
+    "buyNow": "Comprar ya",
+    "plans": {
+      "proMonthly": {
+        "name": "Pro Mensual",
+        "description": "Todo lo que necesitas para crear formularios profesionales"
+      },
+      "proAnnual": {
+        "name": "Pro Anual",
+        "description": "Ahorra 40% con el plan anual — mejor valor"
+      }
+    },
+    "features": {
+      "unlimitedForms": "Formularios ilimitados",
+      "responsesPerForm": "500 respuestas por formulario",
+      "questionTypes": "15 tipos de preguntas",
+      "liveEditor": "Editor Live en tiempo real",
+      "advancedStats": "Estadísticas avanzadas",
+      "csvExport": "Exportación CSV",
+      "googleLogin": "Inicio de sesión con Google",
+      "emailSupport": "Soporte por email",
+      "prioritySupport": "Soporte prioritario por email"
+    }
+  },
+  "faq": {
+    "title": "Todo lo que necesitas saber",
+    "subtitle": "Respuestas a las preguntas más comunes sobre Pyform y cómo puede ayudarte.",
+    "questions": {
+      "questionTypes": {
+        "question": "¿Qué tipos de preguntas puedo crear?",
+        "answer": "Pyform incluye <strong>15 tipos de preguntas</strong> listos para usar: texto corto, texto largo, email, teléfono, número, URL, fecha, desplegable, opción múltiple, casillas de verificación, subida de archivos, y módulos especiales como bienvenida, despedida y citas.",
+        "answer2": "Cada módulo es personalizable: puedes marcarlos como obligatorios, añadir descripciones y reordenarlos con arrastrar y soltar."
+      },
+      "editor": {
+        "question": "¿Cómo funciona el editor?",
+        "answer": "Nuestro editor es <strong>WYSIWYG en tiempo real</strong>: lo que ves mientras editas es exactamente lo que verán tus usuarios. Arrastra módulos para reordenarlos, edita propiedades en el panel lateral, y ve los cambios reflejados al instante sin modo de vista previa separado.",
+        "answer2": "Funciona tanto en escritorio como en móvil, con una interfaz adaptada a cada pantalla."
+      },
+      "stats": {
+        "question": "¿Qué estadísticas están incluidas?",
+        "answer": "Cada formulario incluye un panel completo de estadísticas con: tasa de finalización, tiempo promedio de respuesta, línea de tiempo de envíos y un <strong>funnel de abandono</strong> que te muestra exactamente en qué pregunta pierdes usuarios.",
+        "answer2": "También puedes ver cada respuesta individual y exportar todo a CSV con un clic."
+      },
+      "customization": {
+        "question": "¿Puedo personalizar el diseño de mis formularios?",
+        "answer": "Sí. Desde el panel de ajustes del editor puedes cambiar el <strong>color primario, la tipografía, el radio de bordes y las sombras</strong>. Todos los cambios se aplican en tiempo real al formulario.",
+        "answer2": "Tu formulario se verá profesional y coherente con tu marca sin necesidad de escribir una línea de CSS."
+      },
+      "subscription": {
+        "question": "¿Cómo funciona la suscripción?",
+        "answer": "Pyform utiliza una <strong>tarifa plana mensual</strong>. No cobramos por respuesta, así que no importa si tu formulario recibe 10 o 10.000 envíos — tu precio no cambia.",
+        "answer2": "Todas las funcionalidades están incluidas desde el primer día, sin planes ocultos ni upgrades forzados. Puedes cancelar cuando quieras."
+      },
+      "fileUpload": {
+        "question": "¿Puedo recibir archivos en mis formularios?",
+        "answer": "Sí. El módulo de <strong>subida de archivos</strong> permite a tus usuarios adjuntar documentos, imágenes u otros archivos directamente en el formulario. Puedes previsualizar los archivos recibidos desde el panel de respuestas."
+      }
+    }
+  },
+  "cta": {
+    "title": "Tu próximo formulario,",
+    "titleHighlight": "en minutos",
+    "subtitle": "Editor en vivo, estadísticas incluidas y un precio que no cambia con el éxito de tus formularios. Sin sorpresas.",
+    "stats": {
+      "questionTypes": "Tipos de pregunta",
+      "responsesIncluded": "Respuestas incluidas",
+      "timeToCreate": "Para crear un formulario"
+    },
+    "button": "Crear mi primer formulario"
+  },
+  "footer": {
+    "madeBy": "Un producto de:",
+    "links": "ENLACES",
+    "legal": "LEGAL",
+    "support": "Soporte",
+    "pricing": "Precios",
+    "blog": "Blog",
+    "tos": "Términos de servicio",
+    "privacy": "Política de privacidad",
+    "about": "Sobre nosotros"
+  },
+  "auth": {
+    "title": "Crear cuenta o Iniciar sesión",
+    "subtitle": "PyForm utiliza enlaces mágicos. No necesitas contraseña; te enviaremos un acceso seguro a tu correo para registrarte o entrar.",
+    "googleButton": "Registro / Ingreso con Google",
+    "orEmail": "O CON EMAIL",
+    "emailLabel": "Email",
+    "emailPlaceholder": "tu@email.com",
+    "sendingLink": "Enviando enlace...",
+    "getMagicLink": "Recibir enlace mágico",
+    "termsNotice": "Al continuar, aceptas nuestros",
+    "termsOfService": "Términos de Servicio",
+    "and": "y",
+    "privacyPolicy": "Política de Privacidad",
+    "enterEmail": "Por favor introduce tu email",
+    "magicLinkError": "Error al enviar el magic link",
+    "linkSent": "¡Enlace enviado! Revisa tu correo.",
+    "somethingWentWrong": "Algo salió mal"
+  },
+  "onboarding": {
+    "title": "Bienvenido a PyForm",
+    "subtitle": "Vamos a configurar tu cuenta. ¿Cómo te llamas?",
+    "nameLabel": "Nombre completo",
+    "namePlaceholder": "Ej. Elon Musk",
+    "continueButton": "Continuar al Dashboard"
+  },
+  "subscribe": {
+    "title": "Elige tu plan",
+    "subtitle": "Accede a todas las funcionalidades de PyForm para crear formularios profesionales que convierten.",
+    "bestValue": "Mejor valor",
+    "redirecting": "Redirigiendo a Stripe...",
+    "startNow": "Comenzar ahora",
+    "subscribeButton": "Suscribirse",
+    "perYear": "año",
+    "perMonth": "mes",
+    "cancelAnytime": "Cancela cuando quieras. Sin compromisos."
+  },
+  "paymentSuccess": {
+    "processing": "Procesando tu pago...",
+    "activating": "Estamos activando tu suscripción. Un momento por favor.",
+    "successTitle": "¡Pago exitoso!",
+    "successMessage": "Tu suscripción Pro está activa. Ya puedes crear formularios fantásticos.",
+    "goToDashboard": "Ir al Dashboard",
+    "errorTitle": "Algo salió mal",
+    "errorMessage": "No pudimos verificar tu suscripción. Por favor, intenta iniciar sesión de nuevo.",
+    "retryLogin": "Iniciar sesión"
+  },
+  "dashboard": {
+    "greeting": "Hola, {name} 👋",
+    "summary": "Aquí tienes un resumen de tus formularios",
+    "vsLastMonth": "vs mes anterior",
+    "stats": {
+      "totalForms": "Total Formularios",
+      "published": "Publicados",
+      "totalResponses": "Total Respuestas",
+      "completionRate": "Tasa de Completado"
+    },
+    "yourForms": "Tus formularios",
+    "viewAll": "Ver todos →",
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "forms": "Formularios",
+      "analytics": "Estadísticas",
+      "support": "Soporte",
+      "settings": "Ajustes",
+      "expand": "Expandir",
+      "collapse": "Colapsar"
+    }
+  },
+  "forms": {
+    "myForms": "Mis Formularios",
+    "manageDescription": "Gestiona y edita todos tus formularios",
+    "newForm": "Nuevo formulario",
+    "emptyTitle": "No tienes formularios aún",
+    "emptyDescription": "Crea tu primer formulario y empieza a recolectar respuestas en minutos.",
+    "emptyAction": "Crear mi primer formulario",
+    "deleteSuccess": "Formulario eliminado correctamente",
+    "deleteError": "Error al eliminar el formulario",
+    "revertedToDraft": "Devuelto a borrador",
+    "statusUpdated": "Estado actualizado",
+    "statusUpdateError": "Error al actualizar el estado",
+    "showing": "Mostrando {start}-{end} de {total} formularios",
+    "breadcrumbForms": "Formularios",
+    "viewPublic": "Ver público",
+    "openEditor": "Abrir Editor",
+    "createModal": {
+      "title": "Crear nuevo formulario",
+      "titleLabel": "Título del formulario",
+      "titlePlaceholder": "Ej. Encuesta de satisfacción",
+      "descriptionLabel": "Descripción (opcional)",
+      "descriptionPlaceholder": "Breve descripción del propósito del formulario. (Solo tú la verás)",
+      "createButton": "Crear formulario",
+      "successToast": "Formulario creado correctamente",
+      "errorToast": "Error al crear el formulario"
+    },
+    "card": {
+      "draft": "Borrador",
+      "published": "Publicado",
+      "closed": "Cerrado",
+      "questions": "preguntas",
+      "responses": "respuestas",
+      "edited": "Editado {time}",
+      "today": "Hoy",
+      "yesterday": "Ayer",
+      "daysAgo": "Hace {count} días",
+      "weeksAgo": "Hace {count} semanas",
+      "monthsAgo": "Hace {count} meses",
+      "actions": "Acciones del formulario",
+      "editAction": "Editar",
+      "viewForm": "Ver formulario",
+      "copyLink": "Copiar enlace",
+      "markAsDraft": "Marcar como borrador",
+      "deleteAction": "Eliminar",
+      "linkCopied": "¡Enlace copiado!",
+      "copyError": "Error al copiar. el enlace es: ",
+      "viewResponses": "Ver respuestas"
+    }
+  },
+  "editor": {
+    "loading": "Cargando editor...",
+    "backToDashboard": "Volver al Dashboard",
+    "untitled": "Sin título",
+    "draft": "Borrador",
+    "published": "Publicado",
+    "closed": "Cerrado",
+    "saving": "Guardando...",
+    "saved": "Guardado",
+    "shareLink": "Compartir enlace",
+    "preview": "Vista previa",
+    "publishedButton": "Publicado",
+    "update": "Actualizar",
+    "publish": "Publicar",
+    "sharedSuccess": "¡Compartido con éxito!",
+    "shareError": "Hubo un error al intentar compartir",
+    "shareInvite": "Te invito a contestar este formulario",
+    "toolbar": {
+      "informationalModules": "Módulos Informativos",
+      "welcome": "Bienvenida",
+      "quote": "Cita",
+      "goodbye": "Despedida",
+      "shortText": "Texto Corto",
+      "email": "Email",
+      "number": "Número",
+      "phone": "Teléfono",
+      "url": "URL",
+      "longText": "Texto Largo",
+      "multipleChoice": "Opción Múltiple",
+      "checkboxes": "Casillas",
+      "dropdown": "Desplegable",
+      "date": "Fecha",
+      "fileUpload": "Archivo",
+      "expandTools": "Expandir herramientas",
+      "collapseTools": "Colapsar herramientas",
+      "designSettings": "Diseño y Configuración",
+      "questionTypes": "Tipos de pregunta"
+    },
+    "settings": {
+      "formStatus": "Estado del Formulario",
+      "formPublished": "Formulario Publicado",
+      "markAsDraftDescription": "Puedes marcarlo como borrador si necesitas desactivarlo temporalmente.",
+      "markAsDraft": "Marcar como borrador",
+      "basicInfo": "Información Básica",
+      "formTitle": "Título del Formulario",
+      "formTitlePlaceholder": "Mi formulario increíble",
+      "internalDescription": "Descripción (Interna)",
+      "internalDescriptionPlaceholder": "Descripción para tu panel de control",
+      "globalStyles": "Estilos Globales",
+      "primaryColor": "Color Primario",
+      "primaryColorDescription": "Color principal para botones y acentos",
+      "font": "Fuente",
+      "borderRadius": "Radio Borde",
+      "shadow": "Sombra",
+      "borderRadiusOptions": {
+        "square": "Cuadrado",
+        "small": "Pequeño",
+        "medium": "Medio",
+        "large": "Grande",
+        "round": "Redondo"
+      },
+      "shadowOptions": {
+        "none": "Sin sombra",
+        "soft": "Suave",
+        "medium": "Media",
+        "strong": "Fuerte"
+      },
+      "configuration": "Configuración",
+      "progressBar": "Barra de Progreso",
+      "progressBarDescription": "Mostrar barra de progreso visual",
+      "multipleResponses": "Múltiples Respuestas",
+      "multipleResponsesDescription": "Permitir que un usuario responda varias veces"
+    },
+    "moduleTypes": {
+      "WELCOME": "Bienvenida",
+      "QUOTE": "Cita",
+      "GOODBYE": "Despedida",
+      "TEXT": "Texto",
+      "EMAIL": "Email",
+      "NUMBER": "Número",
+      "PHONE": "Teléfono",
+      "URL": "URL",
+      "TEXTAREA": "Texto Largo",
+      "MULTIPLE_CHOICE": "Opción Múltiple",
+      "CHECKBOXES": "Casillas",
+      "DROPDOWN": "Desplegable",
+      "DATE": "Fecha",
+      "FILE_UPLOAD": "Archivo"
+    },
+    "properties": {
+      "title": "Título",
+      "titlePlaceholder": "Escribe el título",
+      "descriptionOptional": "Descripción (opcional)",
+      "descriptionPlaceholder": "Añade contexto adicional",
+      "placeholder": "Placeholder",
+      "placeholderExample": "Texto de ejemplo",
+      "options": "Options",
+      "optionN": "Opción {number}",
+      "addOption": "Añadir opción",
+      "buttonTextLabel": "Texto del Botón",
+      "buttonTextPlaceholder": "Comenzar",
+      "message": "Mensaje",
+      "messagePlaceholder": "Mensaje de despedida",
+      "showConfetti": "Mostrar confetti",
+      "requiredField": "Campo obligatorio",
+      "moveLeft": "Mover a la izquierda",
+      "moveRight": "Mover a la derecha",
+      "addModule": "Añadir módulo",
+      "autoSave": "Los cambios se guardan automáticamente"
+    },
+    "generalSettings": "Configuración General",
+    "addModuleTitle": "Añadir Módulo",
+    "propertiesTitle": "Propiedades",
+    "reorderModules": "Reordenar módulos",
+    "dragToReorder": "Arrastra para cambiar el orden",
+    "done": "Listo",
+    "holdToReorder": "Mantén presionado para reordenar",
+    "moduleN": "Módulo {number}",
+    "addModuleAria": "Añadir módulo",
+    "settingsAria": "Configuración",
+    "editModuleAria": "Editar módulo",
+    "editButton": "Editar",
+    "noPermission": "No tienes permiso para editar este formulario",
+    "loadError": "Error al cargar el formulario",
+    "unexpectedError": "Ocurrió un error inesperado",
+    "defaultTitles": {
+      "welcome": "¡Te damos la bienvenida!",
+      "quote": "Una frase para inspirar",
+      "goodbye": "¡Gracias por tus respuestas!",
+      "text": "¿Cómo te llamas?",
+      "email": "¿Cuál es tu correo electrónico?",
+      "number": "Ingresa una cantidad",
+      "phone": "¿A qué número podemos llamarte?",
+      "url": "¿Cuál es tu página web?",
+      "textarea": "Cuéntanos más sobre ti",
+      "multipleChoice": "Selecciona una opción",
+      "checkboxes": "Elige todas las opciones que apliquen",
+      "dropdown": "Selecciona de la lista",
+      "date": "¿Cuándo sucedió?",
+      "fileUpload": "Sube tu archivo aquí",
+      "newQuestion": "Nueva pregunta {type}"
+    }
+  },
+  "analytics": {
+    "globalTitle": "Estadísticas Globales",
+    "globalSubtitle": "Resumen de rendimiento de todos tus formularios",
+    "viewStats": "Ver Estadísticas",
+    "statsOf": "Estadísticas de {title}",
+    "detailedStats": "Rendimiento detallado y estadísticas",
+    "totalViews": "Total Vistas",
+    "completed": "Completados",
+    "completionRate": "Tasa de Finalización",
+    "averageTime": "Tiempo Promedio",
+    "noFormsYet": "No tienes formularios con datos aún.",
+    "answeredForms": "Formularios respondidos",
+    "views": "vistas",
+    "percentCompleted": "% completados",
+    "viewDetails": "Ver detalles",
+    "responseActivity": "Actividad de Respuestas",
+    "responsesTooltip": "{count} respuestas el {date}"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "subtitle": "Gestiona tu cuenta y preferencias",
+    "activeAccount": "Cuenta activa",
+    "verified": "Verificado",
+    "signOut": "Cerrar Sesión",
+    "whatsappHelp": "Hola, necesito ayuda con mi cuenta de {appName}. Mi email es: {email}"
+  },
+  "subscription": {
+    "title": "Suscripción",
+    "verifying": "Verificando...",
+    "manage": "Gestionar",
+    "subscribe": "Suscribirse",
+    "currentPlan": "Plan actual",
+    "accessUntil": "Acceso hasta",
+    "trialEnd": "Fin del período de prueba",
+    "nextBilling": "Próxima facturación",
+    "cancelScheduled": "Tu suscripción está programada para cancelarse",
+    "cancelDescription": "Seguirás teniendo acceso a todas las funcionalidades hasta el <strong>{date}</strong>. Después de esa fecha perderás el acceso al dashboard, tus formularios dejarán de recibir respuestas y tus API keys serán revocadas.",
+    "reactivate": "Reactivar suscripción",
+    "paymentFailed": "Tu último pago no se pudo procesar",
+    "paymentFailedDescription": "Estamos reintentando el cobro automáticamente. Si el pago no se completa, tu suscripción será cancelada y perderás el acceso. Actualiza tu método de pago para evitar interrupciones.",
+    "updatePayment": "Actualizar método de pago",
+    "trialActive": "Estás en tu período de prueba gratuito",
+    "trialDescription": "Tu prueba termina el <strong>{date}</strong>. Después se te cobrará automáticamente. Puedes cancelar en cualquier momento antes de esa fecha sin cargos.",
+    "canceled": "Tu suscripción ha sido cancelada. Suscríbete de nuevo para acceder a todas las funcionalidades.",
+    "noSubscription": "No tienes una suscripción activa.",
+    "manualError": "Tu suscripción fue activada manualmente. Contacta soporte para gestionar tu facturación.",
+    "portalError": "Error al abrir el portal de facturación. Intenta de nuevo.",
+    "perYear": "año",
+    "perMonth": "mes",
+    "displayStatus": {
+      "noSubscription": "Sin suscripción",
+      "canceled": "Cancelada",
+      "pastDue": "Pago pendiente",
+      "trialing": "Período de prueba",
+      "cancelsSoon": "Cancela pronto",
+      "activePro": "Plan Pro Activo"
+    }
+  },
+  "apiKeys": {
+    "title": "API Keys",
+    "subtitle": "Conecta herramientas externas como Claude Cowork",
+    "newKey": "Nueva Key",
+    "saveWarning": "Guarda esta key — no se mostrará de nuevo",
+    "nameLabel": "Nombre de la API Key",
+    "namePlaceholder": "ej. Claude Plugin, CI/CD...",
+    "createButton": "Crear",
+    "noActiveKeys": "No tienes API keys activas",
+    "revokeTitle": "Revocar API Key",
+    "loadError": "Error al cargar API keys",
+    "loadErrorToast": "No se pudieron cargar las API keys",
+    "nameRequired": "Ingresa un nombre para la API key",
+    "createSuccess": "API Key creada. Cópiala ahora — no se mostrará de nuevo.",
+    "createError": "Error al crear API key",
+    "revokeConfirm": "¿Revocar la API key \"{name}\"? Esta acción no se puede deshacer.",
+    "revokeError": "Error al revocar",
+    "revokeSuccess": "API Key revocada",
+    "revokeErrorToast": "No se pudo revocar la API key",
+    "copied": "Copiado al portapapeles"
+  },
+  "support": {
+    "title": "Soporte y Ayuda",
+    "subtitle": "¿Tienes algún problema o duda? Envíanos un mensaje y te ayudaremos lo antes posible.",
+    "name": "Nombre",
+    "email": "Email",
+    "phone": "Teléfono",
+    "subject": "Asunto",
+    "subjectPlaceholder": "Ej: Problema con mi suscripción",
+    "message": "Mensaje",
+    "messagePlaceholder": "Describe tu problema o consulta con el mayor detalle posible...",
+    "sendTicket": "Enviar Ticket",
+    "ticketSuccess": "Ticket enviado correctamente. Te responderemos pronto.",
+    "ticketError": "Error al enviar el ticket. Por favor intenta de nuevo.",
+    "whatsapp": "WhatsApp",
+    "quickResponse": "Respuesta rápida",
+    "directChat": "Chat directo →",
+    "emailTitle": "Correo Electrónico",
+    "sendEmail": "Enviar email →",
+    "faqTitle": "¿Preguntas Frecuentes?",
+    "faqDescription": "Antes de enviar un ticket, revisa nuestra documentación. Podrías encontrar la respuesta al instante.",
+    "hoursTitle": "Horario de Atención",
+    "hoursDescription": "Lunes a Viernes: 9:00 - 18:00 (UTC+2).",
+    "hoursExtra": "Respondemos lo antes posible.",
+    "whatsappHelp": "Hola, necesito ayuda con mi cuenta.",
+    "other": "Otro"
+  },
+  "publicForm": {
+    "formUnavailable": "Formulario no disponible",
+    "notPublished": "Este formulario aún no ha sido publicado por su creador.",
+    "notAccepting": "Este formulario no está aceptando respuestas en este momento.",
+    "thankYou": "¡Gracias!",
+    "responseSent": "Respuesta enviada.",
+    "responseRecorded": "Tus respuestas han sido registradas correctamente de forma segura.",
+    "shareForm": "Compartir Formulario",
+    "madeWith": "Desarrollado con",
+    "free": "Gratis",
+    "shareInvite": "Te invito a responder este formulario",
+    "linkCopied": "Enlace copiado al portapapeles",
+    "submitResponses": "Enviar respuestas",
+    "previewBanner": "Vista previa — Las respuestas no se guardarán",
+    "invalidEmail": "Por favor, introduce un email válido.",
+    "submitSuccess": "¡Gracias! Tu respuesta ha sido registrada.",
+    "submitError": "Error al enviar el formulario. Por favor, inténtalo de nuevo.",
+    "modules": {
+      "untitledQuestion": "Pregunta sin título",
+      "typeYourAnswer": "Escribe tu respuesta...",
+      "longText": "Texto largo",
+      "typeYourAnswerHere": "Escribe tu respuesta aquí...",
+      "uploadFile": "Subir archivo",
+      "fileSizeError": "El archivo supera el límite de 10MB",
+      "missingFormIdError": "Error intencionado: Falta ID del formulario",
+      "fileUploadedSuccess": "Archivo subido correctamente",
+      "fileUploaded": "Archivo subido",
+      "uploadError": "Error al subir el archivo",
+      "uploading": "Subiendo {progress}%...",
+      "dragFilesHere": "Arrastra archivos aquí",
+      "orClickToSelect": "o haz clic para seleccionar",
+      "maxFileSize": "Máximo 10MB • PDF, DOC, JPG, PNG",
+      "file": "Archivo",
+      "thankYouTitle": "¡Gracias por tu tiempo!",
+      "responseRecorded": "Tu respuesta ha sido registrada correctamente.",
+      "startButton": "Comenzar",
+      "welcomeTitle": "Bienvenido",
+      "welcomeDescription": "Gracias por participar en nuestra encuesta."
+    }
+  },
+  "formDashboard": {
+    "overview": "Resumen",
+    "responses": "Respuestas",
+    "welcomeTitle": "Bienvenido al panel de tu formulario",
+    "welcomeDescription": "Comparte tu formulario en tus redes sociales para empezar a recibir respuestas.",
+    "shareForm": "Compartir formulario",
+    "copyLink": "Copiar enlace",
+    "noResponses": "Aún no hay respuestas",
+    "noResponsesDescription": "Comparte tu formulario con tu audiencia. Una vez que recibas respuestas, las verás aparecer aquí en tiempo real con gráficas y análisis detallados.",
+    "copyFormLink": "Copiar enlace del formulario",
+    "shareSuccess": "¡Compartido con éxito!",
+    "shareError": "Hubo un error al intentar compartir",
+    "browserNotSupported": "Tu navegador no soporta esta función nativa, usa 'Copiar enlace'",
+    "settingsTitle": "Configuración General",
+    "settingsDescription": "Próximamente: configuración de notificaciones, integración con webhooks y más.",
+    "shareInvite": "Te invito a contestar este formulario"
+  },
+  "responses": {
+    "analysisOptions": "Opciones de Análisis",
+    "bySession": "Por sesión",
+    "byQuestion": "Por pregunta",
+    "noResponses": "Aún no hay respuestas registradas.",
+    "status": "Estado",
+    "respondent": "Respondente",
+    "date": "Fecha",
+    "device": "Dispositivo",
+    "completed": "Completado",
+    "partial": "Parcial",
+    "mobile": "Móvil",
+    "tablet": "Tablet",
+    "desktop": "Escritorio",
+    "question": "Pregunta",
+    "selectQuestion": "Selecciona una pregunta",
+    "noAnswer": "Sin respuesta",
+    "totalResponses": "{count} respuestas",
+    "download": "Descargar",
+    "preview": "Vista previa",
+    "filePreview": "Vista previa del archivo",
+    "viewFile": "Ver archivo",
+    "viewAttachment": "Ver Archivo Adjunto",
+    "detailedAnalysis": "Análisis Detallado",
+    "noDataToVisualize": "No hay datos para visualizar",
+    "answersWillAppear": "Las respuestas a esta pregunta aparecerán aquí como gráficas.",
+    "legend": "Leyenda",
+    "viewAllResponses": "Ver las {count} respuestas",
+    "noResponsesYet": "Sin respuestas aún",
+    "previewNotAvailable": "Vista previa no disponible para este tipo de archivo.",
+    "close": "Cerrar",
+    "downloadOriginal": "Descargar Original",
+    "fullList": "Listado completo de {count} respuestas",
+    "responsesTitle": "Respuestas: {title}",
+    "sessionOf": "Sesión de {respondent}",
+    "at": "a las",
+    "noTrackedAnswers": "El usuario no respondió a ninguna pregunta rastreable."
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "description": "La página que buscas no existe.",
+    "goHome": "Ir al inicio"
+  }
+}
