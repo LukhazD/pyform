@@ -91,6 +91,8 @@ export default function FormPreview({
     const [showAddCard, setShowAddCard] = useState(false);
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+    const [isDraggingFromToolbar, setIsDraggingFromToolbar] = useState(false);
+    const sidebarRef = useRef<HTMLDivElement>(null);
     const previewRef = useRef<HTMLDivElement>(null);
     const lastTapTime = useRef(0);
     const [showHint, setShowHint] = useState(true);
@@ -187,6 +189,8 @@ export default function FormPreview({
         if (moduleType) {
             onAddModule(moduleType, currentIndex + 1);
         }
+        setIsDraggingFromToolbar(false);
+        setDragOverIndex(null);
     };
 
     const handleDragOver = (e: React.DragEvent) => {
@@ -224,15 +228,18 @@ export default function FormPreview({
     const handleSidebarDragEnd = () => {
         setDraggedIndex(null);
         setDragOverIndex(null);
+        setIsDraggingFromToolbar(false);
     };
 
     const handleSidebarDrop = (e: React.DragEvent) => {
         e.preventDefault();
         const moduleType = e.dataTransfer.getData("moduleType");
-        if (moduleType && dragOverIndex !== null) {
-            onAddModule(moduleType, dragOverIndex);
-            setDragOverIndex(null);
+        if (moduleType) {
+            const insertAt = dragOverIndex ?? modules.length;
+            onAddModule(moduleType, insertAt);
         }
+        setDragOverIndex(null);
+        setIsDraggingFromToolbar(false);
     };
 
     // Animation variants for slide transitions
@@ -318,17 +325,39 @@ export default function FormPreview({
             {/* Miniature Sidebar - Module List (hidden on mobile) */}
             {!isMobile && (
                 <div
-                    className="w-28 bg-white border-r border-gray-200 flex flex-col py-4 overflow-y-auto"
-                    onDragLeave={() => setDragOverIndex(null)}
+                    ref={sidebarRef}
+                    className={`w-28 border-r flex flex-col py-4 overflow-y-auto transition-colors duration-200 ${
+                        isDraggingFromToolbar
+                            ? "bg-gray-50 border-r-gray-400"
+                            : "bg-white border-r-gray-200"
+                    }`}
+                    onDragEnter={(e) => {
+                        e.preventDefault();
+                        if (draggedIndex === null) {
+                            setIsDraggingFromToolbar(true);
+                        }
+                    }}
+                    onDragLeave={(e) => {
+                        // Only reset when leaving the sidebar entirely
+                        if (sidebarRef.current && !sidebarRef.current.contains(e.relatedTarget as Node)) {
+                            setDragOverIndex(null);
+                            setIsDraggingFromToolbar(false);
+                        }
+                    }}
                     onDrop={handleSidebarDrop}
                     onDragOver={(e) => {
                         e.preventDefault();
-                        if (draggedIndex === null && modules.length === 0) {
-                            setDragOverIndex(0);
+                        if (draggedIndex === null) {
+                            setIsDraggingFromToolbar(true);
+                            // When dragging below all module items, target the end
+                            const target = e.target as HTMLElement;
+                            if (target === sidebarRef.current || target.closest('[data-sidebar-list]') === target) {
+                                setDragOverIndex(modules.length);
+                            }
                         }
                     }}
                 >
-                    <div className="px-2 space-y-2">
+                    <div className="px-2 space-y-2" data-sidebar-list>
                         {modules.map((module, index) => (
                             <div key={module.id || `module-${index}`} className="relative">
                                 {/* Drop indicator above item */}
@@ -384,14 +413,23 @@ export default function FormPreview({
                             </div>
                         ))}
 
-                        {/* Add button */}
-                        {/* <div
-                            className="rounded-lg p-2 bg-gray-50 hover:bg-gray-100 border-2 border-dashed border-gray-300 hover:border-gray-400 cursor-pointer transition-all"
-                            onDrop={handleDrop}
-                            onDragOver={handleDragOver}
-                        >
-                            <Plus size={16} className="mx-auto text-gray-400" />
-                        </div> */}
+                        {/* Drop zone at end of list */}
+                        {isDraggingFromToolbar && (
+                            <div
+                                className={`rounded-xl p-3 border-2 border-dashed transition-all flex flex-col items-center justify-center gap-1 ${
+                                    dragOverIndex === modules.length
+                                        ? "border-gray-900 bg-gray-100"
+                                        : "border-gray-300 bg-gray-50"
+                                }`}
+                                onDragOver={(e) => {
+                                    e.preventDefault();
+                                    setDragOverIndex(modules.length);
+                                }}
+                            >
+                                <Plus size={16} className="text-gray-400" />
+                                <span className="text-[10px] text-gray-400">Soltar</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}

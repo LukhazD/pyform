@@ -29,32 +29,6 @@ export default function GeneralSettingsPanel({
     const t = useTranslations("editor.settings");
     return (
         <div className="p-4 space-y-8">
-            {/* Form Status Section */}
-            {formMetadata?.status === "published" && onUnpublish && (
-                <div className="space-y-4">
-                    <h3 className="text-sm font-medium text-gray-900 border-b pb-2">{t("formStatus")}</h3>
-                    <div className="p-4 bg-gray-50 rounded-lg border border-gray-200 flex flex-col gap-3">
-                        <div>
-                            <p className="text-sm font-medium text-gray-900">{t("formPublished")}</p>
-                            <p className="text-xs text-gray-500">
-                                {t("markAsDraftDescription")}
-                            </p>
-                        </div>
-                        <Button
-                            color="danger"
-                            variant="flat"
-                            size="sm"
-                            startContent={<ArchiveRestore size={16} />}
-                            onPress={onUnpublish}
-                            className="w-full sm:w-auto font-medium"
-                        >
-                            {t("markAsDraft")}
-                        </Button>
-                    </div>
-                </div>
-            )}
-
-
             {/* Basic Info Section */}
             {onUpdateForm && (
                 <div className="space-y-4">
@@ -174,6 +148,24 @@ export default function GeneralSettingsPanel({
                             <span className="text-xs text-gray-400">{t("multipleResponsesDescription")}</span>
                         </div>
                     </Switch>
+                </div>
+            )}
+
+            {/* Mark as Draft */}
+            {onUnpublish && (
+                <div className="space-y-4">
+                    <h3 className="text-sm font-medium text-gray-900 border-b pb-2">{t("formStatus")}</h3>
+                    <p className="text-xs text-gray-500">{t("markAsDraftDescription")}</p>
+                    <Button
+                        color="danger"
+                        variant="flat"
+                        size="sm"
+                        startContent={<ArchiveRestore size={16} />}
+                        onPress={onUnpublish}
+                        className="w-full font-medium"
+                    >
+                        {t("markAsDraft")}
+                    </Button>
                 </div>
             )}
         </div>

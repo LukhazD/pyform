@@ -67,6 +67,7 @@ export default function PropertiesPanel({
 }: PropertiesPanelProps) {
     const tModules = useTranslations("editor.moduleTypes");
     const tProps = useTranslations("editor.properties");
+    const [draggedOptionIndex, setDraggedOptionIndex] = React.useState<number | null>(null);
 
     if (!selectedModule) {
         return (
@@ -122,6 +123,14 @@ export default function PropertiesPanel({
             .filter((opt) => opt.id !== optionId)
             .map((opt, index) => ({ ...opt, order: index }));
         handleUpdate("options", updatedOptions);
+    };
+
+    const handleReorderOptions = (fromIndex: number, toIndex: number) => {
+        const reordered = [...options];
+        const [moved] = reordered.splice(fromIndex, 1);
+        reordered.splice(toIndex, 0, moved);
+        const updated = reordered.map((opt, i) => ({ ...opt, order: i }));
+        handleUpdate("options", updated);
     };
 
     return (
@@ -200,8 +209,21 @@ export default function PropertiesPanel({
                         </label>
                         <div className="space-y-2">
                             {options.map((option, index) => (
-                                <div key={option.id} className="flex items-center gap-2 group">
-                                    <div className="text-gray-300 cursor-grab">
+                                <div
+                                    key={option.id}
+                                    className={`flex items-center gap-2 group transition-opacity ${draggedOptionIndex === index ? "opacity-30" : ""}`}
+                                    draggable
+                                    onDragStart={() => setDraggedOptionIndex(index)}
+                                    onDragOver={(e) => {
+                                        e.preventDefault();
+                                        if (draggedOptionIndex !== null && draggedOptionIndex !== index) {
+                                            handleReorderOptions(draggedOptionIndex, index);
+                                            setDraggedOptionIndex(index);
+                                        }
+                                    }}
+                                    onDragEnd={() => setDraggedOptionIndex(null)}
+                                >
+                                    <div className="text-gray-300 cursor-grab active:cursor-grabbing">
                                         <GripVertical size={16} />
                                     </div>
                                     <Input
